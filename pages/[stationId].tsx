@@ -1,3 +1,4 @@
+import AppLayout from "@/components/AppLayout";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 
@@ -123,29 +124,31 @@ const StationPage = () => {
   if (loading) return <div className="p-4">Loading session...</div>;
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <Typography variant="h5" gutterBottom>
-        Charge Session
-      </Typography>
-      <p>Location: {stationInfo?.location}</p>
-      <p>Connector: {stationInfo?.connectorId}</p>
-      <p>Price: €{stationInfo?.pricePerKwh} per kWh</p>
+    <AppLayout>
+      <div className="p-4 max-w-xl mx-auto">
+        <Typography variant="h5" gutterBottom>
+          Charge Session
+        </Typography>
+        <p>Location: {stationInfo?.location}</p>
+        <p>Connector: {stationInfo?.connectorId}</p>
+        <p>Price: €{stationInfo?.pricePerKwh} per kWh</p>
 
-      <div className="my-4" ref={dropinRef}></div>
+        <div className="my-4" ref={dropinRef}></div>
 
-      <div className="mt-6">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handlePayment}
-          disabled={!dropInReady || isPaying}
-        >
-          {isPaying
-            ? "Processing..."
-            : "Pay & Start Charging (€60 reservation)"}
-        </Button>
+        <div className="mt-6">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handlePayment}
+            disabled={!dropInReady || isPaying}
+          >
+            {isPaying
+              ? "Processing..."
+              : "Pay & Start Charging (€60 reservation)"}
+          </Button>
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
