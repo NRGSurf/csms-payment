@@ -85,28 +85,23 @@ const StationPage = () => {
       const result = await res.json();
       console.log("Payment result:", result);
 
-      const baseUrl = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL || "";
-
       if (result.success) {
-        const response = await fetch(
-          `${baseUrl}/data/transactions/processPayment`,
-          {
-            method: "PUT",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              Authorization: "Bearer dev",
-            },
-            body: JSON.stringify({
-              stationId: "cp001",
-              sessionId: result.transactionId,
-              currency: "EUR",
-              amount: 60.0,
-              email: "stefanrom92@googlemail.com",
-              name: "Jürgen Rom",
-            }),
-          }
-        );
+        const response = await fetch("/api/proxy/processPayment", {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Bearer dev",
+          },
+          body: JSON.stringify({
+            stationId: "cp001",
+            sessionId: result.transactionId,
+            currency: "EUR",
+            amount: 60.0,
+            email: "stefanrom92@googlemail.com",
+            name: "Jürgen Rom",
+          }),
+        });
 
         if (!response.ok) {
           const errorText = await response.text();
