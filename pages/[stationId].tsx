@@ -14,6 +14,8 @@ type StationInfo = {
 };
 
 const StationPage = () => {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   const router = useRouter();
   const { stationId } = router.query;
   const [loading, setLoading] = useState(true);
@@ -83,9 +85,11 @@ const StationPage = () => {
       const result = await res.json();
       console.log("Payment result:", result);
 
+      const baseUrl = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL || "";
+
       if (result.success) {
         const response = await fetch(
-          `/api/citrine/data/transactions/processPayment`,
+          `${baseUrl}/data/transactions/processPayment`,
           {
             method: "PUT",
             headers: {
