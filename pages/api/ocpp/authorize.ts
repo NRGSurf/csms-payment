@@ -66,6 +66,7 @@ export default async function handler(
 
     return res.status(200).json(authorizeResponse);
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return res.status(500).json({ error: message });
   }
 }

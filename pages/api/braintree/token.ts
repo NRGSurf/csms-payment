@@ -1,6 +1,5 @@
-
-import { NextApiRequest, NextApiResponse } from 'next';
-import braintree from 'braintree';
+import { NextApiRequest, NextApiResponse } from "next";
+import braintree from "braintree";
 
 const gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
@@ -9,7 +8,10 @@ const gateway = new braintree.BraintreeGateway({
   privateKey: process.env.BRAINTREE_PRIVATE_KEY!,
 });
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const response = await gateway.clientToken.generate({});
   res.status(200).json({ clientToken: response.clientToken });
 }
