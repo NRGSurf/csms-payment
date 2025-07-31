@@ -6,11 +6,17 @@ import Button from "@mui/material/Button";
 
 import dropin, { Dropin } from "braintree-web-drop-in";
 
+type StationInfo = {
+  location: string;
+  connectorId: string;
+  pricePerKwh: number;
+};
+
 const StationPage = () => {
   const router = useRouter();
   const { stationId } = router.query;
   const [loading, setLoading] = useState(true);
-  const [stationInfo, setStationInfo] = useState(null);
+  const [stationInfo, setStationInfo] = useState<StationInfo | null>(null);
   const [clientToken, setClientToken] = useState(null);
   const [dropInReady, setDropInReady] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
