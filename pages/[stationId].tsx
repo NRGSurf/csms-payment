@@ -86,7 +86,7 @@ const StationPage = () => {
       console.log("Payment result:", result);
 
       if (result.success) {
-        const response = await fetch("/api/proxy/processPayment", {
+        const response = await fetch("/api/csms-backend/processPayment", {
           method: "PUT",
           headers: {
             Accept: "application/json",
@@ -94,7 +94,7 @@ const StationPage = () => {
             Authorization: "Bearer dev",
           },
           body: JSON.stringify({
-            stationId: "cp001",
+            stationId: stationId,
             sessionId: result.transactionId,
             currency: "EUR",
             amount: 60.0,
