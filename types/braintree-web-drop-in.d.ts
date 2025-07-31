@@ -1,6 +1,4 @@
 declare module "braintree-web-drop-in" {
-  import { ComponentType } from "react";
-
   export interface Dropin {
     requestPaymentMethod(): Promise<{ nonce: string }>;
     teardown(): Promise<void>;
@@ -11,7 +9,9 @@ declare module "braintree-web-drop-in" {
     container: HTMLElement;
   }
 
-  export default {
-    create: (options: DropinOptions) => Promise<Dropin>;
+  const dropin: {
+    create(options: DropinOptions): Promise<Dropin>;
   };
+
+  export default dropin;
 }
