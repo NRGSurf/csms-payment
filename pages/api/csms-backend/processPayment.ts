@@ -4,6 +4,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method !== "PUT") {
+    // Return 405 for all other methods
+    res.setHeader("Allow", "PUT");
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
+
   try {
     const backendUrl = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL;
     if (!backendUrl) {
@@ -12,7 +18,7 @@ export default async function handler(
 
     const url = `${backendUrl}/data/transactions/processPayment`;
 
-    // Clean headers to pass to fetch
+    // Prepare headers for fetch (exclude forbidden ones)
     const allowedHeaders: Record<string, string> = {};
     for (const [key, value] of Object.entries(req.headers)) {
       if (
@@ -25,11 +31,17 @@ export default async function handler(
       }
     }
 
+    // Pass body as string since Next.js request body is parsed already,
+    // you might want to reconstruct it:
+    const body = JSON.stringify(req.body);
+
     const backendResponse = await fetch(url, {
-      method: req.method,
-      headers: allowedHeaders,
-      body:
-        req.method !== "GET" && req.method !== "HEAD" ? req.body : undefined,
+      method: "PUT",
+      headers: {
+        ...allowedHeaders,
+        "Content-Type": "application/json", // make sure to set this explicitly
+      },
+      body,
     });
 
     const data = await backendResponse.json();
