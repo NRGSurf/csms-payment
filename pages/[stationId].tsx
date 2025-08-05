@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 
 import dropin, { Dropin } from "braintree-web-drop-in";
 
@@ -23,6 +24,8 @@ const StationPage = () => {
   const [clientToken, setClientToken] = useState(null);
   const [dropInReady, setDropInReady] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const dropinRef = useRef<HTMLDivElement>(null);
   const dropInInstance = useRef<Dropin | null>(null);
 
@@ -68,7 +71,10 @@ const StationPage = () => {
   }, [clientToken]);
 
   const handlePayment = async () => {
-    if (!dropInInstance.current) return;
+    if (!dropInInstance.current || !name || !email) {
+      alert("Please fill in your name and email.");
+      return;
+    }
     setIsPaying(true); // disable during payment
     try {
       const { nonce } = await dropInInstance.current.requestPaymentMethod();
@@ -98,8 +104,8 @@ const StationPage = () => {
             sessionId: result.transactionId,
             currency: "EUR",
             amount: 60.0,
-            email: "stefanrom92@googlemail.com",
-            name: "Jürgen Rom",
+            email,
+            name,
           }),
         });
 
@@ -132,19 +138,37 @@ const StationPage = () => {
         <p>Connector: {stationInfo?.connectorId}</p>
         <p>Price: €{stationInfo?.pricePerKwh} per kWh</p>
 
+        <TextField
+          fullWidth
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
+          label="E-Mail"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          margin="normal"
+        />
+
         <div className="my-4" ref={dropinRef}></div>
 
         <div className="mt-6">
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handlePayment}
-            disabled={!dropInReady || isPaying}
-          >
-            {isPaying
-              ? "Processing..."
-              : "Pay & Start Charging (€60 reservation)"}
-          </Button>
+          <div className="mt-6 flex justify-center">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handlePayment}
+              disabled={!dropInReady || isPaying || !name || !email}
+            >
+              {isPaying
+                ? "Processing..."
+                : "Pay & Start Charging (€60 reservation)"}
+            </Button>
+          </div>
         </div>
       </div>
     </AppLayout>

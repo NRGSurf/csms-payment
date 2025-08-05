@@ -10,7 +10,7 @@ export default function AppLayout({ children }: Props) {
       {/* Header */}
       <header className="bg-black text-white px-4 py-3 flex justify-between items-center">
         <a href="/" className="text-xl font-bold">
-          BB MOBILITY
+          NRGSurf Mobility
         </a>
         <div>{/* Future: language switch or menu */}</div>
       </header>
@@ -40,7 +40,7 @@ export default function AppLayout({ children }: Props) {
             AGB
           </a>
         </div>
-        <div className="mt-2">&copy; 2025 BB MOBILITY</div>
+        <div className="mt-2">&copy; 2025 NRGSurf Mobility</div>
       </footer>
     </div>
   );
