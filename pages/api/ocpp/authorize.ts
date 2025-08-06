@@ -30,7 +30,7 @@ export default async function handler(
           "Authorize",
           {
             idToken: {
-              type: "Central",
+              type: "ISO14443",
               idToken: token,
             },
             certificate: null,
