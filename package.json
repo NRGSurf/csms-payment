@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "openapi:pull": "curl -fSL $BACKEND_OPENAPI_URL -o ./openapi.json",
+    "openapi:gen": "openapi -i ./openapi.json -o ./lib/openapi --client fetch --useOptions --exportServices true --exportModels true",
+    "openapi": "dotenv -e .env.local -- npm run openapi:pull && npm run openapi:gen"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -14,6 +17,7 @@
     "@mui/material": "^7.2.0",
     "braintree": "^3.32.0",
     "braintree-web-drop-in": "^1.45.1",
+    "braintree-web-drop-in-react": "^1.2.1",
     "next": "15.4.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -26,6 +30,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/ws": "^8.18.1",
+    "dotenv-cli": "^10.0.0",
+    "openapi-typescript-codegen": "^0.29.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

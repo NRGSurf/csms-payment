@@ -9,7 +9,7 @@ export default async function handler(
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const backendUrl = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL;
+  const backendUrl = process.env.CITRINE_API_BASE_URL;
   if (!backendUrl) {
     return res.status(500).json({ error: "Backend URL not configured" });
   }
