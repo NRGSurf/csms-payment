@@ -1,5 +1,5 @@
 import { request as __request } from "./openapi/core/request"; // if exportCore=false, generated services use `request` helper
-import * as Services from "./openapi/services";
+import * as Services from "./openapi";
 
 export const Backend = {
   // Example typed calls – rename to actual generated service/methods
