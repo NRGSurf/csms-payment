@@ -8,7 +8,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const stationId = String(req.query.stationId || "");
+  const stationId = String(req.query.stationId || "cp001");
   const tenantId = String(req.query.tenantId || "1");
 
   if (!stationId) return res.status(400).json({ error: "Missing stationId" });
