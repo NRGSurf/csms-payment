@@ -193,7 +193,7 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
     );
   }
 
-  const steps = ["Pricing", "Payment", "Charging", "Receipt"];
+  const steps = ["Pricing", "Details", "Payment", "Charging"];
   const showError = error || stationError;
 
   return (
