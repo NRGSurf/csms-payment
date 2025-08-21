@@ -1,4 +1,3 @@
-// components/flow/Overview.tsx
 import { Box, Typography, Button, Chip, Stack } from "@mui/material";
 import type { StationInfo } from "./types";
 
@@ -20,7 +19,6 @@ export default function Overview({ stationId, station, onStart }: Props) {
     ? formatLocation(station.location as any)
     : "";
 
-  // Pricing preview: prefer the enriched field from your API if present
   const current = (station as any)?.currentPriceType;
   const basePrice = (station as any)?.tariff?.pricePerKwh;
   const currentPrice =
@@ -57,15 +55,17 @@ export default function Overview({ stationId, station, onStart }: Props) {
         </Stack>
       )}
 
-      <Button
-        sx={{ mt: 2 }}
-        size="large"
-        variant="contained"
-        color="primary"
-        onClick={onStart}
-      >
-        Start
-      </Button>
+      {/* Centered Start button */}
+      <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+        <Button
+          size="large"
+          variant="contained"
+          color="primary"
+          onClick={onStart}
+        >
+          Start
+        </Button>
+      </Box>
     </Box>
   );
 }

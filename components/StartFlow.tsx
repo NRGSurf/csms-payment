@@ -275,7 +275,7 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
   const anyStatusLoading = statusLoading || txLoading;
 
   return (
-    <Card className="max-w-xl mx-auto mt-10 shadow-lg">
+    <Card className="max-w-xl mx-auto shadow-lg">
       <CardContent>
         {showError && (
           <Alert severity="error" className="mb-4">
@@ -391,10 +391,17 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
       <Divider />
       <CardActions>
         <Box className="w-full">
-          <Stepper activeStep={step} alternativeLabel>
-            {steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
+          <Stepper
+            activeStep={step}
+            alternativeLabel
+            sx={{
+              mt: 0,
+              "& .MuiStepLabel-label": { display: "none" }, // hide text labels
+            }}
+          >
+            {steps.map((_, i) => (
+              <Step key={i}>
+                <StepLabel />
               </Step>
             ))}
           </Stepper>

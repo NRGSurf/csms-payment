@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+// hooks/useEvseStatus.ts
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-export type UiEvseStatus =
+export type LiveStatus =
   | "Available"
   | "Occupied"
   | "Reserved"
@@ -8,55 +9,77 @@ export type UiEvseStatus =
   | "Faulted"
   | "Unknown";
 
+type Options = { enabled?: boolean };
+
+type TxLite = {
+  id?: string | number;
+  kwh?: number;
+  seconds?: number;
+  startedAt?: string;
+};
+
 export function useEvseStatus(
   stationId: string,
-  evseId: number,
-  options?: { enabled?: boolean }
+  _evseId: number,
+  opts?: Options
 ) {
-  const enabled = options?.enabled ?? true;
-  const [loading, setLoading] = useState(enabled);
-  const [status, setStatus] = useState<UiEvseStatus>("Unknown");
+  const enabled = opts?.enabled ?? true;
+  const [loading, setLoading] = useState<boolean>(!!enabled);
   const [error, setError] = useState<string | null>(null);
-  const [tx, setTx] = useState<{
-    id?: string;
-    kwh?: number;
-    seconds?: number;
-    startedAt?: string;
-  } | null>(null);
+  const [status, setStatus] = useState<LiveStatus>("Unknown");
+  const [tx, setTx] = useState<TxLite | undefined>(undefined);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const reload = async () => {
+  const fetchActiveTx = useCallback(async () => {
     if (!enabled) return;
+    abortRef.current?.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setError(null);
-      const r = await fetch(
-        `/api/evse/status?stationId=${encodeURIComponent(
-          stationId
-        )}&evseId=${encodeURIComponent(evseId)}&tenantId=1&debug=1`
-      );
-      const json = await r.json();
-      if (!r.ok) throw new Error(json?.error || `Status failed (${r.status})`);
-      setStatus(json.status);
-      setTx(
-        json.transaction
-          ? {
-              id: json.transaction.transactionId,
-              kwh: json.transaction.kwh,
-              seconds: json.transaction.seconds,
-              startedAt: json.transaction.startedAt,
-            }
-          : null
-      );
+      const url = `/api/backend/data/transactions?stationId=${encodeURIComponent(
+        stationId
+      )}&isActive=true&transactionId=bla`;
+      const r = await fetch(url, { signal: ac.signal });
+      const text = await r.text();
+      if (!r.ok) {
+        throw new Error(`Upstream ${r.status}: ${text}`);
+      }
+      const arr = JSON.parse(text);
+      if (Array.isArray(arr) && arr.length > 0) {
+        const t = arr[0];
+        setStatus("Occupied");
+        setTx({
+          id: t?.transactionId ?? t?.id,
+          kwh: t?.totalKwh != null ? Number(t.totalKwh) : undefined,
+          // If backend later sends a live seconds field we will map it; null for now.
+          seconds:
+            t?.timeSpentCharging != null
+              ? Number(t.timeSpentCharging)
+              : undefined,
+          startedAt: t?.createdAt,
+        });
+      } else {
+        setStatus("Available");
+        setTx(undefined);
+      }
     } catch (e: any) {
-      setError(e?.message || "Failed to load EVSE status");
+      setError(e?.message || "Failed to load status");
+      setStatus("Unknown");
+      setTx(undefined);
     } finally {
       setLoading(false);
     }
-  };
+  }, [enabled, stationId]);
 
   useEffect(() => {
-    reload(); /* eslint-disable-next-line */
-  }, [stationId, evseId, enabled]);
+    fetchActiveTx();
+    return () => abortRef.current?.abort();
+  }, [fetchActiveTx]);
 
-  return { loading, status, error, tx, reload };
+  const reload = useMemo(() => fetchActiveTx, [fetchActiveTx]);
+
+  return { loading, error, status, tx, reload };
 }
