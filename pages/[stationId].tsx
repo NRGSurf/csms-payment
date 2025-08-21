@@ -184,17 +184,25 @@ import AppLayout from "@/components/AppLayout";
 import { StartFlow } from "@/components/StartFlow";
 
 export default function StationPage() {
-  const { stationId } = useRouter().query;
+  const { stationId, evseId: evseQ, connectorId: connQ } = useRouter().query;
   const sid = Array.isArray(stationId) ? stationId[0] : stationId;
 
-  if (!sid) return null; // or a small loader
+  const evseId = evseQ
+    ? Number(Array.isArray(evseQ) ? evseQ[0] : evseQ)
+    : undefined;
+  const connectorId = connQ
+    ? Number(Array.isArray(connQ) ? connQ[0] : connQ)
+    : undefined;
+
+  if (!sid) return null;
 
   return (
     <AppLayout>
       <Head>
         <title>{`Station ${sid}`}</title>
       </Head>
-      <StartFlow stationId={sid} />
+      {/* pass whichever is defined; StartFlow can branch */}
+      <StartFlow stationId={sid} evseId={evseId} connectorId={connectorId} />
     </AppLayout>
   );
 }

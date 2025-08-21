@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { OpenAPI, TransactionsService } from "../../../lib/openapi";
+import type { processPaymentSchema } from "../../../lib/openapi";
 
 export default async function handler(
   req: NextApiRequest,
@@ -9,38 +11,35 @@ export default async function handler(
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const backendUrl = process.env.CITRINE_API_BASE_URL;
-  if (!backendUrl) {
-    return res.status(500).json({ error: "Backend URL not configured" });
-  }
-
   try {
-    const url = `${backendUrl}/data/transactions/processPayment`;
+    OpenAPI.BASE = process.env.CITRINE_API_BASE_URL!;
+    OpenAPI.HEADERS = {
+      Authorization: `Bearer ${process.env.CITRINE_API_TOKEN!}`,
+    };
 
-    // Build headers with all from incoming except host, connection, content-length
-    const headers: Record<string, string> = {};
-    for (const [key, value] of Object.entries(req.headers)) {
-      if (
-        value &&
-        !["host", "connection", "content-length"].includes(key.toLowerCase())
-      ) {
-        headers[key.toLowerCase()] = Array.isArray(value)
-          ? value.join(",")
-          : value;
-      }
+    const body = req.body as Partial<processPaymentSchema>;
+    const { stationId, sessionId, currency, amount, email, name } = body;
+
+    if (
+      !stationId ||
+      !sessionId ||
+      !currency ||
+      typeof amount !== "number" ||
+      !email ||
+      !name
+    ) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
-    headers["content-type"] = "application/json"; // ensure correct content type
 
-    const response = await fetch(url, {
-      method: "PUT",
-      headers,
-      body: JSON.stringify(req.body),
+    const result = await TransactionsService.putDataTransactionsProcessPayment({
+      requestBody: { stationId, sessionId, currency, amount, email, name },
     });
 
-    const data = await response.json();
-    res.status(response.status).json(data);
-  } catch (error) {
-    console.error("Proxy error:", error);
-    res.status(500).json({ error: "Proxy request failed" });
+    return res.status(200).json(result ?? { ok: true });
+  } catch (e: any) {
+    console.error("processPayment error:", e);
+    return res
+      .status(500)
+      .json({ error: e?.message || "processPayment failed" });
   }
 }
