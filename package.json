@@ -14,14 +14,16 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@hookform/resolvers": "^5.2.1",
     "@mui/material": "^7.2.0",
     "braintree": "^3.32.0",
     "braintree-web-drop-in": "^1.45.1",
-    "braintree-web-drop-in-react": "^1.2.1",
     "next": "15.4.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "ws": "^8.18.3"
+    "react-hook-form": "^7.62.0",
+    "ws": "^8.18.3",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
