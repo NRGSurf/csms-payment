@@ -1,5 +1,4 @@
-// components/StartFlow.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -23,14 +22,14 @@ import ChargingProgress from "./flow/ChargingProgress";
 
 import { FlowStep, InvoiceForm } from "./flow/types";
 import { useStation } from "../hooks/useStation";
-import { useEvseStatus } from "../hooks/useEvseStatus"; // 2.0.1 status
-import { useConnectorStatus } from "../hooks/useConnectorStatus"; // 1.6 status
+import { useEvseStatus } from "../hooks/useEvseStatus"; // 2.0.1
+import { useConnectorStatus } from "../hooks/useConnectorStatus"; // 1.6
 
 type Props = {
   stationId: string;
   /** Optional defaults encoded in your QR */
-  evseId?: number; // OCPP 2.0.1
-  connectorId?: number; // OCPP 1.6
+  evseId?: number; // used if protocol is 2.0.1
+  connectorId?: number; // used if protocol is 1.6
 };
 
 const isOcpp16 = (proto?: string) =>
@@ -38,35 +37,27 @@ const isOcpp16 = (proto?: string) =>
 const isOcpp201 = (proto?: string) =>
   !!proto && /2[_\.]?0[_\.]?1|OCPP\s*2\.?0\.?1/i.test(String(proto));
 
-type UiTx = {
-  id: string;
-  kwh?: number;
-  seconds?: number;
-  startedAt?: string;
-};
-
 export function StartFlow({ stationId, evseId, connectorId }: Props) {
-  // Load station (now from /data/transactions/chargingStation)
+  // Load basic station (now includes protocol)
   const {
     loading: stationLoading,
     error: stationError,
     station,
-    reload: reloadStation,
   } = useStation(stationId);
 
-  // Protocol decision
-  const protocol = station?.protocol || undefined;
+  // Decide protocol once station is loaded (fallback to URL hints if protocol missing)
+  const protocol = station?.protocol;
   const resolved16 = useMemo(() => {
     if (protocol) return isOcpp16(protocol);
     if (connectorId != null) return true;
     if (evseId != null) return false;
-    return false; // default to 2.0.1
+    return false;
   }, [protocol, connectorId, evseId]);
 
   const effectiveEvseId = evseId ?? 1;
   const effectiveConnectorId = connectorId ?? 1;
 
-  // Status hooks (only the matching one fetches, via enabled flag)
+  // Status hooks – both mounted, but only the right one fetches (enabled flag)
   const evse = useEvseStatus(stationId, effectiveEvseId, {
     enabled: !resolved16 && !!station,
   });
@@ -77,76 +68,8 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
   const status = (resolved16 ? conn.status : evse.status) ?? "Unknown";
   const statusLoading = resolved16 ? conn.loading : evse.loading;
   const statusError = resolved16 ? conn.error : evse.error;
-
-  // ---- Active transaction (via your isActive=true API) ----
-  const [txLoading, setTxLoading] = useState(false);
-  const [txError, setTxError] = useState<string | null>(null);
-  const [activeTx, setActiveTx] = useState<UiTx | null>(null);
-
-  const fetchActiveTx = async () => {
-    if (!stationId) return;
-    try {
-      setTxLoading(true);
-      setTxError(null);
-      const r = await fetch(
-        `/api/backend/data/transactions?stationId=${encodeURIComponent(
-          stationId
-        )}&isActive=true&transactionId=bla`
-      );
-      if (!r.ok) throw new Error(`Active tx HTTP ${r.status}`);
-      const list: any[] = await r.json();
-
-      let best: any | null = null;
-      if (Array.isArray(list) && list.length) {
-        best = [...list].sort(
-          (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        )[0];
-      }
-
-      if (best) {
-        const kwhVal =
-          best.totalKwh == null
-            ? undefined
-            : typeof best.totalKwh === "string"
-            ? parseFloat(best.totalKwh)
-            : Number(best.totalKwh);
-        const secondsVal =
-          typeof best.timeSpentCharging === "number"
-            ? best.timeSpentCharging
-            : undefined;
-
-        setActiveTx({
-          id: String(best.transactionId ?? best.id),
-          kwh: Number.isFinite(kwhVal) ? (kwhVal as number) : undefined,
-          seconds: secondsVal,
-          startedAt: best.createdAt,
-        });
-      } else {
-        setActiveTx(null);
-      }
-    } catch (e: any) {
-      setTxError(e?.message ?? "Failed to load active transaction");
-      setActiveTx(null);
-    } finally {
-      setTxLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchActiveTx();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stationId]);
-
-  const reloadStatus = async () => {
-    if (resolved16) {
-      await conn.reload();
-    } else {
-      await evse.reload();
-    }
-    await fetchActiveTx();
-    await reloadStation();
-  };
+  const tx = resolved16 ? conn.tx : evse.tx;
+  const reloadStatus = resolved16 ? conn.reload : evse.reload;
 
   // Flow state
   const [step, setStep] = useState<FlowStep>(FlowStep.Overview);
@@ -186,6 +109,7 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
     setError(null);
     setBusy(true);
     try {
+      // Initialize Braintree client token
       const prep = await fetch("/api/braintree/token", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -217,7 +141,7 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
       setBusy(true);
       setError(null);
 
-      const amount = 60; // TODO replace with real amount
+      const amount = 60; // TODO: replace with your real computed amount
       const reserve = await fetch("/api/braintree/reserve", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -245,10 +169,10 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
           name: invoice.fullName,
         }),
       });
+
       const json = await resp.json();
       if (!resp.ok || json?.error)
         throw new Error(json?.error || `Payment failed (${resp.status})`);
-
       go(FlowStep.Done);
     } catch (e: any) {
       setError(e?.message || "Payment failed");
@@ -260,7 +184,7 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
   // Loading card for station info
   if (stationLoading) {
     return (
-      <Card className="max-w-xl mx-auto mt-10">
+      <Card className="max-w-xl mx-auto shadow-lg">
         <CardContent className="flex gap-3 items-center">
           <CircularProgress size={18} />
           <Typography>Loading station…</Typography>
@@ -269,98 +193,85 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
     );
   }
 
-  const steps = ["Overview", "Billing", "Payment", "Done"];
+  const steps = ["Pricing", "Payment", "Charging", "Receipt"];
   const showError = error || stationError;
-  const isCharging = status === "Occupied" || !!activeTx;
-  const anyStatusLoading = statusLoading || txLoading;
 
   return (
-    <Card className="max-w-xl mx-auto shadow-lg">
-      <CardContent>
+    <Card className="max-w-3xl mx-auto shadow-lg">
+      {/* Header + progress (at the top, like the mock) */}
+      <Box sx={{ p: 3, pb: 0 }}>
+        <Typography variant="h4" fontWeight={700} textAlign="center">
+          NRG Charge Portal
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          textAlign="center"
+          sx={{ mt: 0.5 }}
+        >
+          AFIR Compliant • Secure • No Registration Required
+        </Typography>
+
+        <Stepper
+          activeStep={step}
+          alternativeLabel
+          sx={{
+            mt: 2,
+            "& .MuiStepIcon-root": {
+              width: 34,
+              height: 34,
+            },
+            "& .MuiStepConnector-line": {
+              height: 4,
+              border: 0,
+              background: (theme) => theme.palette.divider,
+            },
+          }}
+        >
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      </Box>
+
+      <CardContent sx={{ pt: 2 }}>
         {showError && (
           <Alert severity="error" className="mb-4">
             {showError}
           </Alert>
         )}
 
-        {/* OVERVIEW */}
+        {/* OVERVIEW / PRICING */}
         {step === FlowStep.Overview && (
           <Box>
-            {/* If occupied or an active tx exists: show charging progress */}
-            {isCharging ? (
+            {/* If occupied: show charging progress */}
+            {status === "Occupied" ? (
               <>
                 <ChargingProgress
                   stationId={stationId}
-                  {
-                    ...(resolved16
-                      ? { connectorId: effectiveConnectorId } // OCPP 1.6
-                      : { evseId: effectiveEvseId }) // OCPP 2.0.1
-                  }
-                  transactionId={activeTx?.id}
-                  kwh={activeTx?.kwh}
-                  seconds={activeTx?.seconds}
-                  startedAt={activeTx?.startedAt}
+                  {...(resolved16
+                    ? { connectorId: effectiveConnectorId }
+                    : { evseId: effectiveEvseId })}
+                  transactionId={tx?.id as any}
+                  kwh={tx?.kwh}
+                  seconds={tx?.seconds}
+                  startedAt={tx?.startedAt}
                 />
-                <Box className="mt-3">
-                  <Button onClick={reloadStatus} disabled={anyStatusLoading}>
-                    {anyStatusLoading ? "Refreshing…" : "Refresh"}
+                <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+                  <Button onClick={reloadStatus} disabled={statusLoading}>
+                    {statusLoading ? "Refreshing…" : "Refresh"}
                   </Button>
                 </Box>
               </>
             ) : (
-              <>
-                <Overview
-                  station={station}
-                  stationId={stationId}
-                  onStart={handleStart}
-                />
-
-                <Box className="mt-3">
-                  {anyStatusLoading ? (
-                    <Box className="flex items-center gap-2">
-                      <CircularProgress size={18} />{" "}
-                      <span>Checking status…</span>
-                    </Box>
-                  ) : status === "Available" ? (
-                    <Alert severity="success">
-                      {resolved16
-                        ? `Connector ${effectiveConnectorId} is available.`
-                        : `EVSE ${effectiveEvseId} is available.`}
-                    </Alert>
-                  ) : status === "Reserved" ? (
-                    <Alert severity="warning">
-                      {resolved16
-                        ? `Connector ${effectiveConnectorId} is reserved.`
-                        : `EVSE ${effectiveEvseId} is reserved.`}
-                    </Alert>
-                  ) : status === "Unavailable" ? (
-                    <Alert severity="warning">
-                      {resolved16
-                        ? `Connector ${effectiveConnectorId} is currently unavailable (inoperative).`
-                        : `EVSE ${effectiveEvseId} is currently unavailable (inoperative).`}
-                    </Alert>
-                  ) : status === "Faulted" ? (
-                    <Alert severity="error">
-                      {resolved16
-                        ? `Connector ${effectiveConnectorId} is faulted.`
-                        : `EVSE ${effectiveEvseId} is faulted.`}
-                    </Alert>
-                  ) : statusError || txError ? (
-                    <Alert severity="warning">{statusError || txError}</Alert>
-                  ) : (
-                    <Alert severity="info">Status unknown.</Alert>
-                  )}
-                </Box>
-
-                {/* Only allow Start when Available */}
-                {status !== "Available" && (
-                  <Box className="mt-2">
-                    <Button onClick={reloadStatus} disabled={anyStatusLoading}>
-                      {anyStatusLoading ? "Refreshing…" : "Refresh status"}
-                    </Button>
-                  </Box>
-                )}
-              </>
+              <Overview
+                stationId={stationId}
+                station={station}
+                status={status}
+                onAcceptPricing={() => setStep(FlowStep.Billing)}
+              />
             )}
           </Box>
         )}
@@ -387,47 +298,28 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
         {step === FlowStep.Done && <Done />}
       </CardContent>
 
-      {/* Bottom progress & actions */}
+      {/* Bottom actions (keep minimal) */}
       <Divider />
       <CardActions>
-        <Box className="w-full">
-          <Stepper
-            activeStep={step}
-            alternativeLabel
-            sx={{
-              mt: 0,
-              "& .MuiStepLabel-label": { display: "none" }, // hide text labels
-            }}
-          >
-            {steps.map((_, i) => (
-              <Step key={i}>
-                <StepLabel />
-              </Step>
-            ))}
-          </Stepper>
-
-          <Box className="flex justify-between items-center mt-2">
-            <Box className="flex gap-2">
-              {step > FlowStep.Overview && step < FlowStep.Done && (
-                <Button
-                  onClick={() => setStep((step - 1) as FlowStep)}
-                  disabled={busy}
-                >
-                  Back
-                </Button>
-              )}
-              {step !== FlowStep.Done && (
-                <Button onClick={reset} disabled={busy}>
-                  Cancel
-                </Button>
-              )}
-            </Box>
-            <Box />
+        <Box className="w-full flex justify-between items-center">
+          <Box className="flex gap-1">
+            {step > FlowStep.Overview && step < FlowStep.Done && (
+              <Button
+                onClick={() => setStep((step - 1) as FlowStep)}
+                disabled={busy}
+              >
+                Back
+              </Button>
+            )}
+            {step !== FlowStep.Done && (
+              <Button onClick={reset} disabled={busy}>
+                Cancel
+              </Button>
+            )}
           </Box>
+          <Box />
         </Box>
       </CardActions>
     </Card>
   );
 }
-
-export default StartFlow;
