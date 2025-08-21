@@ -69,19 +69,6 @@ export default function BillingForm({
   return (
     <Box className="flex flex-col gap-3">
       <Typography variant="h6">Billing details</Typography>
-      <Typography variant="body2" className="opacity-80">
-        For amounts ≤ €400 in AT, address isn’t required. Enable full invoice if
-        you need a business invoice or higher amounts.
-      </Typography>
-
-      <Box className="flex items-center gap-2 mt-1">
-        <Switch
-          checked={wantsFullInvoice}
-          onChange={(e) => setWantsFullInvoice(e.target.checked)}
-          inputProps={{ "aria-label": "Full invoice" }}
-        />
-        <Typography>Need full invoice (add address)</Typography>
-      </Box>
 
       <TextField
         label="Full name"
@@ -99,6 +86,19 @@ export default function BillingForm({
         required
       />
       <TextField label="Phone (optional)" {...register("phone")} />
+
+      <Box className="flex items-center gap-2 mt-1">
+        <Switch
+          checked={wantsFullInvoice}
+          onChange={(e) => setWantsFullInvoice(e.target.checked)}
+          inputProps={{ "aria-label": "Full invoice" }}
+        />
+        <Typography>Need full invoice (add address)</Typography>
+      </Box>
+
+      <Typography variant="body2" className="opacity-80">
+        Enable full invoice if you need a business invoice or higher amounts.
+      </Typography>
 
       {wantsFullInvoice && (
         <>

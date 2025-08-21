@@ -1,48 +1,71 @@
-import { Box, Button, Typography } from "@mui/material";
+// components/flow/Overview.tsx
+import { Box, Typography, Button, Chip, Stack } from "@mui/material";
 import type { StationInfo } from "./types";
 
-export default function Overview({
-  station,
-  stationId,
-  onStart,
-}: {
-  station: StationInfo | null;
+function formatLocation(loc?: any) {
+  if (!loc) return "";
+  const line2 = [loc.postalCode, loc.city].filter(Boolean).join(" ");
+  return [loc.address, line2, loc.country].filter(Boolean).join(", ");
+}
+
+type Props = {
   stationId: string;
+  station?: StationInfo | null;
   onStart: () => void;
-}) {
+};
+
+export default function Overview({ stationId, station, onStart }: Props) {
+  const name = station?.name || stationId;
+  const addressLine = station?.location
+    ? formatLocation(station.location as any)
+    : "";
+
+  // Pricing preview: prefer the enriched field from your API if present
+  const current = (station as any)?.currentPriceType;
+  const basePrice = (station as any)?.tariff?.pricePerKwh;
+  const currentPrice =
+    typeof current?.pricePerKwh === "number"
+      ? current.pricePerKwh
+      : typeof basePrice === "number"
+      ? basePrice
+      : null;
+
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        {station?.name || `Station ${stationId}`}
-      </Typography>
+      <Typography variant="h6">{name}</Typography>
 
-      {station?.address && (
-        <Typography variant="body2" className="opacity-80">
-          {station.address}
+      {addressLine && (
+        <Typography variant="body2" color="text.secondary">
+          {addressLine}
         </Typography>
       )}
 
-      <Box className="grid grid-cols-1 gap-1 mt-3">
-        {station?.location && (
-          <Typography variant="body2">Location: {station.location}</Typography>
-        )}
-        {station?.connectorId != null && (
-          <Typography variant="body2">
-            Connector: {String(station.connectorId)}
-          </Typography>
-        )}
-        {station?.pricePerKwh != null && (
-          <Typography variant="body2">
-            Price: €{station.pricePerKwh} per kWh
-          </Typography>
-        )}
-      </Box>
+      {currentPrice != null && (
+        <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+          <Chip
+            label={`€${currentPrice.toFixed(2)} / kWh`}
+            variant="outlined"
+            size="small"
+          />
+          {current?.validFrom && current?.validTo && (
+            <Chip
+              label={`${current.validFrom}–${current.validTo}`}
+              variant="outlined"
+              size="small"
+            />
+          )}
+        </Stack>
+      )}
 
-      <Box className="mt-4">
-        <Button variant="contained" onClick={onStart}>
-          Start
-        </Button>
-      </Box>
+      <Button
+        sx={{ mt: 2 }}
+        size="large"
+        variant="contained"
+        color="primary"
+        onClick={onStart}
+      >
+        Start
+      </Button>
     </Box>
   );
 }

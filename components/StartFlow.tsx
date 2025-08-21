@@ -91,7 +91,7 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
       const r = await fetch(
         `/api/backend/data/transactions?stationId=${encodeURIComponent(
           stationId
-        )}&isActive=true`
+        )}&isActive=true&transactionId=bla`
       );
       if (!r.ok) throw new Error(`Active tx HTTP ${r.status}`);
       const list: any[] = await r.json();

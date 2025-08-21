@@ -4,38 +4,75 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
     const base =
       process.env.CITRINE_API_BASE_URL ||
       process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL;
     const token = process.env.CITRINE_API_TOKEN;
+
     const stationId = String(req.query.stationId || "").trim();
     const tenantId = String(req.query.tenantId || "1");
-    const txId = req.query.transactionId
-      ? String(req.query.transactionId)
-      : undefined;
-    const isActive = req.query.isActive === "true" ? "true" : undefined; // <- forward only when true
 
-    if (!base || !token)
-      return res.status(500).json({ error: "Backend not configured." });
-    if (!stationId)
+    // Frontend may pass it, but if not, DEFAULT to "bla" as requested
+    const transactionId =
+      typeof req.query.transactionId === "string" &&
+      req.query.transactionId.trim()
+        ? req.query.transactionId.trim()
+        : "bla";
+
+    // We accept `isActive=true` from the browser, but DO NOT forward it upstream yet.
+    const wantActive =
+      String(req.query.isActive || "").toLowerCase() === "true";
+
+    if (!base || !token) {
+      return res.status(500).json({
+        error:
+          "Backend not configured. Set CITRINE_API_BASE_URL and CITRINE_API_TOKEN in env.",
+      });
+    }
+    if (!stationId) {
       return res.status(400).json({ error: "stationId is required" });
+    }
 
-    const params = new URLSearchParams({ stationId, tenantId });
-    if (txId) params.set("transactionId", txId);
-    if (isActive) params.set("isActive", "true"); // <- key change
-
+    // Build upstream URL WITHOUT isActive (filter locally for now)
+    const params = new URLSearchParams({ stationId, tenantId, transactionId });
     const url = `${base}/data/transactions/transactions?${params.toString()}`;
-    const r = await fetch(url, {
-      headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+
+    const upstream = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    if (!r.ok)
-      return res
-        .status(r.status)
-        .json({ error: "Upstream error", details: await r.text() });
-    return res.status(200).json(await r.json());
+    const bodyText = await upstream.text();
+    if (!upstream.ok) {
+      return res.status(upstream.status).json({
+        error: "Upstream error",
+        details: bodyText,
+        forwardedUrl: url,
+      });
+    }
+
+    let data: any = [];
+    try {
+      data = JSON.parse(bodyText);
+    } catch {
+      data = [];
+    }
+
+    if (wantActive && Array.isArray(data)) {
+      data = data.filter((t) => t?.isActive === true);
+    }
+
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(200).json(data);
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message ?? "Unknown error" });
+    return res.status(500).json({ error: e?.message || "Unknown error" });
   }
 }

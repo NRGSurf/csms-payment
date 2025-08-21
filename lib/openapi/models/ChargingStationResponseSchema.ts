@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type ChargingStationResponseSchema = Array<{
+export type ChargingStationResponseSchema = {
     id: string;
     isOnline?: boolean | null;
     protocol?: string | null;
@@ -18,4 +18,8 @@ export type ChargingStationResponseSchema = Array<{
     locationId: number;
     createdAt: string;
     updatedAt: string;
-}>;
+    location?: Record<string, any> | null;
+    tariff?: Record<string, any> | null;
+    currentPriceType?: Record<string, any> | null;
+};
+
