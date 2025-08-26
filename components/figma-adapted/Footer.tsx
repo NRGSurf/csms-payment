@@ -1,70 +1,53 @@
+// components/figma-adapted/Footer.tsx
 import React from "react";
-import { Box, Flex, Text, Separator } from "@radix-ui/themes";
 import { Lock, BadgeCheck, Smartphone } from "lucide-react";
 
 export default function FigmaFooter() {
   return (
-    <Box asChild>
-      <footer style={{ width: "100%" }}>
-        {/* Badge row */}
-        <Flex
-          align="center"
-          justify="center"
-          wrap="wrap"
-          gap="3"
-          style={{ width: "100%", padding: "16px 0" }}
+    <footer className="w-full border-t bg-[hsl(var(--background))]">
+      {/* Badges */}
+      <div className="mx-auto max-w-6xl px-4 py-4 flex flex-wrap items-center justify-center gap-4">
+        <div className="flex items-center gap-2">
+          <Lock size={16} />
+          <span className="text-xs text-[hsl(var(--muted-foreground))]">
+            Secure Payment
+          </span>
+        </div>
+
+        <span aria-hidden className="h-4 w-px bg-[hsl(var(--border))]" />
+
+        <div className="flex items-center gap-2">
+          <BadgeCheck size={16} />
+          <span className="text-xs text-[hsl(var(--muted-foreground))]">
+            EU AFIR Compliant
+          </span>
+        </div>
+
+        <span aria-hidden className="h-4 w-px bg-[hsl(var(--border))]" />
+
+        <div className="flex items-center gap-2">
+          <Smartphone size={16} />
+          <span className="text-xs text-[hsl(var(--muted-foreground))]">
+            Mobile Optimized
+          </span>
+        </div>
+      </div>
+
+      {/* Languages */}
+      <div className="mx-auto max-w-6xl px-4 pb-4 flex items-center justify-center gap-6">
+        <button
+          type="button"
+          className="text-xs text-[hsl(var(--muted-foreground))] hover:underline"
         >
-          <Flex align="center" gap="1">
-            <Lock size={16} color="var(--blue-9)" />
-            <Text size="1" color="gray">
-              Secure Payment
-            </Text>
-          </Flex>
-
-          <Separator orientation="vertical" style={{ height: 16 }} />
-
-          <Flex align="center" gap="1">
-            <BadgeCheck size={16} color="var(--green-9)" />
-            <Text size="1" color="gray">
-              EU AFIR Compliant
-            </Text>
-          </Flex>
-
-          <Separator orientation="vertical" style={{ height: 16 }} />
-
-          <Flex align="center" gap="1">
-            <Smartphone size={16} />
-            <Text size="1" color="gray">
-              Mobile Optimized
-            </Text>
-          </Flex>
-        </Flex>
-
-        {/* Language row */}
-        <Flex
-          justify="center"
-          align="center"
-          gap="4"
-          style={{ paddingBottom: 16 }}
+          EN
+        </button>
+        <button
+          type="button"
+          className="text-xs text-[hsl(var(--muted-foreground))] hover:underline"
         >
-          <button
-            type="button"
-            className="cursor-pointer bg-transparent border-0 p-0"
-          >
-            <Text size="1" color="gray" as="span">
-              EN
-            </Text>
-          </button>
-          <button
-            type="button"
-            className="cursor-pointer bg-transparent border-0 p-0"
-          >
-            <Text size="1" color="gray" as="span">
-              DE
-            </Text>
-          </button>
-        </Flex>
-      </footer>
-    </Box>
+          DE
+        </button>
+      </div>
+    </footer>
   );
 }
