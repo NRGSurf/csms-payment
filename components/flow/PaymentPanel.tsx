@@ -1,13 +1,8 @@
 // components/flow/PaymentPanel.tsx
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../design/figma/components/ui/card";
-import { Button } from "../../design/figma/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../figma-adapted/ui/card";
+import { Button } from "../figma-adapted/ui/button";
 import { Flex, Text } from "@radix-ui/themes";
 import { Lock, ShieldCheck } from "lucide-react";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import type { StationInfo } from "./types";
-import { PricingDisplay } from "../../design/figma/components/PricingDisplay";
-import type { SessionData } from "../../design/figma/App";
+import PricingDisplay from "../figma-adapted/PricingDisplay";
+import type { SessionData } from "@/types/charging";
 
 type Props = {
   stationId: string;

@@ -5,7 +5,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { CheckCircle2, Receipt as ReceiptIcon, Mail, Download, RefreshCw, MapPin, Clock, Zap, Euro } from 'lucide-react';
-import { ChargingData, SessionData } from '../App';
+import type { ChargingData, SessionData } from '@/types/charging';
 
 interface ReceiptProps {
   sessionData: SessionData;
@@ -223,7 +223,7 @@ export function Receipt({ sessionData, chargingData, onNewSession }: ReceiptProp
               <div>
                 <Label htmlFor="email" className="font-medium">Email Address</Label>
                 <p className="text-xs text-gray-500 mb-2">
-                  We'll only use this to send your receipt. No marketing emails.
+                  We&apos;ll only use this to send your receipt. No marketing emails.
                 </p>
               </div>
               <Input

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Zap, Clock, Euro, Activity, StopCircle, Pause, AlertTriangle } from 'lucide-react';
-import { ChargingData, SessionData } from '../App';
+import type { ChargingData, SessionData } from '@/types/charging';
 
 interface ChargingSessionProps {
   chargingData: ChargingData;
@@ -159,7 +159,7 @@ export function ChargingSession({ chargingData, sessionData, isCharging, onStopC
                 <AlertTriangle className="size-12 text-amber-500 mx-auto mb-3" />
                 <h3 className="font-medium text-gray-900 mb-2">Stop Charging Session?</h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  Are you sure you want to end this charging session? You'll be charged for the energy consumed so far.
+                  Are you sure you want to end this charging session? You&apos;ll be charged for the energy consumed so far.
                 </p>
                 
                 <div className="bg-gray-50 rounded-lg p-3 mb-4">
