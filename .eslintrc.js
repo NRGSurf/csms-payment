@@ -1,0 +1,20 @@
+// .eslintrc.js
+module.exports = {
+  extends: ["next/core-web-vitals"],
+  rules: {},
+  overrides: [
+    {
+      files: ["pages/api/**/*.ts"],
+      rules: { "@typescript-eslint/no-explicit-any": "off" },
+    },
+    {
+      files: [
+        "components/flow/PaymentPanel.tsx",
+        "components/flow/Charging.tsx",
+        "components/flow/Overview.tsx",
+        "components/flow/TransactionGate.tsx",
+      ],
+      rules: { "@typescript-eslint/no-explicit-any": "off" },
+    },
+  ],
+};
