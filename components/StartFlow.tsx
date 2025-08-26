@@ -45,7 +45,7 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
   const { station } = useStation(stationId);
   const { status, tx } = useEvseStatus(stationId, 4000);
 
-  const holdAmount = useMemo(() => 60, [stationId]);
+  const holdAmount = 60;
 
   // Derive token straight from URL (no state, no effect) to avoid oscillation
   const tokenParam =
@@ -79,8 +79,8 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
       try {
         console.log("[StartFlow] entering Payment, requesting client token…");
         await fetchClientToken();
-      } catch (e) {
-        console.error("[StartFlow] client token error:", e);
+      } catch (e: unknown) {
+        console.error(e);
       }
     })();
   }, [step]);
@@ -128,12 +128,12 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
         if (!capture.ok || (capJson as any)?.error) {
           console.warn("processPayment failed:", capJson || capture.status);
         }
-      } catch (e) {
-        console.warn("processPayment error:", e);
+      } catch (e: unknown) {
+        console.error(e);
       }
 
       setPaymentAuthorized(true);
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
     } finally {
       setBusy(false);

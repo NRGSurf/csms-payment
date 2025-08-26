@@ -70,11 +70,7 @@ const theme = createTheme({
     fontWeightMedium: Number(
       token("global.typography.fontWeight.medium", "500")
     ),
-    fontWeightSemiBold: Number(
-      token("global.typography.fontWeight.semibold", "600")
-    ),
     fontWeightBold: Number(token("global.typography.fontWeight.bold", "700")),
-    lineHeight: 1.5,
   },
   components: {
     MuiCard: {

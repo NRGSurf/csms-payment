@@ -222,7 +222,7 @@ export default function PricingDisplay({ sessionData, onContinue }: Props) {
               Payment Information
             </div>
             <ul style={{ margin: "8px 0 0 20px", color: "var(--amber-11)" }}>
-              <li>You'll only pay for energy actually consumed</li>
+              <li>You&rsquo;ll only pay for energy actually consumed</li>
               <li>Pre-authorization will be released after charging</li>
               <li>Final cost calculated when session ends</li>
               <li>Digital receipt provided immediately</li>

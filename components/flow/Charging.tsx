@@ -1,18 +1,12 @@
 // components/flow/Charging.tsx
-import React, { useMemo } from "react";
-import { ChargingSession } from "../../design/figma/components/ChargingSession";
-import type { ChargingData, SessionData } from "../../design/figma/types";
+"use client";
+
+import React from "react";
+// If your module exports default, switch to: `import ChargingSession from "@/design/figma/components/ChargingSession";`
+import { ChargingSession } from "@/design/figma/components/ChargingSession";
+import type { ChargingData, SessionData } from "@/design/figma/App";
 
 type Props =
-  | {
-      stationId: string;
-      evseId: number;
-      connectorId?: never;
-      transactionId?: string;
-      kwh?: number;
-      seconds?: number;
-      startedAt?: string;
-    }
   | {
       stationId: string;
       connectorId: number;
@@ -21,46 +15,67 @@ type Props =
       kwh?: number;
       seconds?: number;
       startedAt?: string;
+    }
+  | {
+      stationId: string;
+      evseId: number;
+      connectorId?: never;
+      transactionId?: string;
+      kwh?: number;
+      seconds?: number;
+      startedAt?: string;
     };
 
 export default function Charging(props: Props) {
-  const {
-    stationId,
-    transactionId,
-    kwh = 0,
-    seconds = 0,
-    startedAt,
-  } = props as any;
+  const kwh = props.kwh ?? 0;
+  const seconds = props.seconds ?? 0;
+  const startedAt = props.startedAt ? new Date(props.startedAt) : new Date();
 
-  // Map to Figma types with sensible defaults
-  const chargingData: ChargingData = useMemo(() => ({
-    timeElapsed: Math.max(0, Math.round(seconds / 60)), // minutes
-    energyDelivered: kwh,
-    chargingSpeed: kwh > 0 && seconds > 0 ? (kwh / (seconds / 3600)) : 0, // kW approx
-    runningCost: kwh * 0.55, // fallback price
-  }), [kwh, seconds]);
+  // Build the shapes the Figma components expect
+  const sessionData: SessionData = {
+    stationId: props.stationId,
+    sessionId: props.transactionId ?? "",
+    startTime: startedAt,
 
-  const sessionData: SessionData = useMemo(() => ({
-    stationId,
-    stationName: stationId,
-    stationStatus: 'busy',
-    location: '',
-    connector: (props as any).connectorId ? `Connector ${(props as any).connectorId}` : `EVSE ${(props as any).evseId}`,
-    sessionId: transactionId || '',
-    startTime: startedAt ? new Date(startedAt) : new Date(Date.now() - seconds * 1000),
+    // totals so far
     totalEnergy: kwh,
     totalDuration: seconds,
-    totalCost: chargingData.runningCost,
+    totalCost: 0,
+
+    // required by your Figma types
+    stationName: props.stationId,
+    stationStatus: "busy",
+    location: "—",
+    // 🔧 singular field name:
+    connector: String(
+      "connectorId" in props
+        ? props.connectorId
+        : "evseId" in props
+        ? props.evseId
+        : 1
+    ),
+
     pricePerKwh: 0.55,
     sessionFee: 0,
-  }), [stationId, transactionId, startedAt, seconds, kwh, chargingData.runningCost]);
+  };
+
+  const chargingData: ChargingData = {
+    timeElapsed: seconds,
+    energyDelivered: kwh,
+    chargingSpeed: 0,
+    runningCost: 0,
+    // If your ChargingData type includes `cost`, add it:
+    // cost: 0,
+  };
 
   return (
     <ChargingSession
-      chargingData={chargingData}
       sessionData={sessionData}
+      chargingData={chargingData}
       isCharging={true}
-      onStopCharging={() => {/* optional: wire remoteStop here if needed */}}
+      onStopCharging={() => {
+        // hook your stop flow here if needed
+      }}
     />
   );
 }

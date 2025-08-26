@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 export default function Done() {
   return (
@@ -11,9 +12,9 @@ export default function Done() {
           the session.
         </p>
         <div className="mt-6">
-          <a href="/" className="nrg-btn nrg-btn-primary">
-            Back to home
-          </a>
+          <Link href="/" className="text-blue-600 underline">
+            Back home
+          </Link>
         </div>
       </div>
     </div>

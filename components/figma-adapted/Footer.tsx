@@ -47,15 +47,22 @@ export default function FigmaFooter() {
           gap="4"
           style={{ paddingBottom: 16 }}
         >
-          <Text size="1" color="gray" as="button">
-            EN
-          </Text>
-          <Text size="1" color="gray" as="button">
-            DE
-          </Text>
-          <Text size="1" color="gray" as="button">
-            FR
-          </Text>
+          <button
+            type="button"
+            className="cursor-pointer bg-transparent border-0 p-0"
+          >
+            <Text size="1" color="gray" as="span">
+              EN
+            </Text>
+          </button>
+          <button
+            type="button"
+            className="cursor-pointer bg-transparent border-0 p-0"
+          >
+            <Text size="1" color="gray" as="span">
+              DE
+            </Text>
+          </button>
         </Flex>
       </footer>
     </Box>

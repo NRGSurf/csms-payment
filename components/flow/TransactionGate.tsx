@@ -193,10 +193,23 @@ export default function TransactionGate({
     );
   }
 
+  // … inside TransactionGate, in the "inactive → Receipt" branch
   const tx = latestTx!;
-  const totalDuration = num((tx as any).timeSpentCharging);
-  const totalEnergy = num((tx as any).totalKwh);
-  const totalCost = num((tx as any).totalCost);
+  const totalDuration =
+    Number(
+      (tx as TransactionDTO & { timeSpentCharging?: number | string | null })
+        .timeSpentCharging ?? 0
+    ) || 0;
+  const totalEnergy =
+    Number(
+      (tx as TransactionDTO & { totalKwh?: number | string | null }).totalKwh ??
+        0
+    ) || 0;
+  const totalCost =
+    Number(
+      (tx as TransactionDTO & { totalCost?: number | string | null })
+        .totalCost ?? 0
+    ) || 0;
 
   const sessionData: SessionData = {
     stationId: tx.stationId,
@@ -205,15 +218,29 @@ export default function TransactionGate({
     totalEnergy,
     totalDuration,
     totalCost,
+
+    stationName: tx.stationId,
+    stationStatus: (() => {
+      const raw = String((tx as any).chargingState ?? "").toLowerCase();
+      if (raw === "faulted") return "maintenance";
+      return (tx as any).isActive ? "busy" : "available";
+    })(),
+    location: "—",
+    // 🔧 singular field name:
+    connector: String((tx as any).evseDatabaseId ?? 1),
+
     pricePerKwh: 0.55,
     sessionFee: 0,
   };
+
   const chargingData: ChargingData = {
     timeElapsed: totalDuration,
     energyDelivered: totalEnergy,
-    power: 0,
-    maxPower: 0,
-    runningCost: totalCost,
+    chargingSpeed: 0,
+    runningCost: 0,
+    // only include keys actually defined in ChargingData
+    // e.g. if it has 'cost' use:
+    // cost: totalCost,
   };
 
   return (
