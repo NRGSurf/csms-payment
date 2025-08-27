@@ -2,8 +2,6 @@
 @plugin "tailwindcss-animate";
 
 /* Tell Tailwind v4 where to scan for class names */
-@source "../design/figma/components/**/*.{ts,tsx}";
-@source "../components/figma-adapted/**/*.{ts,tsx}";
 @source "../components/**/*.{ts,tsx}";
 @source "../pages/**/*.{ts,tsx}";
 @source "../app/**/*.{ts,tsx}";
