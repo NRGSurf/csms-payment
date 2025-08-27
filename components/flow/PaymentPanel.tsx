@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Flex, Text } from "@radix-ui/themes";
 import { Lock, ShieldCheck } from "lucide-react";
 
 type Props = {
@@ -72,15 +71,8 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
 
   if (!clientToken) {
     return (
-      <Flex align="center" gap="2" style={{ color: "var(--gray-11)" }}>
-        <svg
-          style={{
-            animation: "spin 1s linear infinite",
-            height: 16,
-            width: 16,
-          }}
-          viewBox="0 0 24 24"
-        >
+      <div className="flex items-center gap-2 text-[hsl(var(--muted-foreground))]">
+        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" aria-hidden>
           <circle
             cx="12"
             cy="12"
@@ -96,8 +88,8 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
             opacity=".75"
           />
         </svg>
-        <Text size="1">Preparing payment…</Text>
-      </Flex>
+        <span className="text-xs">Preparing payment…</span>
+      </div>
     );
   }
 
@@ -106,58 +98,48 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
       <Card>
         <CardHeader>
           <CardTitle>
-            <Flex align="center" gap="2">
-              <Lock size={20} color="var(--blue-9)" /> Secure Payment
-            </Flex>
+            <div className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-blue-600" />
+              <span>Secure Payment</span>
+            </div>
           </CardTitle>
-          <Text size="2" color="gray">
+          <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
             Your card details are handled securely by Braintree.
-          </Text>
+          </p>
         </CardHeader>
+
         <CardContent>
           <div ref={containerRef} />
+
           {error && (
-            <div
-              style={{
-                marginTop: 12,
-                borderRadius: 8,
-                border: "1px solid var(--red-6)",
-                background: "var(--red-3)",
-                color: "var(--red-11)",
-                padding: 12,
-                fontSize: 14,
-              }}
-            >
+            <div className="mt-3 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700">
               {error}
             </div>
           )}
-          <Flex justify="end" style={{ marginTop: 16 }}>
+
+          <div className="mt-4 flex justify-end">
             <Button
               onClick={handlePay}
-              className="rounded-2xl bg-gray-900 px-6 py-3 text-white hover:bg-gray-800"
+              className="rounded-2xl px-6 py-3"
               disabled={!ready || !!busy}
             >
               {busy ? "Processing…" : "Pay & Start Charging"}
             </Button>
-          </Flex>
+          </div>
         </CardContent>
       </Card>
 
-      <Flex
-        align="center"
-        justify="center"
-        gap="3"
-        mt="3"
-        style={{ color: "var(--gray-11)", fontSize: 14 }}
-      >
-        <Flex align="center" gap="1">
-          <ShieldCheck size={16} color="var(--green-9)" /> EU AFIR Compliant
-        </Flex>
-        <Text color="gray">•</Text>
-        <Flex align="center" gap="1">
-          <Lock size={16} color="var(--blue-9)" /> Secure Payment
-        </Flex>
-      </Flex>
+      <div className="mt-3 flex items-center justify-center gap-3 text-sm text-[hsl(var(--muted-foreground))]">
+        <div className="flex items-center gap-1">
+          <ShieldCheck className="h-4 w-4 text-emerald-600" />
+          <span>EU AFIR Compliant</span>
+        </div>
+        <span aria-hidden>•</span>
+        <div className="flex items-center gap-1">
+          <Lock className="h-4 w-4 text-blue-600" />
+          <span>Secure Payment</span>
+        </div>
+      </div>
     </div>
   );
 }
