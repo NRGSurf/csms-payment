@@ -1,6 +1,6 @@
 import React from "react";
 import type { StationInfo } from "./types";
-import PricingDisplay from "@/components/ui/PricingDisplay";
+import { PricingDisplay } from "@/components/ui/PricingDisplay";
 
 type Props = {
   stationId: string;

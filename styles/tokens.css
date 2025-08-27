@@ -11,6 +11,7 @@
   --colors-neutral-100: #f3f4f6;
   --colors-neutral-200: #e5e7eb;
   --colors-neutral-500: #6b7280;
+  --colors-neutral-800: #1f2937;
   --colors-neutral-900: #111827;
   --typography-fontSize-base: 14px;
   --typography-fontSize-sm: 12px;
@@ -46,7 +47,7 @@
 }
 [data-theme="dark"] {
   --dark-colors-background-primary: #111827;
-  --dark-colors-background-secondary: ;
+  --dark-colors-background-secondary: #1f2937;
   --dark-colors-text-primary: #f9fafb;
   --dark-colors-text-secondary: #e5e7eb;
 }

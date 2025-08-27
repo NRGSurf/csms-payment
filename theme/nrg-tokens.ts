@@ -53,6 +53,10 @@ const tokens = {
           "value": "#6b7280",
           "type": "color"
         },
+        "800": {
+          "value": "#1f2937",
+          "type": "color"
+        },
         "900": {
           "value": "#111827",
           "type": "color"

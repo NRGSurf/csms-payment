@@ -2,7 +2,10 @@
 "use client";
 
 import React from "react";
-import ChargingSession from "@/components/flow/ChargingSession";
+import ChargingSession, {
+  type ChargingSessionProps,
+} from "@/components/flow/ChargingSession";
+import { type SessionData, type ChargingData } from "@/components/flow/types";
 
 type Props =
   | {

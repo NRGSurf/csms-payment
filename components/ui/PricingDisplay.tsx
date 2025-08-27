@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { type SessionData } from "@/components/flow/types";
 import {
   QrCode,
   CheckCircle2,
@@ -10,6 +11,11 @@ import {
   Euro,
   AlertCircle,
 } from "lucide-react";
+
+export interface PricingDisplayProps {
+  sessionData: SessionData;
+  onContinue: () => void;
+}
 
 export type SessionData = {
   stationId: string;
@@ -179,3 +185,5 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
     </div>
   );
 }
+
+export default PricingDisplay;

@@ -15,9 +15,9 @@ import {
   Zap,
   Euro,
 } from "lucide-react";
-import { ChargingData, SessionData } from "../App";
+import { type SessionData, type ChargingData } from "./types";
 
-interface ReceiptProps {
+export interface ReceiptProps {
   sessionData: SessionData;
   chargingData: ChargingData;
   onNewSession: () => void;
@@ -349,3 +349,5 @@ export function Receipt({
     </div>
   );
 }
+
+export default Receipt;

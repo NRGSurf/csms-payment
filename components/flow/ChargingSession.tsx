@@ -12,11 +12,11 @@ import {
   Pause,
   AlertTriangle,
 } from "lucide-react";
-import { ChargingData, SessionData } from "../App";
+import { type SessionData, type ChargingData } from "./types";
 
-interface ChargingSessionProps {
-  chargingData: ChargingData;
+export interface ChargingSessionProps {
   sessionData: SessionData;
+  chargingData: ChargingData;
   isCharging: boolean;
   onStopCharging: () => void;
 }
@@ -267,3 +267,5 @@ export function ChargingSession({
     </div>
   );
 }
+
+export default ChargingSession;

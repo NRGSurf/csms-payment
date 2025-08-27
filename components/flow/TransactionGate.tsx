@@ -3,7 +3,7 @@
 import React from "react";
 import Charging from "./Charging"; // Figma ChargingSession adapter
 import type { TransactionDTO } from "@/types/backend";
-import Receipt from "@/components/flow/Receipt";
+import { Receipt } from "@/components/flow/Receipt";
 
 type Props = {
   stationId?: string;
