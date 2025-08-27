@@ -14,6 +14,9 @@ import {
 } from "lucide-react";
 import { type SessionData, type ChargingData } from "./types";
 
+const toDate = (v: string | Date | undefined): Date | undefined =>
+  typeof v === "string" ? new Date(v) : v;
+
 export interface ChargingSessionProps {
   sessionData: SessionData;
   chargingData: ChargingData;
@@ -253,7 +256,10 @@ export function ChargingSession({
               <div>
                 <p className="text-gray-600">Started</p>
                 <p className="text-gray-900">
-                  {sessionData.startTime.toLocaleTimeString()}
+                  {toDate(sessionData.startTime)?.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }) ?? "—"}
                 </p>
               </div>
               <div>

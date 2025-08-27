@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { type SessionData } from "@/components/flow/types";
+import type { SessionData } from "@/components/flow/types";
 import {
   QrCode,
   CheckCircle2,
@@ -17,35 +17,48 @@ export interface PricingDisplayProps {
   onContinue: () => void;
 }
 
-export type SessionData = {
-  stationId: string;
-  stationName: string;
-  stationStatus: string;
-  connector: string;
-  location?: string;
-  pricePerKwh: number;
-};
-
 type Props = {
   sessionData: SessionData;
   onContinue: () => void;
 };
 
-function StatusPill({ status }: { status: SessionData["stationStatus"] }) {
-  const map =
-    status === "Available"
-      ? "border-emerald-400 text-emerald-700"
-      : status === "Occupied"
-      ? "border-amber-400 text-amber-700"
-      : status === "Faulted"
-      ? "border-red-400 text-red-700"
-      : "border-gray-300 text-gray-700";
+type Canonical = "available" | "busy" | "maintenance";
 
+const normalizeStatus = (
+  s: SessionData["stationStatus"] | string | undefined
+): Canonical => {
+  const v = String(s ?? "").toLowerCase();
+  if (v === "available") return "available";
+  if (v === "busy" || v === "occupied" || v === "charging" || v === "suspended")
+    return "busy";
+  if (v === "maintenance" || v === "faulted" || v === "unavailable")
+    return "maintenance";
+  return "busy"; // sensible fallback
+};
+
+const pillStyles: Record<Canonical, string> = {
+  available: "border-emerald-400 text-emerald-700",
+  busy: "border-amber-400 text-amber-700",
+  maintenance: "border-slate-400 text-slate-700",
+};
+
+const pillLabel: Record<Canonical, string> = {
+  available: "Available",
+  busy: "Occupied",
+  maintenance: "Maintenance",
+};
+
+function StatusPill({
+  status,
+}: {
+  status: SessionData["stationStatus"] | string | undefined;
+}) {
+  const canon = normalizeStatus(status);
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${map}`}
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs ${pillStyles[canon]}`}
     >
-      {status}
+      {pillLabel[canon]}
     </span>
   );
 }

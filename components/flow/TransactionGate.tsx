@@ -4,6 +4,7 @@ import React from "react";
 import Charging from "./Charging"; // Figma ChargingSession adapter
 import type { TransactionDTO } from "@/types/backend";
 import { Receipt } from "@/components/flow/Receipt";
+import type { SessionData, ChargingData } from "@/components/flow/types";
 
 type Props = {
   stationId?: string;
