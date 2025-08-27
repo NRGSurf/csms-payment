@@ -1,3 +1,32 @@
+export type AppStep = "pricing" | "payment" | "charging" | "receipt";
+
+export type SessionStatus = "available" | "busy" | "maintenance";
+
+export interface SessionData {
+  stationId: string;
+  stationName: string;
+  stationStatus: SessionStatus;
+  location: string;
+  connector: string;
+
+  sessionId: string;
+  startTime: string | Date;
+  endTime?: string | Date;
+
+  totalEnergy: number; // kWh
+  totalDuration: number; // seconds
+  totalCost: number; // € (or your currency)
+  pricePerKwh: number; // €/kWh
+  sessionFee: number; // €
+}
+
+export interface ChargingData {
+  timeElapsed: number; // seconds
+  energyDelivered: number; // kWh (so far)
+  chargingSpeed: number; // kW (instantaneous or smoothed)
+  runningCost: number; // € (so far)
+}
+
 export type StationInfo = {
   id?: string;
   name?: string;

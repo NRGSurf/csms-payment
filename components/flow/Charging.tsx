@@ -2,9 +2,10 @@
 "use client";
 
 import React from "react";
-// If your module exports default, switch to: `import ChargingSession from "@/design/figma/components/ChargingSession";`
-import { ChargingSession } from "@/design/figma/components/ChargingSession";
-import type { ChargingData, SessionData } from "@/design/figma/App";
+import ChargingSession, {
+  type ChargingSessionProps,
+} from "@/components/flow/ChargingSession";
+import { type SessionData, type ChargingData } from "@/components/flow/types";
 
 type Props =
   | {

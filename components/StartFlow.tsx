@@ -1,7 +1,7 @@
 // components/StartFlow.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import FigmaStepper from "./figma-adapted/FigmaStepper";
-import PaymentAuthorized from "./figma-adapted/PaymentAuthorized";
+import StepIndicator from "@/components/flow/StepIndicator";
+import PaymentAuthorized from "@/components/flow/PaymentAuthorized";
 
 import Overview from "./flow/Overview";
 import BillingForm from "./flow/BillingForm";
@@ -17,8 +17,10 @@ import { FlowStep, InvoiceForm } from "./flow/types";
 import { useStation } from "../hooks/useStation";
 import { useEvseStatus } from "../hooks/useEvseStatus";
 
-import { Box, Flex, Text, Heading, Avatar } from "@radix-ui/themes";
-import FigmaFooter from "./figma-adapted/Footer";
+import type { AppStep } from "@/components/flow/types";
+
+// Map your index to the canonical step keys
+const stepKeys: AppStep[] = ["pricing", "payment", "charging", "receipt"];
 
 type Props =
   | { stationId: string; evseId: number; connectorId?: never }
@@ -155,25 +157,15 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
     return step === FlowStep.Done ? steps.length : step;
   }, [isTokenFlow, tokenFlowView, showCharging, step]);
 
-  return (
-    <Box>
-      {/* Header */}
-      <Box style={{ textAlign: "center", marginBottom: 16 }}>
-        <Flex align="center" justify="center" mb="2">
-          <Avatar size="6" radius="full" fallback="N" />
-        </Flex>
-        <Heading size="5" style={{ color: "var(--gray-12)" }}>
-          NRG Charge Portal
-        </Heading>
-        <Text size="2" color="gray">
-          AFIR Compliant • Secure • No Registration Required
-        </Text>
-      </Box>
+  // assuming you already have currentIndex: number
+  const currentStep: AppStep = stepKeys[currentIndex] ?? "pricing";
 
+  return (
+    <div>
       {/* Stepper */}
-      <Box mb="4">
-        <FigmaStepper labels={steps} currentIndex={currentIndex} />
-      </Box>
+      <div className="mb-4">
+        <StepIndicator current={currentStep} />
+      </div>
 
       {isTokenFlow ? (
         // Token-based: gate decides Charging vs Receipt, and reports back for the stepper
@@ -249,10 +241,7 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
           {step === FlowStep.Done && <Done />}
         </>
       )}
-
-      {/* Footer */}
-      <FigmaFooter />
-    </Box>
+    </div>
   );
 }
 
