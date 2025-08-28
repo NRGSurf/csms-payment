@@ -8,7 +8,4 @@
  * Defines the transport protocol (e.g. SOAP or JSON). Note: SOAP is not supported in OCPP 2.0, but is supported by other versions of OCPP.
  *
  */
-export enum OCPPTransportEnumType {
-    JSON = 'JSON',
-    SOAP = 'SOAP',
-}
+export type OCPPTransportEnumType = 'JSON' | 'SOAP';

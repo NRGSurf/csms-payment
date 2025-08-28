@@ -7,7 +7,4 @@
  * should send.
  *
  */
-export enum LogEnumType {
-    DIAGNOSTICS_LOG = 'DiagnosticsLog',
-    SECURITY_LOG = 'SecurityLog',
-}
+export type LogEnumType = 'DiagnosticsLog' | 'SecurityLog';

@@ -3,18 +3,18 @@
 /* tslint:disable */
 /* eslint-disable */
 export type TariffResponseSchema = Array<{
-    pricePerKwh?: string;
-    pricePerMin?: string | null;
-    pricePerSession?: string | null;
-    authorizationAmount?: string | null;
-    paymentFee?: string | null;
-    taxRate?: string | null;
     id: number;
     stationId: string;
     currency: string;
+    pricePerKwh?: number | string;
+    pricePerMin?: number | string | null;
+    pricePerSession?: number | string | null;
+    authorizationAmount?: number | string | null;
+    paymentFee?: number | string | null;
+    taxRate?: number | string | null;
     pricePerKwhDaytime?: Array<{
         dayOffset: number;
-        pricePerKwh: number;
+        pricePerKwh: number | string;
         validFrom: string;
         validTo: string;
         chargingTiming?: 'GOOD' | 'BAD' | null;

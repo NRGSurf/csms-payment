@@ -12,7 +12,7 @@
     "tokens:watch": "chokidar \"design/figma/tokens/*.json\" -c \"npm run tokens:build\"",
     "prebuild": "npm run tokens:build",
     "openapi:pull": "curl -fSL $BACKEND_OPENAPI_URL -o ./openapi.json",
-    "openapi:gen": "openapi -i ./openapi.json -o ./lib/openapi --client fetch --useOptions --exportServices true --exportModels true",
+    "openapi:gen": "openapi -i ./openapi.json -o ./lib/openapi --client fetch --useOptions --exportServices true --exportModels true --useUnionTypes",
     "openapi": "dotenv -e .env.local -- npm run openapi:pull && npm run openapi:gen"
   },
   "dependencies": {

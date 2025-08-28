@@ -6,9 +6,4 @@
  * Indicates the certificate type that is sent.
  *
  */
-export enum InstallCertificateUseEnumType {
-    V2GROOT_CERTIFICATE = 'V2GRootCertificate',
-    MOROOT_CERTIFICATE = 'MORootCertificate',
-    CSMSROOT_CERTIFICATE = 'CSMSRootCertificate',
-    MANUFACTURER_ROOT_CERTIFICATE = 'ManufacturerRootCertificate',
-}
+export type InstallCertificateUseEnumType = 'V2GRootCertificate' | 'MORootCertificate' | 'CSMSRootCertificate' | 'ManufacturerRootCertificate';

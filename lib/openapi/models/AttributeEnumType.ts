@@ -6,9 +6,4 @@
  * Type of attribute: Actual, Target, MinSet, MaxSet. Default is Actual when omitted.
  *
  */
-export enum AttributeEnumType {
-    ACTUAL = 'Actual',
-    TARGET = 'Target',
-    MIN_SET = 'MinSet',
-    MAX_SET = 'MaxSet',
-}
+export type AttributeEnumType = 'Actual' | 'Target' | 'MinSet' | 'MaxSet';

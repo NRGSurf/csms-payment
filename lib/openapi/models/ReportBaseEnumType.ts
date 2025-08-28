@@ -6,8 +6,4 @@
  * This field specifies the report base.
  *
  */
-export enum ReportBaseEnumType {
-    CONFIGURATION_INVENTORY = 'ConfigurationInventory',
-    FULL_INVENTORY = 'FullInventory',
-    SUMMARY_INVENTORY = 'SummaryInventory',
-}
+export type ReportBaseEnumType = 'ConfigurationInventory' | 'FullInventory' | 'SummaryInventory';

@@ -8,9 +8,4 @@
  * Type of VPN
  *
  */
-export enum VPNEnumType {
-    IKEV2 = 'IKEv2',
-    IPSEC = 'IPSec',
-    L2TP = 'L2TP',
-    PPTP = 'PPTP',
-}
+export type VPNEnumType = 'IKEv2' | 'IPSec' | 'L2TP' | 'PPTP';

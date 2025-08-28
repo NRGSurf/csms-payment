@@ -2,7 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum ChangeAvailabilityRequestType {
-    INOPERATIVE = 'Inoperative',
-    OPERATIVE = 'Operative',
-}
+export type ChangeAvailabilityRequestType = 'Inoperative' | 'Operative';

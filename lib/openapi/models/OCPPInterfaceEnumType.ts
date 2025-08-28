@@ -6,13 +6,4 @@
  * Applicable Network Interface.
  *
  */
-export enum OCPPInterfaceEnumType {
-    WIRED0 = 'Wired0',
-    WIRED1 = 'Wired1',
-    WIRED2 = 'Wired2',
-    WIRED3 = 'Wired3',
-    WIRELESS0 = 'Wireless0',
-    WIRELESS1 = 'Wireless1',
-    WIRELESS2 = 'Wireless2',
-    WIRELESS3 = 'Wireless3',
-}
+export type OCPPInterfaceEnumType = 'Wired0' | 'Wired1' | 'Wired2' | 'Wired3' | 'Wireless0' | 'Wireless1' | 'Wireless2' | 'Wireless3';

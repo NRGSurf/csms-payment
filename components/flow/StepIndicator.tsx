@@ -3,11 +3,11 @@ import * as React from "react";
 import type { AppStep } from "@/components/flow/types";
 import { CheckCircle2 } from "lucide-react";
 
-const steps: { key: AppStep; label: string }[] = [
-  { key: "pricing", label: "Pricing" },
-  { key: "payment", label: "Payment" },
-  { key: "charging", label: "Charging" },
-  { key: "receipt", label: "Receipt" },
+export const steps: { key: AppStep; label: string }[] = [
+  { key: "pricing", label: "Overview" },
+  { key: "payment", label: "Data" },
+  { key: "charging", label: "Payment" },
+  { key: "receipt", label: "Charging" },
 ];
 
 export default function StepIndicator({ current }: { current: AppStep }) {

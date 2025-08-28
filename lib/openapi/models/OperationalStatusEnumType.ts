@@ -7,7 +7,4 @@
  *
  *
  */
-export enum OperationalStatusEnumType {
-    INOPERATIVE = 'Inoperative',
-    OPERATIVE = 'Operative',
-}
+export type OperationalStatusEnumType = 'Inoperative' | 'Operative';

@@ -1,12 +1,48 @@
 // hooks/useStation.ts
 import { useEffect, useState } from "react";
 import type { StationInfo } from "@/components/flow/types";
+import type { ChargingStationDTO } from "@/types/api";
 
-function toNum(v: unknown): number | undefined {
-  if (v == null) return undefined;
-  if (typeof v === "number") return v;
-  const n = parseFloat(String(v));
-  return Number.isFinite(n) ? n : undefined;
+import { toNum } from "@/utils/num";
+
+// turn null/NaN into undefined so ?? works as intended
+const toNumOrUndef = (
+  v: number | string | null | undefined
+): number | undefined => {
+  const n = toNum(v); // number | null | NaN
+  return n == null || Number.isNaN(n) ? undefined : n;
+};
+
+function formatAddress(d?: ChargingStationDTO["location"]): string | undefined {
+  if (!d) return undefined;
+  const parts = [
+    d.address || undefined,
+    [d.postalCode, d.city].filter(Boolean).join(" ").trim() || undefined,
+    d.country || undefined,
+  ].filter(Boolean);
+  return parts.length ? parts.join(", ") : undefined;
+}
+
+function mapDtoToStationInfo(
+  d: ChargingStationDTO,
+  fallbackId: string
+): StationInfo {
+  const name = d?.location?.name ?? d?.id ?? fallbackId;
+
+  const priceNow = toNumOrUndef(d?.currentPriceType?.pricePerKwh);
+
+  const protocol =
+    d?.protocol ?? (d as any)?.ocppVersion ?? (d as any)?.raw?.protocol;
+
+  return {
+    id: d?.id ?? fallbackId,
+    name,
+    address: formatAddress(d?.location),
+    location: d?.location,
+    connectorId: undefined,
+    pricePerKwh: priceNow,
+    protocol,
+  } as StationInfo;
 }
 
 export function useStation(stationId: string) {
@@ -19,44 +55,15 @@ export function useStation(stationId: string) {
       setLoading(true);
       setError(null);
 
-      // New enriched endpoint (proxied by Next to add auth)
+      const qs = new URLSearchParams({ stationId });
       const r = await fetch(
-        `/api/backend/data/charging-station?stationId=${encodeURIComponent(
-          stationId
-        )}`
+        `/api/backend/data/charging-station?${qs.toString()}`
       );
       if (!r.ok)
         throw new Error(`Station ${stationId} not found (${r.status})`);
-      const d = await r.json();
 
-      // Derive display name and price
-      const displayName: string = d?.location?.name ?? d?.id ?? stationId;
-
-      const priceNow =
-        toNum(d?.currentPricePerKwh) ??
-        toNum(d?.currentPriceType?.pricePerKwh) ??
-        toNum(d?.tariff?.pricePerKwh);
-
-      // Optional pretty address if you want to show it
-      const address = d?.location
-        ? [
-            d.location.address,
-            [d.location.postalCode, d.location.city].filter(Boolean).join(" "),
-            d.location.country,
-          ]
-            .filter(Boolean)
-            .join(", ")
-        : undefined;
-
-      setStation({
-        id: d?.id ?? stationId,
-        name: displayName,
-        address,
-        location: d?.location,
-        connectorId: undefined, // not provided by this API; keep undefined for now
-        pricePerKwh: priceNow,
-        protocol: d?.protocol ?? d?.ocppVersion ?? d?.raw?.protocol,
-      } as StationInfo);
+      const d: ChargingStationDTO = await r.json();
+      setStation(mapDtoToStationInfo(d, stationId));
     } catch (e: any) {
       setStation({ name: stationId } as StationInfo);
       setError(e?.message || "Failed to load station");

@@ -45,11 +45,7 @@ export function ChargingSession({
 
   const getChargingStatus = () => {
     if (!isCharging) return { status: "Paused", color: "amber", icon: Pause };
-    if (chargingData.chargingSpeed > 40)
-      return { status: "Fast Charging", color: "green", icon: Zap };
-    if (chargingData.chargingSpeed > 20)
-      return { status: "Charging", color: "blue", icon: Activity };
-    return { status: "Slow Charging", color: "orange", icon: AlertTriangle };
+    return { status: "Charging", color: "blue", icon: Activity };
   };
 
   const chargingStatus = getChargingStatus();
@@ -84,7 +80,7 @@ export function ChargingSession({
 
         <CardContent className="space-y-6">
           {/* Battery Progress */}
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="font-medium text-gray-900">
                 Estimated Battery Level
@@ -94,17 +90,17 @@ export function ChargingSession({
               </span>
             </div>
             <Progress value={estimatedBatteryPercent} className="h-3" />
-          </div>
+          </div> */}
 
           {/* Main Stats Grid */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-blue-50 rounded-lg p-4 text-center">
+            {/* <div className="bg-blue-50 rounded-lg p-4 text-center">
               <Clock className="size-6 text-blue-500 mx-auto mb-2" />
               <div className="text-2xl font-bold text-blue-900">
                 {formatTime(chargingData.timeElapsed)}
               </div>
               <p className="text-blue-700 text-sm">Duration</p>
-            </div>
+            </div> */}
 
             <div className="bg-green-50 rounded-lg p-4 text-center">
               <Zap className="size-6 text-green-500 mx-auto mb-2" />
@@ -114,13 +110,13 @@ export function ChargingSession({
               <p className="text-green-700 text-sm">kWh Delivered</p>
             </div>
 
-            <div className="bg-purple-50 rounded-lg p-4 text-center">
+            {/* <div className="bg-purple-50 rounded-lg p-4 text-center">
               <Activity className="size-6 text-purple-500 mx-auto mb-2" />
               <div className="text-2xl font-bold text-purple-900">
                 {chargingData.chargingSpeed.toFixed(0)}
               </div>
               <p className="text-purple-700 text-sm">kW Current</p>
-            </div>
+            </div> */}
 
             <div className="bg-orange-50 rounded-lg p-4 text-center">
               <Euro className="size-6 text-orange-500 mx-auto mb-2" />
@@ -164,7 +160,7 @@ export function ChargingSession({
       </Card>
 
       {/* Session Control */}
-      <Card className="shadow-lg">
+      {/* <Card className="shadow-lg">
         <CardContent className="pt-6">
           {!showStopConfirm ? (
             <div className="space-y-4">
@@ -233,7 +229,7 @@ export function ChargingSession({
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Session Info */}
       <Card>

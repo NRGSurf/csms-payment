@@ -2,8 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum MutabilityEnumType {
-    READ_ONLY = 'ReadOnly',
-    WRITE_ONLY = 'WriteOnly',
-    READ_WRITE = 'ReadWrite',
-}
+export type MutabilityEnumType = 'ReadOnly' | 'WriteOnly' | 'ReadWrite';

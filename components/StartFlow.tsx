@@ -1,5 +1,6 @@
 // components/StartFlow.tsx
 import React, { useEffect, useMemo, useState } from "react";
+import { steps } from "@/components/flow/StepIndicator";
 import StepIndicator from "@/components/flow/StepIndicator";
 import PaymentAuthorized from "@/components/flow/PaymentAuthorized";
 
@@ -19,15 +20,10 @@ import { useEvseStatus } from "../hooks/useEvseStatus";
 
 import type { AppStep } from "@/components/flow/types";
 
-// Map your index to the canonical step keys
-const stepKeys: AppStep[] = ["pricing", "payment", "charging", "receipt"];
-
 type Props =
   | { stationId: string; evseId: number; connectorId?: never }
   | { stationId: string; connectorId: number; evseId?: never }
   | { stationId: string; evseId?: number; connectorId?: number };
-
-const steps = ["Pricing", "Billing", "Payment", "Charging"];
 
 export function StartFlow({ stationId, evseId, connectorId }: Props) {
   const [step, setStep] = useState<FlowStep>(FlowStep.Overview);
@@ -152,13 +148,15 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
   // - token flow: charging → 3, receipt → steps.length (mark Charging completed)
   // - non-token: charging → 3, done → steps.length, else map to current step
   const currentIndex = useMemo(() => {
-    if (isTokenFlow) return tokenFlowView === "receipt" ? steps.length : 3;
+    if (isTokenFlow) return 3;
     if (showCharging) return 3;
     return step === FlowStep.Done ? steps.length : step;
   }, [isTokenFlow, tokenFlowView, showCharging, step]);
 
   // assuming you already have currentIndex: number
-  const currentStep: AppStep = stepKeys[currentIndex] ?? "pricing";
+  const currentStep: AppStep = steps[currentIndex]
+    ? steps[currentIndex].key
+    : "pricing";
 
   return (
     <div>
@@ -185,6 +183,9 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
                   connectorId={connectorId} // required in this union branch
                   transactionId={tx?.id ? String(tx.id) : ""}
                   kwh={typeof tx?.kwh === "number" ? tx.kwh : 0}
+                  totalCost={
+                    typeof tx?.totalCost === "number" ? tx.totalCost : 0
+                  }
                   seconds={typeof tx?.seconds === "number" ? tx.seconds : 0}
                   startedAt={tx?.startedAt ? String(tx.startedAt) : undefined}
                 />
@@ -194,6 +195,9 @@ export function StartFlow({ stationId, evseId, connectorId }: Props) {
                   evseId={typeof evseId === "number" ? evseId : 1} // required in this union branch
                   transactionId={tx?.id ? String(tx.id) : ""}
                   kwh={typeof tx?.kwh === "number" ? tx.kwh : 0}
+                  totalCost={
+                    typeof tx?.totalCost === "number" ? tx.totalCost : 0
+                  }
                   seconds={typeof tx?.seconds === "number" ? tx.seconds : 0}
                   startedAt={tx?.startedAt ? String(tx.startedAt) : undefined}
                 />

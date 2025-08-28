@@ -2,7 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum RemoteStartTransactionRequestRecurrencyKind {
-    DAILY = 'Daily',
-    WEEKLY = 'Weekly',
-}
+export type RemoteStartTransactionRequestRecurrencyKind = 'Daily' | 'Weekly';

@@ -8,9 +8,4 @@
  * Authentication method.
  *
  */
-export enum APNAuthenticationEnumType {
-    CHAP = 'CHAP',
-    NONE = 'NONE',
-    PAP = 'PAP',
-    AUTO = 'AUTO',
-}
+export type APNAuthenticationEnumType = 'CHAP' | 'NONE' | 'PAP' | 'AUTO';

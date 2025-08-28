@@ -2,8 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum MonitoringCriterionEnumType {
-    THRESHOLD_MONITORING = 'ThresholdMonitoring',
-    DELTA_MONITORING = 'DeltaMonitoring',
-    PERIODIC_MONITORING = 'PeriodicMonitoring',
-}
+export type MonitoringCriterionEnumType = 'ThresholdMonitoring' | 'DeltaMonitoring' | 'PeriodicMonitoring';

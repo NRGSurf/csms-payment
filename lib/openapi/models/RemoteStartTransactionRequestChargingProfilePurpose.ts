@@ -2,8 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum RemoteStartTransactionRequestChargingProfilePurpose {
-    CHARGE_POINT_MAX_PROFILE = 'ChargePointMaxProfile',
-    TX_DEFAULT_PROFILE = 'TxDefaultProfile',
-    TX_PROFILE = 'TxProfile',
-}
+export type RemoteStartTransactionRequestChargingProfilePurpose = 'ChargePointMaxProfile' | 'TxDefaultProfile' | 'TxProfile';

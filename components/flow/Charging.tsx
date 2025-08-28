@@ -14,6 +14,7 @@ type Props =
       evseId?: never;
       transactionId?: string;
       kwh?: number;
+      totalCost?: number;
       seconds?: number;
       startedAt?: string;
     }
@@ -23,6 +24,7 @@ type Props =
       connectorId?: never;
       transactionId?: string;
       kwh?: number;
+      totalCost?: number;
       seconds?: number;
       startedAt?: string;
     };
@@ -31,6 +33,7 @@ export default function Charging(props: Props) {
   const kwh = props.kwh ?? 0;
   const seconds = props.seconds ?? 0;
   const startedAt = props.startedAt ? new Date(props.startedAt) : new Date();
+  const totalCost = props.totalCost ?? 0;
 
   // Build the shapes the Figma components expect
   const sessionData: SessionData = {
@@ -41,7 +44,7 @@ export default function Charging(props: Props) {
     // totals so far
     totalEnergy: kwh,
     totalDuration: seconds,
-    totalCost: 0,
+    totalCost: totalCost,
 
     // required by your Figma types
     stationName: props.stationId,
@@ -63,8 +66,8 @@ export default function Charging(props: Props) {
   const chargingData: ChargingData = {
     timeElapsed: seconds,
     energyDelivered: kwh,
-    chargingSpeed: 0,
-    runningCost: 0,
+    chargingSpeed: 1,
+    runningCost: totalCost,
     // If your ChargingData type includes `cost`, add it:
     // cost: 0,
   };

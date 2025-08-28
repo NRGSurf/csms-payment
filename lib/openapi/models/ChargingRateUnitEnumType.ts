@@ -8,7 +8,4 @@
  * The unit of measure Limit is expressed in.
  *
  */
-export enum ChargingRateUnitEnumType {
-    W = 'W',
-    A = 'A',
-}
+export type ChargingRateUnitEnumType = 'W' | 'A';

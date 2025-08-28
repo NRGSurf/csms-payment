@@ -8,8 +8,4 @@
  * The kind of cost referred to in the message element amount
  *
  */
-export enum CostKindEnumType {
-    CARBON_DIOXIDE_EMISSION = 'CarbonDioxideEmission',
-    RELATIVE_PRICE_PERCENTAGE = 'RelativePricePercentage',
-    RENEWABLE_GENERATION_PERCENTAGE = 'RenewableGenerationPercentage',
-}
+export type CostKindEnumType = 'CarbonDioxideEmission' | 'RelativePricePercentage' | 'RenewableGenerationPercentage';

@@ -6,9 +6,4 @@
  * If provided the Charging Station shall return Display Messages with the given state only.
  *
  */
-export enum MessageStateEnumType {
-    CHARGING = 'Charging',
-    FAULTED = 'Faulted',
-    IDLE = 'Idle',
-    UNAVAILABLE = 'Unavailable',
-}
+export type MessageStateEnumType = 'Charging' | 'Faulted' | 'Idle' | 'Unavailable';

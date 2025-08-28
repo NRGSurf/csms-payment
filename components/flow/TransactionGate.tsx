@@ -188,6 +188,7 @@ export default function TransactionGate({
         transactionId={activeTx.transactionId}
         seconds={num((activeTx as any).timeSpentCharging)}
         kwh={num((activeTx as any).totalKwh)}
+        totalCost={num((activeTx as any).totalCost)}
         startedAt={activeTx.createdAt}
       />
     );
@@ -226,10 +227,9 @@ export default function TransactionGate({
       return (tx as any).isActive ? "busy" : "available";
     })(),
     location: "—",
-    // 🔧 singular field name:
     connector: String((tx as any).evseDatabaseId ?? 1),
 
-    pricePerKwh: 0.55,
+    pricePerKwh: 0,
     sessionFee: 0,
   };
 
@@ -237,7 +237,7 @@ export default function TransactionGate({
     timeElapsed: totalDuration,
     energyDelivered: totalEnergy,
     chargingSpeed: 0,
-    runningCost: 0,
+    runningCost: totalCost,
     // only include keys actually defined in ChargingData
     // e.g. if it has 'cost' use:
     // cost: totalCost,

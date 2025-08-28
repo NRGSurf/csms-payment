@@ -8,7 +8,4 @@
  * Indicates the start point of a recurrence.
  *
  */
-export enum RecurrencyKindEnumType {
-    DAILY = 'Daily',
-    WEEKLY = 'Weekly',
-}
+export type RecurrencyKindEnumType = 'Daily' | 'Weekly';

@@ -7,10 +7,4 @@
  *
  *
  */
-export enum MonitorEnumType {
-    UPPER_THRESHOLD = 'UpperThreshold',
-    LOWER_THRESHOLD = 'LowerThreshold',
-    DELTA = 'Delta',
-    PERIODIC = 'Periodic',
-    PERIODIC_CLOCK_ALIGNED = 'PeriodicClockAligned',
-}
+export type MonitorEnumType = 'UpperThreshold' | 'LowerThreshold' | 'Delta' | 'Periodic' | 'PeriodicClockAligned';
