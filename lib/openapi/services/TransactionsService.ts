@@ -8,7 +8,10 @@ import type { LocationResponseSchema } from '../models/LocationResponseSchema';
 import type { MessageConfirmationSchemaArray } from '../models/MessageConfirmationSchemaArray';
 import type { ocpp2_0_1_CostUpdatedRequest } from '../models/ocpp2_0_1_CostUpdatedRequest';
 import type { ocpp2_0_1_GetTransactionStatusRequest } from '../models/ocpp2_0_1_GetTransactionStatusRequest';
+import type { PaymentResponse } from '../models/PaymentResponse';
 import type { processPaymentSchema } from '../models/processPaymentSchema';
+import type { QREndpointRequestSchema } from '../models/QREndpointRequestSchema';
+import type { QREndpointResponse } from '../models/QREndpointResponse';
 import type { SystemConfigSchema } from '../models/SystemConfigSchema';
 import type { TariffResponseSchema } from '../models/TariffResponseSchema';
 import type { TariffSchema } from '../models/TariffSchema';
@@ -238,6 +241,62 @@ export class TransactionsService {
             url: '/data/transactions/idToken',
             query: {
                 'idTokenId': idTokenId,
+                'tenantId': tenantId,
+            },
+        });
+    }
+    /**
+     * @returns QREndpointResponse Default Response
+     * @throws ApiError
+     */
+    public static getDataTransactionsQREndpoint({
+        slug,
+        tenantId = 1,
+    }: {
+        slug: string,
+        tenantId?: number,
+    }): CancelablePromise<QREndpointResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/data/transactions/qREndpoint',
+            query: {
+                'slug': slug,
+                'tenantId': tenantId,
+            },
+        });
+    }
+    /**
+     * @returns QREndpointResponse Default Response
+     * @throws ApiError
+     */
+    public static postDataTransactionsQREndpoint({
+        requestBody,
+    }: {
+        requestBody?: QREndpointRequestSchema,
+    }): CancelablePromise<QREndpointResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/data/transactions/qREndpoint',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+    /**
+     * @returns PaymentResponse Default Response
+     * @throws ApiError
+     */
+    public static getDataTransactionsPayment({
+        braintreeTransactionId,
+        tenantId = 1,
+    }: {
+        braintreeTransactionId: string,
+        tenantId?: number,
+    }): CancelablePromise<PaymentResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/data/transactions/payment',
+            query: {
+                'braintreeTransactionId': braintreeTransactionId,
                 'tenantId': tenantId,
             },
         });
