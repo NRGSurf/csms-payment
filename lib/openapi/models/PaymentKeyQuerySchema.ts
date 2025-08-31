@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type PaymentKeyQuerySchema = {
-    braintreeTransactionId: string;
+    providerTransactionId: string;
     tenantId: number;
 };
 

@@ -3,97 +3,63 @@ import Head from "next/head";
 import type { GetServerSideProps } from "next";
 import { StartFlow } from "@/components/StartFlow";
 
-type QREndpoint = {
-  databaseId: number;
-  slug: string;
-  stationId: string | null;
-  version: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  connectorId?: number | null;
-  label?: string | null;
-  lastScannedAt?: string | null;
-  // If your API starts returning it:
-  evseId?: number | null;
-};
+import { OpenAPI } from "@/lib/openapi/core/OpenAPI";
+import { TransactionsService } from "@/lib/openapi/services/TransactionsService";
+import type { QREndpointResponse } from "@/lib/openapi/models/QREndpointResponse";
 
-type Props =
-  | {
-      ok: true;
-      slug: string;
-      stationId: string;
-      evseId?: number;
-      connectorId?: number;
-    }
+type PageProps =
+  | { ok: true; data: QREndpointResponse; tokenId?: string }
   | { ok: false; status: number; message?: string };
 
-export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
-  const slug = ctx.params?.slug as string;
-
-  if (!slug) {
+export const getServerSideProps: GetServerSideProps<PageProps> = async (
+  ctx
+) => {
+  const slug = ctx.params?.slug as string | undefined;
+  if (!slug)
     return { props: { ok: false, status: 400, message: "Missing slug" } };
-  }
 
-  // Prefer your existing envs (used by /api/backend/*)
-  const base =
-    process.env.CITRINE_API_BASE_URL ||
-    process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ||
-    "http://localhost:8080";
+  // 👇 read token from query on the server so SSR & CSR match
+  const tokenQ = (ctx.query.tokenID ?? ctx.query.tokenId) as
+    | string
+    | string[]
+    | undefined;
+  const tokenId = Array.isArray(tokenQ) ? tokenQ[0] : tokenQ;
+
+  // OpenAPI config
+  const base = process.env.CITRINE_API_BASE_URL ?? "http://localhost:8080";
+  (OpenAPI as any).BASE = base;
   const token = process.env.CITRINE_API_TOKEN;
+  if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
 
-  const url = `${base}/data/transactions/qREndpoint?slug=${encodeURIComponent(
-    slug
-  )}`;
-
-  const res = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
-
-  if (!res.ok) {
+  try {
+    const data = await TransactionsService.getDataTransactionsQREndpoint({
+      slug,
+    });
+    if (!data?.stationId) {
+      return {
+        props: { ok: false, status: 404, message: "QR code not found" },
+      };
+    }
     return {
       props: {
-        ok: false,
-        status: res.status,
-        message: `Failed to resolve slug (${res.status})`,
-      },
+        ok: true,
+        data,
+        ...(tokenId ? { tokenId } : {}),
+      } as any,
     };
-  }
-
-  const data = (await res.json()) as QREndpoint | null;
-
-  if (!data?.stationId) {
+  } catch {
     return {
-      props: { ok: false, status: 404, message: "Slug not found" },
+      props: { ok: false, status: 502, message: "Failed to resolve QR slug" },
     };
   }
-
-  // Map optional values safely
-  const evseId = typeof data.evseId === "number" ? data.evseId : undefined; // use when your API returns it
-
-  const connectorId =
-    typeof data.connectorId === "number" ? data.connectorId : undefined;
-
-  return {
-    props: {
-      ok: true,
-      slug,
-      stationId: data.stationId,
-      evseId,
-      connectorId,
-    },
-  };
 };
 
-export default function QRSlugPage(props: Props) {
+export default function QRSlugPage(props: PageProps) {
   if (!props.ok) {
     return (
       <>
         <Head>
-          <title>QR code not found</title>
+          <title>QR not found</title>
         </Head>
         <main className="mx-auto max-w-xl p-6">
           <h1 className="text-xl font-semibold">QR code not found</h1>
@@ -105,17 +71,22 @@ export default function QRSlugPage(props: Props) {
     );
   }
 
-  const { stationId, evseId, connectorId, slug } = props;
+  const { data, tokenId } = props;
 
   return (
     <>
       <Head>
-        <title>{`QR · ${slug}`}</title>
+        <title>{`Station ${data.stationId}`}</title>
       </Head>
       <StartFlow
-        stationId={stationId}
-        {...(evseId != null ? { evseId } : {})}
-        {...(connectorId != null ? { connectorId } : {})}
+        stationId={data.stationId!}
+        {...(typeof (data as any).evseId === "number"
+          ? { evseId: (data as any).evseId }
+          : {})}
+        {...(typeof data.connectorId === "number"
+          ? { connectorId: data.connectorId }
+          : {})}
+        tokenId={tokenId}
       />
     </>
   );

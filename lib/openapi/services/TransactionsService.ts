@@ -286,17 +286,17 @@ export class TransactionsService {
      * @throws ApiError
      */
     public static getDataTransactionsPayment({
-        braintreeTransactionId,
+        providerTransactionId,
         tenantId = 1,
     }: {
-        braintreeTransactionId: string,
+        providerTransactionId: string,
         tenantId?: number,
     }): CancelablePromise<PaymentResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/data/transactions/payment',
             query: {
-                'braintreeTransactionId': braintreeTransactionId,
+                'providerTransactionId': providerTransactionId,
                 'tenantId': tenantId,
             },
         });
