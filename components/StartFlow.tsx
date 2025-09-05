@@ -127,27 +127,41 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
       });
       console.log("[processPayment] response:", res);
 
-      const ocppTransactionId =
-        // preferred: payload.ocppTransactionId (per your backend snippet)
-        (res as any)?.payload?.ocppTransactionId ??
-        // sometimes directly on root
-        (res as any)?.ocppTransactionId ??
-        // if backend returns { results: [ { payload: { ocppTransactionId } } ] }
-        (Array.isArray((res as any)?.results) &&
-          (res as any).results[0]?.payload?.ocppTransactionId) ??
-        // fallback some backends use nested transaction object
-        (res as any)?.transaction?.transactionId ??
-        null;
+      // Normalise response to an array of results
+      type ProcessPaymentItem = {
+        success: boolean;
+        payload?: {
+          providerTransactionId?: string;
+          ocppTransactionId?: string;
+          paymentId?: number;
+          status?: string;
+          currency?: string;
+          reservedAmount?: string | number;
+        };
+        message?: string;
+        error?: string;
+      };
 
-      // Your backend should return something like:
-      // { success, paymentId, providerTransactionId, status, currency, reservedAmount, transaction, invoice }
-      if (!res || res.success === false) {
+      const results: ProcessPaymentItem[] = Array.isArray(res)
+        ? res
+        : [res as ProcessPaymentItem];
+
+      // Prefer the first successful item, else the first item
+      const first = results.find((r) => r?.success) ?? results[0];
+
+      const providerTransactionId =
+        first?.payload?.providerTransactionId ?? null;
+
+      // Guard + error message
+      if (!first || !first.success || !providerTransactionId) {
         const msg =
-          (res && (res.message || res.error)) || "processPayment failed";
+          first?.message ||
+          first?.error ||
+          "processPayment failed (missing providerTransactionId)";
         throw new Error(msg);
       }
 
-      setTokenId(String(ocppTransactionId));
+      setTokenId(String(providerTransactionId));
       setPaymentAuthorized(true);
     } catch (e) {
       console.error(e);
