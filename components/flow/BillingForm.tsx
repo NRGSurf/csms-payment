@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { InvoiceForm } from "./types";
 import { Shield, Inbox, User, Home, Hash, Landmark } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   initial?: InvoiceForm;
@@ -11,21 +12,12 @@ type Props = {
   busy?: boolean;
 };
 
-const baseSchema = z.object({
-  fullName: z.string().min(2, "Please enter your full name"),
-  email: z.string().email("Please enter a valid email"),
-  phone: z.string().optional(),
-  street: z.string().optional(),
-  postalCode: z.string().optional(),
-  city: z.string().optional(),
-  country: z.string().optional(),
-});
-
 export default function BillingForm({
   initial,
   onSubmit,
   busy = false,
 }: Props) {
+  const { t } = useI18n();
   const [wantsFullInvoice, setWantsFullInvoice] = useState<boolean>(
     Boolean(
       initial?.street ||
@@ -35,15 +27,29 @@ export default function BillingForm({
     )
   );
 
+  const baseSchema = useMemo(
+    () =>
+      z.object({
+        fullName: z.string().min(2, t('billing.fullNameError')),
+        email: z.string().email(t('billing.emailError')),
+        phone: z.string().optional(),
+        street: z.string().optional(),
+        postalCode: z.string().optional(),
+        city: z.string().optional(),
+        country: z.string().optional(),
+      }),
+    [t]
+  );
+
   const schema = useMemo(() => {
     if (!wantsFullInvoice) return baseSchema;
     return baseSchema.extend({
-      street: z.string().min(3, "Street is required"),
-      postalCode: z.string().min(2, "Postal code is required"),
-      city: z.string().min(2, "City is required"),
-      country: z.string().min(2, "Country is required"),
+      street: z.string().min(3, t('billing.streetError')),
+      postalCode: z.string().min(2, t('billing.postalCodeError')),
+      city: z.string().min(2, t('billing.cityError')),
+      country: z.string().min(2, t('billing.countryError')),
     });
-  }, [wantsFullInvoice]);
+  }, [wantsFullInvoice, baseSchema, t]);
 
   const {
     register,
@@ -70,10 +76,9 @@ export default function BillingForm({
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">Billing Details</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t('billing.title')}</h2>
         <p className="text-gray-500 text-sm mt-1">
-          We’ll email a receipt to the address below. Turn on invoice to add
-          address details.
+          {t('billing.description')}
         </p>
       </div>
 
@@ -84,12 +89,12 @@ export default function BillingForm({
           <div className="col-span-1 md:col-span-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
               <User className="w-4 h-4" />
-              Full name
+              {t('billing.fullName')}
             </label>
             <input
               type="text"
               {...register("fullName")}
-              placeholder="Your full name"
+              placeholder={t('billing.fullNamePlaceholder')}
               className={`w-full rounded-lg border px-3 py-2 outline-none transition
                 ${
                   errors.fullName
@@ -107,12 +112,12 @@ export default function BillingForm({
           <div>
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
               <Inbox className="w-4 h-4" />
-              Email
+              {t('billing.email')}
             </label>
             <input
               type="email"
               {...register("email")}
-              placeholder="you@example.com"
+              placeholder={t('billing.emailPlaceholder')}
               className={`w-full rounded-lg border px-3 py-2 outline-none transition
                 ${
                   errors.email
@@ -130,12 +135,12 @@ export default function BillingForm({
           <div>
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
               <Shield className="w-4 h-4" />
-              Phone (optional)
+              {t('billing.phone')}
             </label>
             <input
               type="tel"
               {...register("phone")}
-              placeholder="+49 123 456789"
+              placeholder={t('billing.phonePlaceholder')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
@@ -145,10 +150,10 @@ export default function BillingForm({
         <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
           <div>
             <p className="text-sm font-medium text-gray-800">
-              Need an invoice?
+              {t('billing.invoiceToggleTitle')}
             </p>
             <p className="text-xs text-gray-500">
-              Add address details for a full invoice.
+              {t('billing.invoiceToggleDescription')}
             </p>
           </div>
           <button
@@ -172,12 +177,12 @@ export default function BillingForm({
             <div className="md:col-span-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
                 <Home className="w-4 h-4" />
-                Street & Number
+                {t('billing.street')}
               </label>
               <input
                 type="text"
                 {...register("street")}
-                placeholder="Street and number"
+                placeholder={t('billing.streetPlaceholder')}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
                   ${
                     errors.street
@@ -195,12 +200,12 @@ export default function BillingForm({
             <div>
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
                 <Hash className="w-4 h-4" />
-                Postal code
+                {t('billing.postalCode')}
               </label>
               <input
                 type="text"
                 {...register("postalCode")}
-                placeholder="e.g. 80331"
+                placeholder={t('billing.postalCodePlaceholder')}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
                   ${
                     errors.postalCode
@@ -218,17 +223,17 @@ export default function BillingForm({
             <div>
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
                 <Landmark className="w-4 h-4" />
-                City
+                {t('billing.city')}
               </label>
               <input
                 type="text"
                 {...register("city")}
-                placeholder="City"
+                placeholder={t('billing.cityPlaceholder')}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
                   ${
                     errors.city
                       ? "border-red-500 focus:ring-red-200"
-                      : "border-gray-300 focus:ring-2 focus:ring-blue-200"
+                      : "border-gray-300 focus-ring-2 focus-ring-blue-200"
                   }`}
               />
               {errors.city && (
@@ -240,12 +245,12 @@ export default function BillingForm({
 
             <div>
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
-                Country
+                {t('billing.country')}
               </label>
               <input
                 type="text"
                 {...register("country")}
-                placeholder="Country"
+                placeholder={t('billing.countryPlaceholder')}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
                   ${
                     errors.country
@@ -275,7 +280,7 @@ export default function BillingForm({
                   : "bg-gray-900 hover:bg-gray-900/90"
               }`}
           >
-            {busy ? "Please wait…" : "Continue to payment"}
+            {busy ? t('billing.submitWaiting') : t('billing.submit')}
           </button>
         </div>
       </div>

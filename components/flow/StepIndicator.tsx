@@ -2,21 +2,24 @@
 import * as React from "react";
 import type { AppStep } from "@/components/flow/types";
 import { CheckCircle2 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
-export const steps: { key: AppStep; label: string }[] = [
-  { key: "pricing", label: "Overview" },
-  { key: "payment", label: "Data" },
-  { key: "charging", label: "Payment" },
-  { key: "receipt", label: "Charging" },
+export const steps: { key: AppStep; labelKey: string }[] = [
+  { key: "pricing", labelKey: "steps.overview" },
+  { key: "payment", labelKey: "steps.data" },
+  { key: "charging", labelKey: "steps.payment" },
+  { key: "receipt", labelKey: "steps.charging" },
 ];
 
 export default function StepIndicator({ current }: { current: AppStep }) {
-  const idx = steps.findIndex((s) => s.key === current);
+  const { t } = useI18n();
+  const withLabels = steps.map((s) => ({ ...s, label: t(s.labelKey) }));
+  const idx = withLabels.findIndex((s) => s.key === current);
 
   return (
     <div className="mb-8">
       <div className="mb-2 flex items-center justify-between">
-        {steps.map((s, i) => {
+        {withLabels.map((s, i) => {
           const isActive = i === idx;
           const isDone = i < idx;
           return (

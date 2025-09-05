@@ -16,6 +16,7 @@ import {
   Euro,
 } from "lucide-react";
 import { type SessionData, type ChargingData } from "./types";
+import { useI18n } from "@/lib/i18n";
 
 export interface ReceiptProps {
   sessionData: SessionData;
@@ -28,6 +29,7 @@ export function Receipt({
   chargingData,
   onNewSession,
 }: ReceiptProps) {
+  const { t } = useI18n();
   const [emailAddress, setEmailAddress] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -61,10 +63,10 @@ export function Receipt({
         <CardContent className="pt-6 text-center">
           <CheckCircle2 className="size-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-green-900 mb-2">
-            Charging Complete!
+            {t('receipt.chargingComplete')}
           </h2>
           <p className="text-green-700">
-            Your payment has been processed successfully
+            {t('receipt.paymentProcessed')}
           </p>
 
           <div className="grid grid-cols-1 gap-3 text-sm">
@@ -72,7 +74,7 @@ export function Receipt({
               <div className="text-3xl font-bold text-green-600 mb-1">
                 €{chargingData.runningCost.toFixed(2)}
               </div>
-              <p className="text-green-700 text-sm">Final Amount Charged</p>
+              <p className="text-green-700 text-sm">{t('receipt.finalAmount')}</p>
             </div>
 
             <div className="grid grid-cols-1 gap-4">
@@ -80,7 +82,7 @@ export function Receipt({
                 <p className="text-xl font-bold text-gray-900">
                   {chargingData.energyDelivered.toFixed(1)} kWh
                 </p>
-                <p className="text-green-700 text-sm">Energy Charged</p>
+                <p className="text-green-700 text-sm">{t('receipt.energyCharged')}</p>
               </div>
             </div>
 
@@ -88,10 +90,10 @@ export function Receipt({
               <Mail className="size-12 text-gray-400 mx-auto" />
               <div>
                 <h3 className="font-medium text-gray-900 mb-2">
-                  Email Receipt
+                  {t('receipt.emailReceipt')}
                 </h3>
                 <p className="text-gray-900 text-sm">
-                  Your receipt has been sent to your email address.
+                  {t('receipt.emailSent')}
                 </p>
               </div>
               {/* <Button
@@ -321,7 +323,7 @@ export function Receipt({
                   </p>
                 </div> */}
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-600">Transaction ID</p>
+                  <p className="text-gray-600">{t('receipt.transactionId')}</p>
                   <p className="font-mono font-medium text-gray-900">
                     {transactionId}
                   </p>
@@ -365,13 +367,11 @@ export function Receipt({
                 variant="outline"
                 className="border-green-500 text-green-700"
               >
-                🇪🇺 EU AFIR Compliant
+                🇪🇺 {t('receipt.euCompliant')}
               </Badge>
             </div>
             <p className="text-green-800 text-sm">
-              This transaction complies with EU Alternative Fuels Infrastructure
-              Regulation (AFIR) requirements for transparent pricing and ad-hoc
-              payments.
+              {t('receipt.complianceText')}
             </p>
           </div>
         </CardContent>
@@ -385,17 +385,17 @@ export function Receipt({
           className="w-full h-14 text-base"
         >
           <RefreshCw className="size-5 mr-2" />
-          Start New Charging Session
+          {t('receipt.startNew')}
         </Button>
 
         <div className="text-center">
           <p className="text-xs text-gray-500 mb-3">
-            Thank you for using our EV charging network!
+            {t('receipt.thankYou')}
           </p>
           <div className="flex justify-center gap-4 text-xs text-gray-400">
-            <button className="hover:text-gray-600">Support</button>
-            <button className="hover:text-gray-600">Terms</button>
-            <button className="hover:text-gray-600">Privacy</button>
+            <button className="hover:text-gray-600">{t('receipt.support')}</button>
+            <button className="hover:text-gray-600">{t('receipt.terms')}</button>
+            <button className="hover:text-gray-600">{t('receipt.privacy')}</button>
           </div>
         </div>
       </div>
