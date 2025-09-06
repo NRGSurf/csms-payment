@@ -2,6 +2,7 @@
 import Head from "next/head";
 import type { GetServerSideProps } from "next";
 import { StartFlow } from "@/components/StartFlow";
+import { useI18n } from "@/lib/i18n";
 
 import { OpenAPI } from "@/lib/openapi/core/OpenAPI";
 import { TransactionsService } from "@/lib/openapi/services/TransactionsService";
@@ -55,16 +56,17 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
 };
 
 export default function QRSlugPage(props: PageProps) {
+  const { t } = useI18n();
   if (!props.ok) {
     return (
       <>
         <Head>
-          <title>QR not found</title>
+          <title>{t('qr.notFoundTitle')}</title>
         </Head>
         <main className="mx-auto max-w-xl p-6">
-          <h1 className="text-xl font-semibold">QR code not found</h1>
+          <h1 className="text-xl font-semibold">{t('qr.notFoundHeading')}</h1>
           <p className="mt-2 text-sm opacity-80">
-            {props.message ?? `Error ${props.status}`}
+            {props.message ?? `${t('transactionGate.error', { error: props.status })}`}
           </p>
         </main>
       </>

@@ -5,6 +5,7 @@ import Charging from "./Charging"; // Figma ChargingSession adapter
 import type { TransactionDTO } from "@/types/backend";
 import { Receipt } from "@/components/flow/Receipt";
 import type { SessionData, ChargingData } from "@/components/flow/types";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   stationId?: string;
@@ -30,6 +31,7 @@ export default function TransactionGate({
   pollIntervalMs = 4000,
   onViewChange,
 }: Props) {
+  const { t } = useI18n();
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [activeTx, setActiveTx] = React.useState<TransactionDTO | null>(null);
@@ -175,10 +177,15 @@ export default function TransactionGate({
   }, [doFetch, pollIntervalMs]);
 
   if (loading)
-    return <div className="p-4 opacity-70 text-sm">Loading transaction…</div>;
-  if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
+    return (
+      <div className="p-4 opacity-70 text-sm">{t('transactionGate.loading')}</div>
+    );
+  if (error)
+    return (
+      <div className="p-4 text-red-600">{t('transactionGate.error', { error })}</div>
+    );
   if (!activeTx && !latestTx)
-    return <div className="p-4">No transactions found.</div>;
+    return <div className="p-4">{t('transactionGate.none')}</div>;
 
   if (activeTx) {
     return (

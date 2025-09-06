@@ -11,6 +11,7 @@ import {
   Euro,
   AlertCircle,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export interface PricingDisplayProps {
   sessionData: SessionData;
@@ -42,23 +43,23 @@ const pillStyles: Record<Canonical, string> = {
   maintenance: "border-slate-400 text-slate-700",
 };
 
-const pillLabel: Record<Canonical, string> = {
-  available: "Available",
-  busy: "Occupied",
-  maintenance: "Maintenance",
-};
-
 function StatusPill({
   status,
 }: {
   status: SessionData["stationStatus"] | string | undefined;
 }) {
+  const { t } = useI18n();
   const canon = normalizeStatus(status);
+  const labelMap: Record<Canonical, string> = {
+    available: t('pricingDisplay.available'),
+    busy: t('pricingDisplay.occupied'),
+    maintenance: t('pricingDisplay.maintenance'),
+  };
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs ${pillStyles[canon]}`}
     >
-      {pillLabel[canon]}
+      {labelMap[canon]}
     </span>
   );
 }
@@ -72,6 +73,7 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
     location,
     pricePerKwh,
   } = sessionData;
+  const { t } = useI18n();
 
   return (
     <div className="space-y-6">
@@ -81,7 +83,7 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <QrCode className="h-5 w-5 text-blue-600" />
-              <CardTitle className="text-xl">Station Connected</CardTitle>
+              <CardTitle className="text-xl">{t('pricingDisplay.stationConnected')}</CardTitle>
             </div>
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
           </div>
@@ -109,7 +111,7 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
             <MapPin className="mt-1 h-5 w-5 text-emerald-600" />
             <div>
               <p className="m-0 text-lg font-semibold text-gray-900">
-                Location
+                {t('pricingDisplay.location')}
               </p>
               <p className="m-0 text-gray-600">{location || "—"}</p>
             </div>
@@ -122,10 +124,10 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
             <Euro className="h-5 w-5 text-emerald-600" />
-            <CardTitle className="text-xl">Pricing Information</CardTitle>
+            <CardTitle className="text-xl">{t('pricingDisplay.pricingInformation')}</CardTitle>
           </div>
           <p className="mt-2 text-gray-600">
-            Transparent pricing as required by EU AFIR regulations
+            {t('pricingDisplay.pricingInfoDesc')}
           </p>
         </CardHeader>
 
@@ -135,8 +137,8 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
             <div className="text-4xl font-extrabold text-emerald-600">
               €{pricePerKwh.toFixed(2)}
             </div>
-            <div className="font-medium text-gray-700">per kWh</div>
-            <div className="mt-1 text-gray-500">Energy consumption rate</div>
+            <div className="font-medium text-gray-700">{t('pricingDisplay.perKwh')}</div>
+            <div className="mt-1 text-gray-500">{t('pricingDisplay.energyConsumptionRate')}</div>
           </div>
 
           {/* Cost examples */}
@@ -161,13 +163,13 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
           {/* Callout */}
           <div className="rounded-xl border border-amber-200/70 bg-amber-50/70 p-4">
             <div className="flex items-center gap-2 font-semibold text-amber-800">
-              <AlertCircle className="h-4 w-4" /> Payment Information
+              <AlertCircle className="h-4 w-4" /> {t('pricingDisplay.paymentInformation')}
             </div>
             <ul className="ml-5 mt-2 list-disc text-amber-800">
-              <li>You&apos;ll only pay for energy actually consumed</li>
-              <li>Pre-authorization will be released after charging</li>
-              <li>Final cost calculated when session ends</li>
-              <li>Digital receipt provided immediately</li>
+              <li>{t('pricingDisplay.payInfo1')}</li>
+              <li>{t('pricingDisplay.payInfo2')}</li>
+              <li>{t('pricingDisplay.payInfo3')}</li>
+              <li>{t('pricingDisplay.payInfo4')}</li>
             </ul>
           </div>
 
@@ -177,10 +179,10 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
               variant="outline"
               className="border-emerald-400 text-emerald-700"
             >
-              EU AFIR Compliant
+              {t('pricingDisplay.euCompliant')}
             </Badge>
             <Badge variant="outline" className="border-blue-400 text-blue-700">
-              Secure Payment
+              {t('pricingDisplay.securePayment')}
             </Badge>
           </div>
 
@@ -190,7 +192,7 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
               onClick={onContinue}
               className="rounded-2xl bg-gray-900 px-6 py-3 text-white hover:bg-gray-800"
             >
-              Accept Pricing & Continue
+              {t('pricingDisplay.acceptPricing')}
             </Button>
           </div>
         </CardContent>

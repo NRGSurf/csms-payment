@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lock, ShieldCheck } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   clientToken: string | null;
@@ -16,6 +17,7 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
   const [ready, setReady] = useState(false);
   const [instance, setInstance] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useI18n();
 
   useEffect(() => {
     let active = true;
@@ -88,7 +90,7 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
             opacity=".75"
           />
         </svg>
-        <span className="text-xs">Preparing payment…</span>
+        <span className="text-xs">{t('paymentPanel.preparing')}</span>
       </div>
     );
   }
@@ -100,11 +102,11 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
           <CardTitle>
             <div className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-blue-600" />
-              <span>Secure Payment</span>
+              <span>{t('paymentPanel.secureTitle')}</span>
             </div>
           </CardTitle>
           <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
-            Your card details are handled securely by Braintree.
+            {t('paymentPanel.secureDescription')}
           </p>
         </CardHeader>
 
@@ -123,7 +125,7 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
               className="rounded-2xl px-6 py-3"
               disabled={!ready || !!busy}
             >
-              {busy ? "Processing…" : "Pay & Start Charging"}
+              {busy ? t('paymentPanel.processing') : t('paymentPanel.payStart')}
             </Button>
           </div>
         </CardContent>
@@ -132,12 +134,12 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
       <div className="mt-3 flex items-center justify-center gap-3 text-sm text-[hsl(var(--muted-foreground))]">
         <div className="flex items-center gap-1">
           <ShieldCheck className="h-4 w-4 text-emerald-600" />
-          <span>EU AFIR Compliant</span>
+          <span>{t('paymentPanel.compliant')}</span>
         </div>
         <span aria-hidden>•</span>
         <div className="flex items-center gap-1">
           <Lock className="h-4 w-4 text-blue-600" />
-          <span>Secure Payment</span>
+          <span>{t('paymentPanel.secure')}</span>
         </div>
       </div>
     </div>
