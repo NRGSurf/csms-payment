@@ -6,11 +6,17 @@ import type { TransactionDTO } from "@/types/backend";
 import { Receipt } from "@/components/flow/Receipt";
 import type { SessionData, ChargingData } from "@/components/flow/types";
 import { useI18n } from "@/lib/i18n";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2 } from "lucide-react";
 
 type Props = {
   stationId?: string;
   pollIntervalMs?: number; // default 4000
-  onViewChange?: (view: "charging" | "receipt") => void;
+  tokenId?: string;
+  preAuthAmount: number;
+  onViewChange?: (view: "charging" | "receipt" | "not-started") => void;
+  onStartClick?: () => void;
 };
 
 const byNewest = (a: TransactionDTO, b: TransactionDTO) => {
@@ -29,7 +35,10 @@ const isActiveFlag = (v: any) =>
 export default function TransactionGate({
   stationId: stationIdProp,
   pollIntervalMs = 4000,
+  tokenId,
+  preAuthAmount,
   onViewChange,
+  onStartClick,
 }: Props) {
   const { t } = useI18n();
   const [loading, setLoading] = React.useState(true);
@@ -38,13 +47,11 @@ export default function TransactionGate({
   const [latestTx, setLatestTx] = React.useState<TransactionDTO | null>(null);
 
   // derive token from URL every render (no state; avoids mount flicker)
-  const tokenParam =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("idToken") ??
-        new URLSearchParams(window.location.search).get("tokenID")
-      : null;
+  const tokenParam = tokenId ?? null;
 
-  const lastViewRef = React.useRef<"charging" | "receipt" | null>(null);
+  const lastViewRef = React.useRef<
+    "charging" | "receipt" | "not-started" | null
+  >(null);
   const timerRef = React.useRef<number | null>(null);
   const inFlightRef = React.useRef<Promise<void> | null>(null);
 
@@ -81,7 +88,6 @@ export default function TransactionGate({
         let scopedLatest: TransactionDTO | null = null;
 
         if (tokenParam) {
-          // Only this token decides "active"
           const qs1 = new URLSearchParams();
           if (stationId) qs1.set("stationId", stationId);
           qs1.set("idToken", tokenParam);
@@ -89,14 +95,6 @@ export default function TransactionGate({
           scopedActive =
             tokenList.find((t) => isActiveFlag((t as any).isActive)) ?? null;
           scopedLatest = tokenList[0] ?? null;
-
-          // If token returns nothing at all → try station ONLY to find a receipt candidate
-          if (!scopedLatest && stationId) {
-            const qs2 = new URLSearchParams();
-            qs2.set("stationId", stationId);
-            const stationList = (await get(qs2)).sort(byNewest);
-            scopedLatest = stationList[0] ?? null;
-          }
         } else {
           // No token → normal behavior
           const qsA = new URLSearchParams();
@@ -119,8 +117,10 @@ export default function TransactionGate({
         setActiveTx(scopedActive);
         setLatestTx(scopedLatest);
 
-        const view: "charging" | "receipt" = scopedActive
+        const view: "charging" | "receipt" | "not-started" = scopedActive
           ? "charging"
+          : tokenParam && !scopedLatest
+          ? "not-started"
           : "receipt";
         if (lastViewRef.current !== view) {
           lastViewRef.current = view;
@@ -128,6 +128,7 @@ export default function TransactionGate({
         }
 
         // Stop polling once we have a finished/latest and no active
+        // (keep polling if "not-started" so we can detect when it begins)
         if (!scopedActive && scopedLatest && timerRef.current) {
           clearInterval(timerRef.current);
           timerRef.current = null;
@@ -178,14 +179,79 @@ export default function TransactionGate({
 
   if (loading)
     return (
-      <div className="p-4 opacity-70 text-sm">{t('transactionGate.loading')}</div>
+      <div className="p-4 opacity-70 text-sm">
+        {t("transactionGate.loading")}
+      </div>
     );
   if (error)
     return (
-      <div className="p-4 text-red-600">{t('transactionGate.error', { error })}</div>
+      <div className="p-4 text-red-600">
+        {t("transactionGate.error", { error })}
+      </div>
     );
-  if (!activeTx && !latestTx)
-    return <div className="p-4">{t('transactionGate.none')}</div>;
+  if (!activeTx && !latestTx) {
+    if (tokenParam) {
+      return (
+        <div className="p-4">
+          <Card className="shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-xl text-green-600">
+                <CheckCircle2 className="size-6" />
+                Payment Authorized
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                <CheckCircle2 className="size-12 text-green-500 mx-auto mb-3" />
+                <p className="font-medium text-green-900 mb-2">
+                  Pre-authorization Successful
+                </p>
+                <p className="text-green-700 text-sm">
+                  €{(preAuthAmount ?? 60).toFixed(2)} temporarily authorized
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="font-medium text-gray-900">Next Steps:</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-medium">
+                      1
+                    </div>
+                    <span>Plug the connector into your vehicle</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-medium">
+                      2
+                    </div>
+                    <span>Tap &quot;Start Charging&quot; when ready</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-medium">
+                      3
+                    </div>
+                    <span>Monitor your session in real-time</span>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => (onStartClick ? onStartClick() : void doFetch())}
+                size="lg"
+                className="w-full h-14 text-base"
+              >
+                Start Charging Session
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    // no token + no transactions: show your neutral message (or nothing)
+    return <div className="p-4">{t("transactionGate.none")}</div>;
+  }
 
   if (activeTx) {
     return (

@@ -49,7 +49,7 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
 
   // Let the gate tell us if it’s showing charging vs receipt
   const [tokenFlowView, setTokenFlowView] = useState<
-    "charging" | "receipt" | null
+    "not-started" | "charging" | "receipt" | null
   >(null);
 
   const { station } = useStation(stationId);
@@ -60,7 +60,7 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
   // Reserve + (optional) processPayment
   // const [tokenID, setTokenID] = useState<string | null>(null);
   const [tokenID, setTokenId] = useState<string | null>(() => tokenId ?? null);
-  const isTokenFlow = !!tokenId;
+  const isTokenFlow = !!tokenID;
 
   function go(next: FlowStep) {
     setStep(next);
@@ -127,7 +127,6 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
       });
       console.log("[processPayment] response:", res);
 
-      // Normalise response to an array of results
       type ProcessPaymentItem = {
         success: boolean;
         payload?: {
@@ -145,14 +144,11 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
       const results: ProcessPaymentItem[] = Array.isArray(res)
         ? res
         : [res as ProcessPaymentItem];
-
-      // Prefer the first successful item, else the first item
       const first = results.find((r) => r?.success) ?? results[0];
 
       const providerTransactionId =
         first?.payload?.providerTransactionId ?? null;
 
-      // Guard + error message
       if (!first || !first.success || !providerTransactionId) {
         const msg =
           first?.message ||
@@ -161,8 +157,23 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
         throw new Error(msg);
       }
 
+      // 1) Use providerTransactionId as the idToken for this flow
       setTokenId(String(providerTransactionId));
-      setPaymentAuthorized(true);
+
+      // 2) Immediately add it to the URL (no reload, no SSR mismatch)
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.set("tokenID", String(providerTransactionId));
+        // replaceState avoids a full reload and keeps the slug route mounted
+        window.history.replaceState(
+          {},
+          "",
+          url.pathname + "?" + url.searchParams.toString()
+        );
+      }
+
+      // 3) Flip to token flow (TransactionGate will render and handle charging/receipt/not-started)
+      setPaymentAuthorized(true); // optional; this branch won’t render anymore once tokenID is set
     } catch (e) {
       console.error(e);
     } finally {
@@ -198,10 +209,11 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
       </div>
 
       {isTokenFlow ? (
-        // Token-based: gate decides Charging vs Receipt, and reports back for the stepper
         <TransactionGate
-          key={`gate:${stationId}:${tokenId}`} // stable per token, no oscillation
+          key={`gate:${stationId}:${tokenID ?? ""}`}
           stationId={stationId}
+          tokenId={tokenID ?? undefined}
+          preAuthAmount={holdAmount}
           onViewChange={setTokenFlowView}
         />
       ) : (
