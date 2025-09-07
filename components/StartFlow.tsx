@@ -43,6 +43,8 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
     postalCode: "",
     city: "",
     country: "",
+    acceptTerms: false,
+    waiveWithdrawal: false,
   });
   const [clientToken, setClientToken] = useState<string | null>(null);
   const [paymentAuthorized, setPaymentAuthorized] = useState(false);

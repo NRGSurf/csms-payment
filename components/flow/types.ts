@@ -1,3 +1,5 @@
+import { boolean } from "zod";
+
 export type AppStep = "pricing" | "payment" | "charging" | "receipt";
 
 export type SessionStatus = "available" | "busy" | "maintenance";
@@ -38,13 +40,15 @@ export type StationInfo = {
 };
 
 export type InvoiceForm = {
-  fullName: string;
+  fullName?: string;
   email: string;
   phone?: string;
   street?: string;
   postalCode?: string;
   city?: string;
   country?: string;
+  acceptTerms: boolean;
+  waiveWithdrawal: boolean;
 };
 
 export enum FlowStep {

@@ -12,7 +12,7 @@ export default function Header() {
         </div>
 
         <h1 className="text-xl font-semibold tracking-tight text-[hsl(var(--foreground))]">
-          NRG Charge Portal
+          Enlion Charge Portal
         </h1>
         <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
           AFIR Compliant • Secure • No Registration Required

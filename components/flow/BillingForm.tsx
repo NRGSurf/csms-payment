@@ -3,7 +3,17 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { InvoiceForm } from "./types";
-import { Shield, Inbox, User, Home, Hash, Landmark } from "lucide-react";
+import {
+  Shield,
+  Inbox,
+  User,
+  Home,
+  Hash,
+  Landmark,
+  CheckCircle,
+  FileText,
+  ShieldAlert,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 type Props = {
@@ -30,33 +40,60 @@ export default function BillingForm({
   const baseSchema = useMemo(
     () =>
       z.object({
-        fullName: z.string().min(2, t('billing.fullNameError')),
-        email: z.string().email(t('billing.emailError')),
+        fullName: z.string().optional(),
+        email: z.string().email(t("billing.emailError")),
         phone: z.string().optional(),
         street: z.string().optional(),
         postalCode: z.string().optional(),
         city: z.string().optional(),
         country: z.string().optional(),
+        acceptTerms: z.boolean().default(false),
+        waiveWithdrawal: z.boolean().default(false),
       }),
     [t]
   );
 
   const schema = useMemo(() => {
-    if (!wantsFullInvoice) return baseSchema;
-    return baseSchema.extend({
-      street: z.string().min(3, t('billing.streetError')),
-      postalCode: z.string().min(2, t('billing.postalCodeError')),
-      city: z.string().min(2, t('billing.cityError')),
-      country: z.string().min(2, t('billing.countryError')),
+    const withAddressRules = baseSchema.extend({
+      fullName: z.string().min(2, t("billing.fullNameError")),
+      street: z.string().min(3, t("billing.streetError")),
+      postalCode: z.string().min(2, t("billing.postalCodeError")),
+      city: z.string().min(2, t("billing.cityError")),
+      country: z.string().min(2, t("billing.countryError")),
     });
+
+    const applyLegal = (schema: typeof baseSchema | typeof withAddressRules) =>
+      schema.superRefine((v, ctx) => {
+        if (v.acceptTerms !== true) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["acceptTerms"],
+            message: t("legal.termsError"), // „Bitte AGB akzeptieren.“
+          });
+        }
+        if (v.waiveWithdrawal !== true) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["waiveWithdrawal"],
+            message: t("legal.waiveError"), // „Bitte Widerrufsverzicht bestätigen.“
+          });
+        }
+      });
+
+    return wantsFullInvoice
+      ? applyLegal(withAddressRules)
+      : applyLegal(baseSchema);
   }, [wantsFullInvoice, baseSchema, t]);
 
+  type FormIn = z.input<typeof baseSchema>;
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
     watch,
-  } = useForm<InvoiceForm>({
+    clearErrors,
+    trigger,
+  } = useForm<FormIn, any, InvoiceForm>({
     resolver: zodResolver(schema),
     defaultValues: {
       fullName: initial?.fullName ?? "",
@@ -66,6 +103,8 @@ export default function BillingForm({
       postalCode: initial?.postalCode ?? "",
       city: initial?.city ?? "",
       country: initial?.country ?? "",
+      acceptTerms: initial?.acceptTerms ?? false,
+      waiveWithdrawal: initial?.waiveWithdrawal ?? false,
     },
     mode: "onChange",
   });
@@ -76,48 +115,25 @@ export default function BillingForm({
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">{t('billing.title')}</h2>
-        <p className="text-gray-500 text-sm mt-1">
-          {t('billing.description')}
-        </p>
+        <h2 className="text-xl font-semibold text-gray-900">
+          {t("billing.title")}
+        </h2>
+        <p className="text-gray-500 text-sm mt-1">{t("billing.description")}</p>
       </div>
 
       {/* Card */}
       <div className="bg-white rounded-2xl shadow-xl border-0 p-6 space-y-6">
         {/* Contact */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="col-span-1 md:col-span-2">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
-              <User className="w-4 h-4" />
-              {t('billing.fullName')}
-            </label>
-            <input
-              type="text"
-              {...register("fullName")}
-              placeholder={t('billing.fullNamePlaceholder')}
-              className={`w-full rounded-lg border px-3 py-2 outline-none transition
-                ${
-                  errors.fullName
-                    ? "border-red-500 focus:ring-red-200"
-                    : "border-gray-300 focus:ring-2 focus:ring-blue-200"
-                }`}
-            />
-            {errors.fullName && (
-              <p className="text-sm text-red-600 mt-1">
-                {errors.fullName.message}
-              </p>
-            )}
-          </div>
-
           <div>
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
               <Inbox className="w-4 h-4" />
-              {t('billing.email')}
+              {t("billing.email")}
             </label>
             <input
               type="email"
               {...register("email")}
-              placeholder={t('billing.emailPlaceholder')}
+              placeholder={t("billing.emailPlaceholder")}
               className={`w-full rounded-lg border px-3 py-2 outline-none transition
                 ${
                   errors.email
@@ -131,34 +147,29 @@ export default function BillingForm({
               </p>
             )}
           </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
-              <Shield className="w-4 h-4" />
-              {t('billing.phone')}
-            </label>
-            <input
-              type="tel"
-              {...register("phone")}
-              placeholder={t('billing.phonePlaceholder')}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
-            />
-          </div>
         </div>
 
         {/* Invoice toggle */}
         <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
           <div>
             <p className="text-sm font-medium text-gray-800">
-              {t('billing.invoiceToggleTitle')}
+              {t("billing.invoiceToggleTitle")}
             </p>
             <p className="text-xs text-gray-500">
-              {t('billing.invoiceToggleDescription')}
+              {t("billing.invoiceToggleDescription")}
             </p>
           </div>
           <button
             type="button"
-            onClick={() => setWantsFullInvoice((s) => !s)}
+            onClick={() => {
+              setWantsFullInvoice((s) => {
+                const next = !s;
+                setTimeout(() => {
+                  clearErrors();
+                }, 0);
+                return next;
+              });
+            }}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition
               ${wantsFullInvoice ? "bg-blue-600" : "bg-gray-300"}`}
             aria-pressed={wantsFullInvoice}
@@ -174,15 +185,49 @@ export default function BillingForm({
         {/* Address fields */}
         {wantsFullInvoice && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="col-span-1 md:col-span-2">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
+                <User className="w-4 h-4" />
+                {t("billing.fullName")}
+              </label>
+              <input
+                type="text"
+                {...register("fullName")}
+                placeholder={t("billing.fullNamePlaceholder")}
+                className={`w-full rounded-lg border px-3 py-2 outline-none transition
+                ${
+                  errors.fullName
+                    ? "border-red-500 focus:ring-red-200"
+                    : "border-gray-300 focus:ring-2 focus:ring-blue-200"
+                }`}
+              />
+              {errors.fullName && (
+                <p className="text-sm text-red-600 mt-1">
+                  {errors.fullName.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
+                <Shield className="w-4 h-4" />
+                {t("billing.phone")}
+              </label>
+              <input
+                type="tel"
+                {...register("phone")}
+                placeholder={t("billing.phonePlaceholder")}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
             <div className="md:col-span-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
                 <Home className="w-4 h-4" />
-                {t('billing.street')}
+                {t("billing.street")}
               </label>
               <input
                 type="text"
                 {...register("street")}
-                placeholder={t('billing.streetPlaceholder')}
+                placeholder={t("billing.streetPlaceholder")}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
                   ${
                     errors.street
@@ -200,12 +245,12 @@ export default function BillingForm({
             <div>
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
                 <Hash className="w-4 h-4" />
-                {t('billing.postalCode')}
+                {t("billing.postalCode")}
               </label>
               <input
                 type="text"
                 {...register("postalCode")}
-                placeholder={t('billing.postalCodePlaceholder')}
+                placeholder={t("billing.postalCodePlaceholder")}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
                   ${
                     errors.postalCode
@@ -223,17 +268,17 @@ export default function BillingForm({
             <div>
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
                 <Landmark className="w-4 h-4" />
-                {t('billing.city')}
+                {t("billing.city")}
               </label>
               <input
                 type="text"
                 {...register("city")}
-                placeholder={t('billing.cityPlaceholder')}
+                placeholder={t("billing.cityPlaceholder")}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
                   ${
                     errors.city
                       ? "border-red-500 focus:ring-red-200"
-                      : "border-gray-300 focus-ring-2 focus-ring-blue-200"
+                      : "border-gray-300 focus:ring-2 focus-ring-blue-200"
                   }`}
               />
               {errors.city && (
@@ -245,12 +290,12 @@ export default function BillingForm({
 
             <div>
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
-                {t('billing.country')}
+                {t("billing.country")}
               </label>
               <input
                 type="text"
                 {...register("country")}
-                placeholder={t('billing.countryPlaceholder')}
+                placeholder={t("billing.countryPlaceholder")}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
                   ${
                     errors.country
@@ -267,6 +312,61 @@ export default function BillingForm({
           </div>
         )}
 
+        {/* Legal confirmations */}
+        <div className="space-y-3">
+          {/* AGB – Pflicht */}
+          <div className="flex items-start gap-3">
+            <input
+              id="acceptTerms"
+              type="checkbox"
+              {...register("acceptTerms")}
+            />
+            <label htmlFor="acceptTerms" className="text-sm text-gray-800">
+              <span className="font-medium">{t("legal.termsLabel")}</span>
+              <br />
+              <span className="text-gray-600">
+                {t("legal.termsText")}{" "}
+                <a
+                  href="/agb"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  {t("legal.termsLink")}
+                </a>
+                .
+              </span>
+            </label>
+          </div>
+
+          {/* Widerrufsverzicht – Pflicht */}
+          <div className="flex items-start gap-3">
+            <input
+              id="waiveWithdrawal"
+              type="checkbox"
+              {...register("waiveWithdrawal")}
+            />
+            <label htmlFor="waiveWithdrawal" className="text-sm text-gray-800">
+              <span className="font-medium">{t("legal.waiveLabel")}</span>
+              <br />
+              <span className="text-gray-600">
+                {t("legal.waiveTextBefore")}{" "}
+                <strong>{t("legal.waiveTextStrong")}</strong>{" "}
+                {t("legal.waiveTextAfter")}{" "}
+                <a
+                  href="/widerruf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  {t("legal.rightOfWithdrawalLink")}
+                </a>
+                .
+              </span>
+            </label>
+          </div>
+        </div>
+
         {/* Action */}
         <div className="flex justify-end">
           <button
@@ -280,7 +380,7 @@ export default function BillingForm({
                   : "bg-gray-900 hover:bg-gray-900/90"
               }`}
           >
-            {busy ? t('billing.submitWaiting') : t('billing.submit')}
+            {busy ? t("billing.submitWaiting") : t("billing.submit")}
           </button>
         </div>
       </div>
