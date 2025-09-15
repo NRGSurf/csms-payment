@@ -1,0 +1,306 @@
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  Zap,
+  Clock,
+  Euro,
+  Activity,
+  StopCircle,
+  Pause,
+  AlertTriangle,
+} from "lucide-react";
+import { type SessionData, type ChargingData } from "./types";
+import { useI18n } from "@/lib/i18n";
+
+const toDate = (v: string | Date | undefined): Date | undefined =>
+  typeof v === "string" ? new Date(v) : v;
+
+export interface ChargingSessionProps {
+  sessionData: SessionData;
+  chargingData: ChargingData;
+  isCharging: boolean;
+  onStopCharging: () => void;
+}
+
+export function ChargingSession({
+  chargingData,
+  sessionData,
+  isCharging,
+  onStopCharging,
+}: ChargingSessionProps) {
+  const [showStopConfirm, setShowStopConfirm] = useState(false);
+  const { t } = useI18n();
+
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${remainingSeconds}s`;
+    }
+    return `${minutes}m ${remainingSeconds}s`;
+  };
+
+  const getChargingStatus = () => {
+    if (!isCharging)
+      return {
+        status: t("chargingSession.statusPaused"),
+        color: "amber",
+        icon: Pause,
+      };
+    return {
+      status: t("chargingSession.statusCharging"),
+      color: "blue",
+      icon: Activity,
+    };
+  };
+
+  const chargingStatus = getChargingStatus();
+  const StatusIcon = chargingStatus.icon;
+
+  // Simulate battery percentage for display purposes
+  const estimatedBatteryPercent = Math.min(
+    95,
+    20 + chargingData.energyDelivered * 2
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Status Card */}
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <StatusIcon
+                className={`size-5 text-${chargingStatus.color}-500`}
+              />
+              {chargingStatus.status}
+            </CardTitle>
+            {/* <Badge
+              variant="outline"
+              className={`border-${chargingStatus.color}-500 text-${chargingStatus.color}-700`}
+            >
+              {t("chargingSession.liveSession")}
+            </Badge> */}
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-1">
+          {/* Battery Progress */}
+          {/* <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="font-medium text-gray-900">
+                Estimated Battery Level
+              </span>
+              <span className="font-bold text-2xl text-green-600">
+                {Math.round(estimatedBatteryPercent)}%
+              </span>
+            </div>
+            <Progress value={estimatedBatteryPercent} className="h-3" />
+          </div> */}
+
+          {/* Main Stats Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* <div className="bg-blue-50 rounded-lg p-4 text-center">
+              <Clock className="size-6 text-blue-500 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-blue-900">
+                {formatTime(chargingData.timeElapsed)}
+              </div>
+              <p className="text-blue-700 text-sm">Duration</p>
+            </div> */}
+
+            <div className="bg-green-50 rounded-lg p-4 text-center">
+              <Zap className="size-6 text-green-500 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-green-900">
+                {chargingData.energyDelivered.toFixed(1)}
+              </div>
+              <p className="text-green-700 text-sm">
+                {t("chargingSession.kwhDelivered")}
+              </p>
+            </div>
+
+            {/* <div className="bg-purple-50 rounded-lg p-4 text-center">
+              <Activity className="size-6 text-purple-500 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-purple-900">
+                {chargingData.chargingSpeed.toFixed(0)}
+              </div>
+              <p className="text-purple-700 text-sm">kW Current</p>
+            </div> */}
+
+            <div className="bg-orange-50 rounded-lg p-4 text-center">
+              <Euro className="size-6 text-orange-500 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-orange-900">
+                €{chargingData.runningCost.toFixed(2)}
+              </div>
+              <p className="text-orange-700 text-sm">
+                {t("chargingSession.cost")}
+              </p>
+            </div>
+          </div>
+
+          {/* Disclaimer */}
+          <p className="text-xs text-gray-500 text-center">
+            {t("chargingSession.disclaimer")}
+          </p>
+
+          {/* Cost Breakdown */}
+          {/* <div className="bg-gray-50 rounded-lg p-4 mt-6">
+            <h3 className="font-medium text-gray-900 mb-3">
+              {t("chargingSession.cost")}
+            </h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">
+                  {t("chargingSession.kwhDelivered")} (
+                  {chargingData.energyDelivered.toFixed(1)} kWh × €
+                  {sessionData.pricePerKwh.toFixed(2)})
+                </span>
+                <span className="font-medium">
+                  €
+                  {(
+                    chargingData.energyDelivered * sessionData.pricePerKwh
+                  ).toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">
+                  {t("chargingSession.chargingFee")}
+                </span>
+                <span className="font-medium">
+                  €{sessionData.sessionFee.toFixed(2)}
+                </span>
+              </div>
+              <hr className="my-2" />
+              <div className="flex justify-between font-medium">
+                <span>{t("chargingSession.total")}</span>
+                <span>€{chargingData.runningCost.toFixed(2)}</span>
+              </div>
+            </div>
+          </div> */}
+        </CardContent>
+      </Card>
+
+      {/* Session Control */}
+      {/* <Card className="shadow-lg">
+        <CardContent className="pt-6">
+          {!showStopConfirm ? (
+            <div className="space-y-4">
+              <div className="text-center">
+                <p className="text-gray-600 mb-4">
+                  Charging in progress. You can stop anytime or let it complete
+                  automatically.
+                </p>
+
+                <Button
+                  onClick={() => setShowStopConfirm(true)}
+                  variant="destructive"
+                  size="lg"
+                  className="w-full h-14 text-base"
+                >
+                  <StopCircle className="size-5 mr-2" />
+                  Stop Charging
+                </Button>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-blue-800 text-sm text-center">
+                  💡 Session will also stop automatically when your vehicle is
+                  fully charged or if you disconnect the cable.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="text-center">
+                <AlertTriangle className="size-12 text-amber-500 mx-auto mb-3" />
+                <h3 className="font-medium text-gray-900 mb-2">
+                  Stop Charging Session?
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Are you sure you want to end this charging session?
+                  You&apos;ll be charged for the energy consumed so far.
+                </p>
+
+                <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-gray-700">
+                    Current charge: {chargingData.energyDelivered.toFixed(1)}{" "}
+                    kWh • Cost: €{chargingData.runningCost.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={() => setShowStopConfirm(false)}
+                  variant="outline"
+                  size="lg"
+                  className="h-12"
+                >
+                  Continue Charging
+                </Button>
+                <Button
+                  onClick={onStopCharging}
+                  variant="destructive"
+                  size="lg"
+                  className="h-12"
+                >
+                  Stop & Pay
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card> */}
+
+      {/* Session Info */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="space-y-3">
+            <h3 className="font-medium text-gray-900">
+              {t("chargingSession.sessionDetails")}
+            </h3>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-gray-600">
+                  {t("chargingSession.stationId")}
+                </p>
+                <p className="font-mono text-gray-900">
+                  {sessionData.stationId}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-600">
+                  {t("chargingSession.sessionId")}
+                </p>
+                <p className="font-mono text-gray-900">
+                  {sessionData.sessionId}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-600">{t("chargingSession.started")}</p>
+                <p className="text-gray-900">
+                  {toDate(sessionData.startTime)?.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }) ?? "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-600">
+                  {t("chargingSession.connector")}
+                </p>
+                <p className="text-gray-900">{sessionData.connector}</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default ChargingSession;

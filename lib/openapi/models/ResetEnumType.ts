@@ -6,7 +6,4 @@
  * This contains the type of reset that the Charging Station or EVSE should perform.
  *
  */
-export enum ResetEnumType {
-    IMMEDIATE = 'Immediate',
-    ON_IDLE = 'OnIdle',
-}
+export type ResetEnumType = 'Immediate' | 'OnIdle';

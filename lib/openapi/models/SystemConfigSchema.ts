@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type SystemConfigSchema = {
-    env: SystemConfigSchema.env;
+    env: 'development' | 'production';
     centralSystem: {
         host: string;
         port: number;
@@ -27,13 +27,13 @@ export type SystemConfigSchema = {
             heartbeatInterval: number;
             bootRetryInterval: number;
             ocpp2_0_1?: {
-                unknownChargerStatus: SystemConfigSchema.unknownChargerStatus;
+                unknownChargerStatus: 'Accepted' | 'Pending' | 'Rejected';
                 getBaseReportOnPending: boolean;
                 bootWithRejectedVariables: boolean;
                 autoAccept: boolean;
             };
             ocpp1_6?: {
-                unknownChargerStatus: SystemConfigSchema.unknownChargerStatus;
+                unknownChargerStatus: 'Accepted' | 'Pending' | 'Rejected';
             };
             endpointPrefix: string;
             host?: string;
@@ -79,7 +79,7 @@ export type SystemConfigSchema = {
             responses: Array<('Authorize' | 'BootNotification' | 'CancelReservation' | 'ChangeAvailability' | 'ChangeConfiguration' | 'ClearCache' | 'ClearChargingProfile' | 'DataTransfer' | 'DiagnosticsStatusNotification' | 'FirmwareStatusNotification' | 'GetCompositeSchedule' | 'GetConfiguration' | 'GetDiagnostics' | 'GetLocalListVersion' | 'Heartbeat' | 'MeterValues' | 'RemoteStartTransaction' | 'RemoteStopTransaction' | 'ReserveNow' | 'Reset' | 'SendLocalList' | 'SetChargingProfile' | 'StartTransaction' | 'StatusNotification' | 'StopTransaction' | 'TriggerMessage' | 'UnlockConnector' | 'UpdateFirmware' | 'Authorize' | 'BootNotification' | 'CancelReservation' | 'CertificateSigned' | 'ChangeAvailability' | 'ClearCache' | 'ClearChargingProfile' | 'ClearDisplayMessage' | 'ClearedChargingLimit' | 'ClearVariableMonitoring' | 'CostUpdated' | 'CustomerInformation' | 'DataTransfer' | 'DeleteCertificate' | 'FirmwareStatusNotification' | 'Get15118EVCertificate' | 'GetBaseReport' | 'GetCertificateStatus' | 'GetChargingProfiles' | 'GetCompositeSchedule' | 'GetDisplayMessages' | 'GetInstalledCertificateIds' | 'GetLocalListVersion' | 'GetLog' | 'GetMonitoringReport' | 'GetReport' | 'GetTransactionStatus' | 'GetVariables' | 'Heartbeat' | 'InstallCertificate' | 'LogStatusNotification' | 'MeterValues' | 'NotifyChargingLimit' | 'NotifyCustomerInformation' | 'NotifyDisplayMessages' | 'NotifyEVChargingNeeds' | 'NotifyEVChargingSchedule' | 'NotifyEvent' | 'NotifyMonitoringReport' | 'NotifyReport' | 'PublishFirmware' | 'PublishFirmwareStatusNotification' | 'ReportChargingProfiles' | 'RequestStartTransaction' | 'RequestStopTransaction' | 'ReservationStatusUpdate' | 'ReserveNow' | 'Reset' | 'SecurityEventNotification' | 'SendLocalList' | 'SetChargingProfile' | 'SetDisplayMessage' | 'SetMonitoringBase' | 'SetMonitoringLevel' | 'SetNetworkProfile' | 'SetVariableMonitoring' | 'SetVariables' | 'SignCertificate' | 'StatusNotification' | 'TransactionEvent' | 'TriggerMessage' | 'UnlockConnector' | 'UnpublishFirmware' | 'UpdateFirmware')>;
             signedMeterValuesConfiguration?: {
                 publicKeyFileId: string;
-                signingMethod: SystemConfigSchema.signingMethod;
+                signingMethod: 'RSASSA-PKCS1-v1_5' | 'ECDSA';
             };
         };
     };
@@ -141,17 +141,17 @@ export type SystemConfigSchema = {
         };
         certificateAuthority: {
             v2gCA: {
-                name: SystemConfigSchema.name;
+                name: 'hubject';
                 hubject?: {
                     baseUrl: string;
                     tokenUrl: string;
-                    isoVersion: SystemConfigSchema.isoVersion;
+                    isoVersion: 'ISO15118-2' | 'ISO15118-20';
                 };
             };
             chargingStationCA: {
-                name: SystemConfigSchema.name;
+                name: 'acme';
                 acme?: {
-                    env: SystemConfigSchema.env;
+                    env: 'staging' | 'production';
                     accountKeyFilePath: string;
                     email: string;
                 };
@@ -171,26 +171,4 @@ export type SystemConfigSchema = {
     rbacRulesFileName?: string;
     rbacRulesDir?: string;
 };
-export namespace SystemConfigSchema {
-    export enum env {
-        DEVELOPMENT = 'development',
-        PRODUCTION = 'production',
-    }
-    export enum unknownChargerStatus {
-        ACCEPTED = 'Accepted',
-        PENDING = 'Pending',
-        REJECTED = 'Rejected',
-    }
-    export enum signingMethod {
-        RSASSA_PKCS1_V1_5 = 'RSASSA-PKCS1-v1_5',
-        ECDSA = 'ECDSA',
-    }
-    export enum name {
-        HUBJECT = 'hubject',
-    }
-    export enum isoVersion {
-        ISO15118_2 = 'ISO15118-2',
-        ISO15118_20 = 'ISO15118-20',
-    }
-}
 

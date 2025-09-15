@@ -8,9 +8,4 @@
  * Defines the purpose of the schedule transferred by this profile
  *
  */
-export enum ChargingProfilePurposeEnumType {
-    CHARGING_STATION_EXTERNAL_CONSTRAINTS = 'ChargingStationExternalConstraints',
-    CHARGING_STATION_MAX_PROFILE = 'ChargingStationMaxProfile',
-    TX_DEFAULT_PROFILE = 'TxDefaultProfile',
-    TX_PROFILE = 'TxProfile',
-}
+export type ChargingProfilePurposeEnumType = 'ChargingStationExternalConstraints' | 'ChargingStationMaxProfile' | 'TxDefaultProfile' | 'TxProfile';

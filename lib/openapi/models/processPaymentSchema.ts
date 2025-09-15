@@ -3,11 +3,18 @@
 /* tslint:disable */
 /* eslint-disable */
 export type processPaymentSchema = {
-    stationId: string;
-    sessionId: string;
-    currency: string;
-    amount: number;
-    email: string;
-    name: string;
+    slug: string;
+    paymentMethodNonce: string;
+    currency?: string;
+    amount?: number;
+    invoice?: ({
+        email?: string | null;
+        fullName?: string | null;
+        phone?: string | null;
+        street?: string | null;
+        postalCode?: string | null;
+        city?: string | null;
+        country?: string | null;
+    } | null);
 };
 

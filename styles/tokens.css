@@ -11,7 +11,15 @@
   --colors-neutral-100: #f3f4f6;
   --colors-neutral-200: #e5e7eb;
   --colors-neutral-500: #6b7280;
+  --colors-neutral-800: #1f2937;
   --colors-neutral-900: #111827;
+  --colors-gradients-background: linear-gradient(120deg, #F0FDF4 0%, #EFF6FF 60%);
+  --typography-fontFamily-spaceGrotesk: "Space Grotesk", sans-serif;
+  --typography-heading-h2-fontFamily: "Space Grotesk", sans-serif;
+  --typography-heading-h2-fontWeight: 700;
+  --typography-heading-h2-fontSize: 32px;
+  --typography-heading-h2-lineHeight: 1.12;
+  --typography-heading-h2-letterSpacing: -0.05em;
   --typography-fontSize-base: 14px;
   --typography-fontSize-sm: 12px;
   --typography-fontSize-lg: 16px;
@@ -46,7 +54,7 @@
 }
 [data-theme="dark"] {
   --dark-colors-background-primary: #111827;
-  --dark-colors-background-secondary: ;
+  --dark-colors-background-secondary: #1f2937;
   --dark-colors-text-primary: #f9fafb;
   --dark-colors-text-secondary: #e5e7eb;
 }

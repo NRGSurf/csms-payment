@@ -1,13 +1,8 @@
 // components/flow/ChargingProgress.tsx
 import { useMemo } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "../../design/figma/components/ui/card";
-import { Progress } from "../../design/figma/components/ui/progress";
-import { Badge } from "../../design/figma/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 type Props = {
   kwhDelivered: number;

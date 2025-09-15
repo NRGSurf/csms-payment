@@ -6,8 +6,4 @@
  * Specify which monitoring base will be set
  *
  */
-export enum MonitoringBaseEnumType {
-    ALL = 'All',
-    FACTORY_DEFAULT = 'FactoryDefault',
-    HARD_WIRED_ONLY = 'HardWiredOnly',
-}
+export type MonitoringBaseEnumType = 'All' | 'FactoryDefault' | 'HardWiredOnly';

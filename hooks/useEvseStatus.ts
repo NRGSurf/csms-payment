@@ -14,6 +14,7 @@ type Options = { enabled?: boolean };
 type TxLite = {
   id?: string | number;
   kwh?: number;
+  totalCost?: number;
   seconds?: number;
   startedAt?: string;
 };
@@ -79,6 +80,7 @@ export function useEvseStatus(
         setTx({
           id: t?.transactionId ?? t?.id,
           kwh: t?.totalKwh != null ? Number(t.totalKwh) : undefined,
+          totalCost: t?.totalCost != null ? Number(t.totalCost) : undefined,
           // If backend later sends a live seconds field we will map it; null for now.
           seconds:
             t?.timeSpentCharging != null

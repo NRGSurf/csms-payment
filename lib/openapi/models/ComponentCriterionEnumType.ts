@@ -2,9 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum ComponentCriterionEnumType {
-    ACTIVE = 'Active',
-    AVAILABLE = 'Available',
-    ENABLED = 'Enabled',
-    PROBLEM = 'Problem',
-}
+export type ComponentCriterionEnumType = 'Active' | 'Available' | 'Enabled' | 'Problem';

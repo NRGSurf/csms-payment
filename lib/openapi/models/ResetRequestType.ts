@@ -2,7 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum ResetRequestType {
-    HARD = 'Hard',
-    SOFT = 'Soft',
-}
+export type ResetRequestType = 'Hard' | 'Soft';

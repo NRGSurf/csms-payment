@@ -7,8 +7,4 @@
  * within the CSMS.
  *
  */
-export enum RegistrationStatusEnumType {
-    ACCEPTED = 'Accepted',
-    PENDING = 'Pending',
-    REJECTED = 'Rejected',
-}
+export type RegistrationStatusEnumType = 'Accepted' | 'Pending' | 'Rejected';

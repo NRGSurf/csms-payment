@@ -53,13 +53,54 @@ const tokens = {
           "value": "#6b7280",
           "type": "color"
         },
+        "800": {
+          "value": "#1f2937",
+          "type": "color"
+        },
         "900": {
           "value": "#111827",
           "type": "color"
         }
+      },
+      "gradients": {
+        "background": {
+          "value": "linear-gradient(120deg, #F0FDF4 0%, #EFF6FF 60%)",
+          "type": "color",
+          "description": "Light blue → white background gradient"
+        }
       }
     },
     "typography": {
+      "fontFamily": {
+        "spaceGrotesk": {
+          "value": "\"Space Grotesk\", sans-serif",
+          "type": "fontFamilies"
+        }
+      },
+      "heading": {
+        "h2": {
+          "fontFamily": {
+            "value": "{global.typography.fontFamily.spaceGrotesk}",
+            "type": "fontFamilies"
+          },
+          "fontWeight": {
+            "value": "700",
+            "type": "fontWeights"
+          },
+          "fontSize": {
+            "value": "32px",
+            "type": "fontSizes"
+          },
+          "lineHeight": {
+            "value": "1.12",
+            "type": "lineHeights"
+          },
+          "letterSpacing": {
+            "value": "-0.05em",
+            "type": "letterSpacing"
+          }
+        }
+      },
       "fontSize": {
         "base": {
           "value": "14px",

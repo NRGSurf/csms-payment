@@ -8,8 +8,4 @@
  * Indicates the kind of schedule.
  *
  */
-export enum ChargingProfileKindEnumType {
-    ABSOLUTE = 'Absolute',
-    RECURRING = 'Recurring',
-    RELATIVE = 'Relative',
-}
+export type ChargingProfileKindEnumType = 'Absolute' | 'Recurring' | 'Relative';

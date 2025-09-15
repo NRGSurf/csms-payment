@@ -6,7 +6,4 @@
  * This contains the type of update (full or differential) of this request.
  *
  */
-export enum UpdateEnumType {
-    DIFFERENTIAL = 'Differential',
-    FULL = 'Full',
-}
+export type UpdateEnumType = 'Differential' | 'Full';

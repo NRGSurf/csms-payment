@@ -8,15 +8,4 @@
  * Current status of the ID Token.
  *
  */
-export enum AuthorizationStatusEnumType {
-    ACCEPTED = 'Accepted',
-    BLOCKED = 'Blocked',
-    CONCURRENT_TX = 'ConcurrentTx',
-    EXPIRED = 'Expired',
-    INVALID = 'Invalid',
-    NO_CREDIT = 'NoCredit',
-    NOT_ALLOWED_TYPE_EVSE = 'NotAllowedTypeEVSE',
-    NOT_AT_THIS_LOCATION = 'NotAtThisLocation',
-    NOT_AT_THIS_TIME = 'NotAtThisTime',
-    UNKNOWN = 'Unknown',
-}
+export type AuthorizationStatusEnumType = 'Accepted' | 'Blocked' | 'ConcurrentTx' | 'Expired' | 'Invalid' | 'NoCredit' | 'NotAllowedTypeEVSE' | 'NotAtThisLocation' | 'NotAtThisTime' | 'Unknown';

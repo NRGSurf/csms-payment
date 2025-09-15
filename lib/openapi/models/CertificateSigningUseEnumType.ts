@@ -7,7 +7,4 @@
  *
  *
  */
-export enum CertificateSigningUseEnumType {
-    CHARGING_STATION_CERTIFICATE = 'ChargingStationCertificate',
-    V2GCERTIFICATE = 'V2GCertificate',
-}
+export type CertificateSigningUseEnumType = 'ChargingStationCertificate' | 'V2GCertificate';

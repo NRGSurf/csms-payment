@@ -2,7 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum RemoteStartTransactionRequestChargingRateUnit {
-    A = 'A',
-    W = 'W',
-}
+export type RemoteStartTransactionRequestChargingRateUnit = 'A' | 'W';

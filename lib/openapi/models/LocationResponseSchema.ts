@@ -10,8 +10,8 @@ export type LocationResponseSchema = Array<{
     postalCode?: string | null;
     state?: string | null;
     country?: string | null;
-    coordinates: {
-        crs: {
+    coordinates?: {
+        crs?: {
             type?: string;
             properties?: {
                 name: string;
@@ -39,4 +39,4 @@ export type LocationResponseSchema = Array<{
         createdAt: string;
         updatedAt: string;
     }> | null;
-} | null>;
+}>;

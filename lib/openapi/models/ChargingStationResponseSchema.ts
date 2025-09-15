@@ -18,8 +18,65 @@ export type ChargingStationResponseSchema = {
     locationId: number;
     createdAt: string;
     updatedAt: string;
-    location?: Record<string, any> | null;
-    tariff?: Record<string, any> | null;
-    currentPriceType?: Record<string, any> | null;
+    location?: {
+        id: number;
+        name: string;
+        address?: string | null;
+        city?: string | null;
+        postalCode?: string | null;
+        state?: string | null;
+        country?: string | null;
+        coordinates?: {
+            crs?: {
+                type?: string;
+                properties?: {
+                    name: string;
+                } | null;
+            } | null;
+            type: string;
+            coordinates: Array<number>;
+        } | null;
+        createdAt: string;
+        updatedAt: string;
+        chargingPool?: Array<{
+            id: string;
+            isOnline: boolean;
+            protocol?: string | null;
+            chargePointVendor?: string | null;
+            chargePointModel?: string | null;
+            chargePointSerialNumber?: string | null;
+            chargeBoxSerialNumber?: string | null;
+            firmwareVersion?: string | null;
+            iccid?: string | null;
+            imsi?: string | null;
+            meterType?: string | null;
+            meterSerialNumber?: string | null;
+            locationId: number;
+            createdAt: string;
+            updatedAt: string;
+        }> | null;
+    };
+    tariff?: {
+        id: number;
+        stationId: string;
+        currency: string;
+        pricePerKwh?: number;
+        pricePerKwhDaytime?: Array<{
+            dayOffset: number;
+            pricePerKwh: number;
+            validFrom: string;
+            validTo: string;
+            chargingTiming?: 'GOOD' | 'BAD' | null;
+        }> | null;
+        createdAt: string;
+        updatedAt: string;
+    };
+    currentPriceType?: {
+        dayOffset: number;
+        pricePerKwh: number;
+        validFrom: string;
+        validTo: string;
+        chargingTiming?: 'GOOD' | 'BAD' | null;
+    };
 };
 
