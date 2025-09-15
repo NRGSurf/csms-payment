@@ -28,8 +28,7 @@ export type PaymentResponse = Array<{
         id: number;
         paymentId: number;
         invoiceNumber?: string | null;
-        customerFirstName?: string | null;
-        customerLastName?: string | null;
+        customerName?: string | null;
         customerEmail?: string | null;
         customerPhone?: string | null;
         addressStreet?: string | null;

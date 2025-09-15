@@ -89,10 +89,10 @@ export default function BillingForm({
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
-    watch,
+    formState: { errors, isValid, touchedFields, submitCount },
     clearErrors,
     trigger,
+    unregister,
   } = useForm<FormIn, any, InvoiceForm>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -107,9 +107,45 @@ export default function BillingForm({
       waiveWithdrawal: initial?.waiveWithdrawal ?? false,
     },
     mode: "onChange",
+    reValidateMode: "onChange",
+    shouldUnregister: true,
   });
 
+  const showErr = (name: keyof FormIn) =>
+    Boolean(errors[name]) && (touchedFields[name] || submitCount > 0);
+
+  const inputClass = (name: keyof FormIn) =>
+    `w-full rounded-lg border px-3 py-2 outline-none transition ${
+      showErr(name)
+        ? "border-red-500 focus:ring-red-200"
+        : "border-gray-300 focus:ring-2 focus:ring-blue-200"
+    }`;
+
   const submit = handleSubmit((values) => onSubmit(values, wantsFullInvoice));
+
+  const addressKeys: (keyof FormIn)[] = [
+    "fullName",
+    "street",
+    "postalCode",
+    "city",
+    "country",
+    "phone",
+  ];
+
+  const handleToggleInvoice = () => {
+    setWantsFullInvoice((prev) => {
+      const next = !prev;
+      if (next) {
+        // turning ON: don't validate immediately, just clear old errors
+        clearErrors(addressKeys);
+      } else {
+        // turning OFF: unregister address fields and revalidate the rest
+        unregister(addressKeys);
+        setTimeout(() => trigger(), 0);
+      }
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -135,23 +171,31 @@ export default function BillingForm({
               {...register("email")}
               placeholder={t("billing.emailPlaceholder")}
               className={`w-full rounded-lg border px-3 py-2 outline-none transition
-                ${
-                  errors.email
-                    ? "border-red-500 focus:ring-red-200"
-                    : "border-gray-300 focus:ring-2 focus:ring-blue-200"
-                }`}
+              `}
             />
-            {errors.email && (
+            {showErr("email") && (
               <p className="text-sm text-red-600 mt-1">
-                {errors.email.message}
+                {errors.email?.message}
               </p>
             )}
           </div>
         </div>
 
         {/* Invoice toggle */}
-        <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
-          <div>
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={handleToggleInvoice}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleToggleInvoice();
+            }
+          }}
+          aria-pressed={wantsFullInvoice}
+          className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3 cursor-pointer select-none"
+        >
+          <div className="pr-3">
             <p className="text-sm font-medium text-gray-800">
               {t("billing.invoiceToggleTitle")}
             </p>
@@ -159,27 +203,20 @@ export default function BillingForm({
               {t("billing.invoiceToggleDescription")}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setWantsFullInvoice((s) => {
-                const next = !s;
-                setTimeout(() => {
-                  clearErrors();
-                }, 0);
-                return next;
-              });
-            }}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition
-              ${wantsFullInvoice ? "bg-blue-600" : "bg-gray-300"}`}
-            aria-pressed={wantsFullInvoice}
-            aria-label="Toggle invoice fields"
+
+          {/* Visual switch (no separate button needed) */}
+          <div
+            className={`relative ml-4 h-6 w-11 flex-shrink-0 rounded-full transition-colors duration-200 ${
+              wantsFullInvoice ? "bg-blue-600" : "bg-gray-300"
+            }`}
+            aria-hidden="true"
           >
             <span
-              className={`inline-block h-5 w-5 transform rounded-full bg-white transition
-                ${wantsFullInvoice ? "translate-x-5" : "translate-x-1"}`}
+              className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+                wantsFullInvoice ? "translate-x-5" : "translate-x-0"
+              }`}
             />
-          </button>
+          </div>
         </div>
 
         {/* Address fields */}
@@ -195,15 +232,11 @@ export default function BillingForm({
                 {...register("fullName")}
                 placeholder={t("billing.fullNamePlaceholder")}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
-                ${
-                  errors.fullName
-                    ? "border-red-500 focus:ring-red-200"
-                    : "border-gray-300 focus:ring-2 focus:ring-blue-200"
-                }`}
+                `}
               />
-              {errors.fullName && (
+              {showErr("fullName") && (
                 <p className="text-sm text-red-600 mt-1">
-                  {errors.fullName.message}
+                  {errors.fullName?.message}
                 </p>
               )}
             </div>
@@ -229,15 +262,11 @@ export default function BillingForm({
                 {...register("street")}
                 placeholder={t("billing.streetPlaceholder")}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
-                  ${
-                    errors.street
-                      ? "border-red-500 focus:ring-red-200"
-                      : "border-gray-300 focus:ring-2 focus:ring-blue-200"
-                  }`}
+                  `}
               />
-              {errors.street && (
+              {showErr("street") && (
                 <p className="text-sm text-red-600 mt-1">
-                  {errors.street.message}
+                  {errors.street?.message}
                 </p>
               )}
             </div>
@@ -252,15 +281,11 @@ export default function BillingForm({
                 {...register("postalCode")}
                 placeholder={t("billing.postalCodePlaceholder")}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
-                  ${
-                    errors.postalCode
-                      ? "border-red-500 focus:ring-red-200"
-                      : "border-gray-300 focus:ring-2 focus:ring-blue-200"
-                  }`}
+                  `}
               />
-              {errors.postalCode && (
+              {showErr("postalCode") && (
                 <p className="text-sm text-red-600 mt-1">
-                  {errors.postalCode.message}
+                  {errors.postalCode?.message}
                 </p>
               )}
             </div>
@@ -275,15 +300,11 @@ export default function BillingForm({
                 {...register("city")}
                 placeholder={t("billing.cityPlaceholder")}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
-                  ${
-                    errors.city
-                      ? "border-red-500 focus:ring-red-200"
-                      : "border-gray-300 focus:ring-2 focus-ring-blue-200"
-                  }`}
+                 `}
               />
-              {errors.city && (
+              {showErr("city") && (
                 <p className="text-sm text-red-600 mt-1">
-                  {errors.city.message}
+                  {errors.city?.message}
                 </p>
               )}
             </div>
@@ -297,15 +318,11 @@ export default function BillingForm({
                 {...register("country")}
                 placeholder={t("billing.countryPlaceholder")}
                 className={`w-full rounded-lg border px-3 py-2 outline-none transition
-                  ${
-                    errors.country
-                      ? "border-red-500 focus:ring-red-200"
-                      : "border-gray-300 focus:ring-2 focus:ring-blue-200"
-                  }`}
+                  `}
               />
-              {errors.country && (
+              {showErr("country") && (
                 <p className="text-sm text-red-600 mt-1">
-                  {errors.country.message}
+                  {errors.country?.message}
                 </p>
               )}
             </div>

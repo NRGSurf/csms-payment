@@ -5,7 +5,7 @@ import { useI18n } from "@/lib/i18n";
 export default function Footer() {
   const { t, lang, setLang } = useI18n();
   return (
-    <footer className="w-full border-t bg-[hsl(var(--background))]">
+    <footer className="w-full bg-[hsl(var(--background))]">
       {/* Badges */}
       <div className="mx-auto max-w-6xl px-4 py-4 flex flex-wrap items-center justify-center gap-4">
         <div className="flex items-center gap-2">
@@ -35,7 +35,7 @@ export default function Footer() {
       </div>
 
       {/* Languages + Legal Links */}
-      <div className="mx-auto max-w-6xl px-4 pb-4 flex flex-col sm:flex-row items-center justify-center gap-6 text-xs">
+      <div className="mx-auto max-w-6xl px-4 pt-2 pb-6 flex flex-col sm:flex-row items-center justify-center gap-2 text-xs">
         {/* Languages */}
         <div className="flex gap-4">
           <button

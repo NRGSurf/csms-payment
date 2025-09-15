@@ -9,7 +9,7 @@
 /* ===== Theme tokens ===== */
 :root {
   /* Page background & text */
-  --background: 224 100% 98%; /* light brand tint (≈ #f4f7ff) */
+  --background: 100% 100% 98%; /* light brand tint (≈ #f4f7ff) */
   --foreground: 240 10% 3.9%;
 
   /* Surface & accents used by shadcn utilities */
@@ -42,6 +42,8 @@
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
+  --gradient-background: var(--colors-gradients-background);
+
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
   --color-muted: hsl(var(--muted));
@@ -52,16 +54,24 @@
   --radius: var(--radius);
 
   /* Optional: if you use next/font to provide Geist */
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter); /* body text */
+  --font-heading: var(--font-space-grotesk); /* headings */
   --font-mono: var(--font-geist-mono);
 }
 
 /* Page background */
 body {
   margin: 0;
-  background-color: hsl(var(--background));
+  background: var(--gradient-background);
   color: hsl(var(--foreground));
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, Segoe UI, Roboto,
+    Arial, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-space-grotesk), sans-serif;
 }
 
 /* Optional gradient (uncomment to use)

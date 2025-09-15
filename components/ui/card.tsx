@@ -9,7 +9,8 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-2xl border bg-[hsl(var(--background))] text-[hsl(var(--foreground))] shadow-sm",
+        // Figma: white fill, light border, soft shadow, 16px radius
+        "rounded-2xl border border-[hsl(var(--border))] bg-white text-[hsl(var(--foreground))] shadow-sm",
         className
       )}
       {...props}
@@ -21,7 +22,8 @@ export function CardHeader({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-4 md:p-6", className)} {...props} />;
+  // Figma spacing ≈ 24px
+  return <div className={cn("p-6 pb-2", className)} {...props} />;
 }
 
 export function CardTitle({
@@ -31,7 +33,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "text-base font-semibold leading-none tracking-tight",
+        "text-lg font-semibold leading-none tracking-tight",
         className
       )}
       {...props}
@@ -43,7 +45,6 @@ export function CardContent({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div className={cn("p-4 pt-0 md:p-6 md:pt-0", className)} {...props} />
-  );
+  // Figma spacing ≈ 24px, tighter top after header
+  return <div className={cn("p-6 pt-0", className)} {...props} />;
 }

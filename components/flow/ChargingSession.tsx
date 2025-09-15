@@ -47,8 +47,16 @@ export function ChargingSession({
 
   const getChargingStatus = () => {
     if (!isCharging)
-      return { status: t('chargingSession.statusPaused'), color: "amber", icon: Pause };
-    return { status: t('chargingSession.statusCharging'), color: "blue", icon: Activity };
+      return {
+        status: t("chargingSession.statusPaused"),
+        color: "amber",
+        icon: Pause,
+      };
+    return {
+      status: t("chargingSession.statusCharging"),
+      color: "blue",
+      icon: Activity,
+    };
   };
 
   const chargingStatus = getChargingStatus();
@@ -63,7 +71,7 @@ export function ChargingSession({
   return (
     <div className="space-y-4">
       {/* Status Card */}
-      <Card className="shadow-lg">
+      <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-xl">
@@ -72,16 +80,16 @@ export function ChargingSession({
               />
               {chargingStatus.status}
             </CardTitle>
-            <Badge
+            {/* <Badge
               variant="outline"
               className={`border-${chargingStatus.color}-500 text-${chargingStatus.color}-700`}
             >
-              {t('chargingSession.liveSession')}
-            </Badge>
+              {t("chargingSession.liveSession")}
+            </Badge> */}
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-1">
           {/* Battery Progress */}
           {/* <div className="space-y-3">
             <div className="flex justify-between items-center">
@@ -110,7 +118,9 @@ export function ChargingSession({
               <div className="text-2xl font-bold text-green-900">
                 {chargingData.energyDelivered.toFixed(1)}
               </div>
-              <p className="text-green-700 text-sm">{t('chargingSession.kwhDelivered')}</p>
+              <p className="text-green-700 text-sm">
+                {t("chargingSession.kwhDelivered")}
+              </p>
             </div>
 
             {/* <div className="bg-purple-50 rounded-lg p-4 text-center">
@@ -126,17 +136,27 @@ export function ChargingSession({
               <div className="text-2xl font-bold text-orange-900">
                 €{chargingData.runningCost.toFixed(2)}
               </div>
-              <p className="text-orange-700 text-sm">{t('chargingSession.cost')}</p>
+              <p className="text-orange-700 text-sm">
+                {t("chargingSession.cost")}
+              </p>
             </div>
           </div>
 
+          {/* Disclaimer */}
+          <p className="text-xs text-gray-500 text-center">
+            {t("chargingSession.disclaimer")}
+          </p>
+
           {/* Cost Breakdown */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-medium text-gray-900 mb-3">{t('chargingSession.cost')}</h3>
+          {/* <div className="bg-gray-50 rounded-lg p-4 mt-6">
+            <h3 className="font-medium text-gray-900 mb-3">
+              {t("chargingSession.cost")}
+            </h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">
-                  {t('chargingSession.kwhDelivered')} ({chargingData.energyDelivered.toFixed(1)} kWh × €
+                  {t("chargingSession.kwhDelivered")} (
+                  {chargingData.energyDelivered.toFixed(1)} kWh × €
                   {sessionData.pricePerKwh.toFixed(2)})
                 </span>
                 <span className="font-medium">
@@ -147,18 +167,20 @@ export function ChargingSession({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">{t('paymentAuthorized.holdAmount')}</span>
+                <span className="text-gray-600">
+                  {t("chargingSession.chargingFee")}
+                </span>
                 <span className="font-medium">
                   €{sessionData.sessionFee.toFixed(2)}
                 </span>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-medium">
-                <span>{t('chargingSession.total')}</span>
+                <span>{t("chargingSession.total")}</span>
                 <span>€{chargingData.runningCost.toFixed(2)}</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
 
@@ -238,22 +260,28 @@ export function ChargingSession({
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-3">
-            <h3 className="font-medium text-gray-900">{t('chargingSession.sessionDetails')}</h3>
+            <h3 className="font-medium text-gray-900">
+              {t("chargingSession.sessionDetails")}
+            </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-600">{t('chargingSession.stationId')}</p>
+                <p className="text-gray-600">
+                  {t("chargingSession.stationId")}
+                </p>
                 <p className="font-mono text-gray-900">
                   {sessionData.stationId}
                 </p>
               </div>
               <div>
-                <p className="text-gray-600">{t('chargingSession.sessionId')}</p>
+                <p className="text-gray-600">
+                  {t("chargingSession.sessionId")}
+                </p>
                 <p className="font-mono text-gray-900">
                   {sessionData.sessionId}
                 </p>
               </div>
               <div>
-                <p className="text-gray-600">{t('chargingSession.started')}</p>
+                <p className="text-gray-600">{t("chargingSession.started")}</p>
                 <p className="text-gray-900">
                   {toDate(sessionData.startTime)?.toLocaleTimeString([], {
                     hour: "2-digit",
@@ -262,7 +290,9 @@ export function ChargingSession({
                 </p>
               </div>
               <div>
-                <p className="text-gray-600">{t('chargingSession.connector')}</p>
+                <p className="text-gray-600">
+                  {t("chargingSession.connector")}
+                </p>
                 <p className="text-gray-900">{sessionData.connector}</p>
               </div>
             </div>

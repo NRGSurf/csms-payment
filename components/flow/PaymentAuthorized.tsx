@@ -32,12 +32,12 @@ export default function PaymentAuthorized({
   onContinue?: () => void;
 }) {
   const { t } = useI18n();
-  const resolvedTitle = title ?? t('paymentAuthorized.title');
-  const resolvedCta = ctaLabel ?? t('paymentAuthorized.cta');
+  const resolvedTitle = title ?? t("paymentAuthorized.title");
+  const resolvedCta = ctaLabel ?? t("paymentAuthorized.cta");
   const defaultSubtitle =
     typeof amount === "number"
-      ? t('paymentAuthorized.hold', { amount: formatEUR(amount) })
-      : t('paymentAuthorized.default');
+      ? t("paymentAuthorized.hold", { amount: formatEUR(amount) })
+      : t("paymentAuthorized.default");
   const hasMeta = typeof amount === "number" || !!email;
 
   return (
@@ -48,21 +48,23 @@ export default function PaymentAuthorized({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <p className="text-sm text-gray-600">
-          {subtitle ?? defaultSubtitle}
-        </p>
+        <p className="text-sm text-gray-600">{subtitle ?? defaultSubtitle}</p>
 
         {hasMeta && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {typeof amount === "number" && (
               <div className="rounded-xl border p-3">
-                <div className="text-xs text-gray-500">{t('paymentAuthorized.holdAmount')}</div>
+                <div className="text-xs text-gray-500">
+                  {t("paymentAuthorized.holdAmount")}
+                </div>
                 <div className="text-sm font-medium">{formatEUR(amount)}</div>
               </div>
             )}
             {email && (
               <div className="rounded-xl border p-3">
-                <div className="text-xs text-gray-500">{t('paymentAuthorized.receiptEmail')}</div>
+                <div className="text-xs text-gray-500">
+                  {t("paymentAuthorized.receiptEmail")}
+                </div>
                 <div className="text-sm font-medium break-all">{email}</div>
               </div>
             )}

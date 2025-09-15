@@ -3,11 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 export type processPaymentSchema = {
-    stationId: string;
+    slug: string;
     paymentMethodNonce: string;
     currency?: string;
     amount?: number;
-    slug?: string;
     invoice?: ({
         email?: string | null;
         fullName?: string | null;

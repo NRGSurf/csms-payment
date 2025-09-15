@@ -192,12 +192,12 @@ export default function TransactionGate({
   if (!activeTx && !latestTx) {
     if (tokenParam) {
       return (
-        <div className="p-4">
-          <Card className="shadow-lg">
+        <div>
+          <Card>
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-xl text-green-600">
                 <CheckCircle2 className="size-6" />
-                Payment Authorized
+                {t("transactionGate.paymentAuthorized")}
               </CardTitle>
             </CardHeader>
 
@@ -205,51 +205,57 @@ export default function TransactionGate({
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
                 <CheckCircle2 className="size-12 text-green-500 mx-auto mb-3" />
                 <p className="font-medium text-green-900 mb-2">
-                  Pre-authorization Successful
+                  {t("transactionGate.preauthSuccess")}
                 </p>
                 <p className="text-green-700 text-sm">
-                  €{(preAuthAmount ?? 60).toFixed(2)} temporarily authorized
+                  {t("transactionGate.preauthAmount", {
+                    amount: (preAuthAmount ?? 60).toFixed(2),
+                  })}
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h3 className="font-medium text-gray-900">Next Steps:</h3>
+                <h3 className="font-medium text-gray-900">
+                  {t("transactionGate.nextSteps")}
+                </h3>
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 text-sm">
                     <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-medium">
                       1
                     </div>
-                    <span>Plug the connector into your vehicle</span>
+                    <span>{t("transactionGate.step1")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
                     <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-medium">
                       2
                     </div>
-                    <span>Tap &quot;Start Charging&quot; when ready</span>
+                    <span>{t("transactionGate.step2")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
                     <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-medium">
                       3
                     </div>
-                    <span>Monitor your session in real-time</span>
+                    <span>{t("transactionGate.step3")}</span>
                   </div>
                 </div>
               </div>
-
-              <Button
-                onClick={() => (onStartClick ? onStartClick() : void doFetch())}
-                size="lg"
-                className="w-full h-14 text-base"
-              >
-                Start Charging Session
-              </Button>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() =>
+                    onStartClick ? onStartClick() : void doFetch()
+                  }
+                  className="rounded-xl px-5 h-12 min-w-[220px] text-white font-medium transition bg-gray-900 hover:bg-gray-900/90"
+                >
+                  {t("transactionGate.startCharging")}
+                </button>
+              </div>
             </CardContent>
           </Card>
         </div>
       );
     }
 
-    // no token + no transactions: show your neutral message (or nothing)
     return <div className="p-4">{t("transactionGate.none")}</div>;
   }
 
@@ -304,6 +310,7 @@ export default function TransactionGate({
 
     pricePerKwh: 0,
     sessionFee: 0,
+    holdAmount: Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR),
   };
 
   const chargingData: ChargingData = {
@@ -321,7 +328,9 @@ export default function TransactionGate({
       sessionData={sessionData}
       chargingData={chargingData}
       onNewSession={() => {
-        window.location.href = "/";
+        const url = new URL(window.location.href);
+        url.searchParams.delete("tokenID");
+        window.location.href = url.toString();
       }}
     />
   );

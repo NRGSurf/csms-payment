@@ -2,7 +2,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Lock, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -17,7 +16,10 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
   const [ready, setReady] = useState(false);
   const [instance, setInstance] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+
+  // Map your app langs → Braintree locale
+  const braintreeLocale = lang === "de" ? "de_DE" : "en_US";
 
   useEffect(() => {
     let active = true;
@@ -33,7 +35,11 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
           authorization: clientToken,
           container: containerRef.current,
           card: { cardholderName: { required: false } },
-          paypal: { flow: "checkout" },
+          paymentOptionPriority: ["card"],
+          preselectVaultedPaymentMethod: false,
+          vaultManager: false,
+          //paypal: { flow: "checkout" },
+          locale: braintreeLocale,
         });
         if (!active) {
           await currentInstance.teardown().catch(() => {});
@@ -57,7 +63,7 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
       setInstance(null);
       setReady(false);
     };
-  }, [clientToken]);
+  }, [clientToken, braintreeLocale]);
 
   async function handlePay() {
     if (!instance) return;
@@ -90,7 +96,7 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
             opacity=".75"
           />
         </svg>
-        <span className="text-xs">{t('paymentPanel.preparing')}</span>
+        <span className="text-xs">{t("paymentPanel.preparing")}</span>
       </div>
     );
   }
@@ -98,15 +104,15 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
   return (
     <div>
       <Card>
-        <CardHeader>
+        <CardHeader className="mb-3">
           <CardTitle>
             <div className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-blue-600" />
-              <span>{t('paymentPanel.secureTitle')}</span>
+              <span>{t("paymentPanel.secureTitle")}</span>
             </div>
           </CardTitle>
           <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
-            {t('paymentPanel.secureDescription')}
+            {t("paymentPanel.secureDescription")}
           </p>
         </CardHeader>
 
@@ -120,13 +126,14 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
           )}
 
           <div className="mt-4 flex justify-end">
-            <Button
+            <button
+              type="button"
               onClick={handlePay}
-              className="rounded-2xl px-6 py-3"
+              className="rounded-xl px-5 h-12 min-w-[220px] text-white font-medium transition bg-gray-900 hover:bg-gray-900/90"
               disabled={!ready || !!busy}
             >
-              {busy ? t('paymentPanel.processing') : t('paymentPanel.payStart')}
-            </Button>
+              {busy ? t("paymentPanel.processing") : t("paymentPanel.payStart")}
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -134,12 +141,12 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
       <div className="mt-3 flex items-center justify-center gap-3 text-sm text-[hsl(var(--muted-foreground))]">
         <div className="flex items-center gap-1">
           <ShieldCheck className="h-4 w-4 text-emerald-600" />
-          <span>{t('paymentPanel.compliant')}</span>
+          <span>{t("paymentPanel.compliant")}</span>
         </div>
         <span aria-hidden>•</span>
         <div className="flex items-center gap-1">
           <Lock className="h-4 w-4 text-blue-600" />
-          <span>{t('paymentPanel.secure')}</span>
+          <span>{t("paymentPanel.secure")}</span>
         </div>
       </div>
     </div>

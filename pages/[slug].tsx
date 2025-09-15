@@ -9,7 +9,7 @@ import { TransactionsService } from "@/lib/openapi/services/TransactionsService"
 import type { QREndpointResponse } from "@/lib/openapi/models/QREndpointResponse";
 
 type PageProps =
-  | { ok: true; data: QREndpointResponse; tokenId?: string }
+  | { ok: true; data: QREndpointResponse; slug: string; tokenId?: string }
   | { ok: false; status: number; message?: string };
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
@@ -45,6 +45,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
       props: {
         ok: true,
         data,
+        slug,
         ...(tokenId ? { tokenId } : {}),
       } as any,
     };
@@ -61,19 +62,20 @@ export default function QRSlugPage(props: PageProps) {
     return (
       <>
         <Head>
-          <title>{t('qr.notFoundTitle')}</title>
+          <title>{t("qr.notFoundTitle")}</title>
         </Head>
         <main className="mx-auto max-w-xl p-6">
-          <h1 className="text-xl font-semibold">{t('qr.notFoundHeading')}</h1>
+          <h1 className="text-xl font-semibold">{t("qr.notFoundHeading")}</h1>
           <p className="mt-2 text-sm opacity-80">
-            {props.message ?? `${t('transactionGate.error', { error: props.status })}`}
+            {props.message ??
+              `${t("transactionGate.error", { error: props.status })}`}
           </p>
         </main>
       </>
     );
   }
 
-  const { data, tokenId } = props;
+  const { data, slug, tokenId } = props as Extract<PageProps, { ok: true }>;
 
   return (
     <>
@@ -81,6 +83,7 @@ export default function QRSlugPage(props: PageProps) {
         <title>{`Station ${data.stationId}`}</title>
       </Head>
       <StartFlow
+        slug={slug}
         stationId={data.stationId!}
         {...(typeof (data as any).evseId === "number"
           ? { evseId: (data as any).evseId }

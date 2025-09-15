@@ -23,16 +23,35 @@ import { useEvseStatus } from "../hooks/useEvseStatus";
 import type { AppStep } from "@/components/flow/types";
 
 type Props =
-  | { stationId: string; evseId: number; connectorId?: never; tokenId?: string }
-  | { stationId: string; connectorId: number; evseId?: never; tokenId?: string }
   | {
+      slug: string;
+      stationId: string;
+      evseId: number;
+      connectorId?: never;
+      tokenId?: string;
+    }
+  | {
+      slug: string;
+      stationId: string;
+      connectorId: number;
+      evseId?: never;
+      tokenId?: string;
+    }
+  | {
+      slug: string;
       stationId: string;
       evseId?: number;
       connectorId?: number;
       tokenId?: string;
     };
 
-export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
+export function StartFlow({
+  slug,
+  stationId,
+  evseId,
+  connectorId,
+  tokenId,
+}: Props) {
   const [step, setStep] = useState<FlowStep>(FlowStep.Overview);
   const [busy, setBusy] = useState(false);
   const [invoice, setInvoice] = useState<InvoiceForm>({
@@ -57,7 +76,7 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
   const { station } = useStation(stationId);
   const { status, tx } = useEvseStatus(stationId, 4000);
 
-  const holdAmount = 60;
+  const holdAmount = Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR);
 
   // Reserve + (optional) processPayment
   // const [tokenID, setTokenID] = useState<string | null>(null);
@@ -103,25 +122,44 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
   const token = process.env.CITRINE_API_TOKEN;
   if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
 
+  function toNull(s?: string) {
+    return s && s.trim() !== "" ? s : null;
+  }
+
   async function handlePay(nonce: string) {
     console.log("[handlePay]");
+
+    if (!slug) {
+      console.error("Missing slug in route");
+      return; // or show a toast/UI error
+    }
+
     setBusy(true);
     try {
-      const amount = 60; // optional; backend can override based on tariff
-      const requestBody /* : processPaymentSchema */ = {
-        stationId,
+      const requestBody /*: ProcessPaymentRequest */ = {
+        slug,
         paymentMethodNonce: nonce,
         currency: "EUR",
-        amount,
-        invoice: {
-          email: invoice.email ?? null,
-          fullName: invoice.fullName ?? null,
-          phone: invoice.phone ?? null,
-          street: invoice.street ?? null,
-          postalCode: invoice.postalCode ?? null,
-          city: invoice.city ?? null,
-          country: invoice.country ?? null,
-        },
+        amount: holdAmount,
+        invoice: [
+          invoice.email,
+          invoice.fullName,
+          invoice.phone,
+          invoice.street,
+          invoice.postalCode,
+          invoice.city,
+          invoice.country,
+        ].some((v) => (v ?? "").trim() !== "")
+          ? {
+              email: invoice.email?.trim() || null,
+              fullName: invoice.fullName?.trim() || null,
+              phone: invoice.phone?.trim() || null,
+              street: invoice.street?.trim() || null,
+              postalCode: invoice.postalCode?.trim() || null,
+              city: invoice.city?.trim() || null,
+              country: invoice.country?.trim() || null,
+            }
+          : null,
       };
 
       const res = await TransactionsService.putDataTransactionsProcessPayment({
@@ -150,7 +188,6 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
 
       const providerTransactionId =
         first?.payload?.providerTransactionId ?? null;
-
       if (!first || !first.success || !providerTransactionId) {
         const msg =
           first?.message ||
@@ -159,14 +196,11 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
         throw new Error(msg);
       }
 
-      // 1) Use providerTransactionId as the idToken for this flow
       setTokenId(String(providerTransactionId));
 
-      // 2) Immediately add it to the URL (no reload, no SSR mismatch)
       if (typeof window !== "undefined") {
         const url = new URL(window.location.href);
         url.searchParams.set("tokenID", String(providerTransactionId));
-        // replaceState avoids a full reload and keeps the slug route mounted
         window.history.replaceState(
           {},
           "",
@@ -174,8 +208,7 @@ export function StartFlow({ stationId, evseId, connectorId, tokenId }: Props) {
         );
       }
 
-      // 3) Flip to token flow (TransactionGate will render and handle charging/receipt/not-started)
-      setPaymentAuthorized(true); // optional; this branch won’t render anymore once tokenID is set
+      setPaymentAuthorized(true);
     } catch (e) {
       console.error(e);
     } finally {

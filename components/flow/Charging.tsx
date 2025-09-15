@@ -59,8 +59,9 @@ export default function Charging(props: Props) {
         : 1
     ),
 
-    pricePerKwh: 0.55,
+    pricePerKwh: 0,
     sessionFee: 0,
+    holdAmount: Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR),
   };
 
   const chargingData: ChargingData = {

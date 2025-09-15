@@ -1,21 +1,31 @@
 // components/layout/Header.tsx
+import Image from "next/image";
+import { useI18n } from "@/lib/i18n";
+
 export default function Header() {
+  const { t } = useI18n();
+
   return (
-    <header className="border-b bg-[hsl(var(--background))]">
-      <div className="mx-auto max-w-6xl px-4 py-6 text-center">
-        {/* Avatar / brand mark */}
-        <div className="mb-3 flex justify-center">
-          {/* Swap this circle for an <img> or <Image> if you have a logo */}
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full border bg-[hsl(var(--muted))] text-lg font-semibold">
-            N
-          </div>
+    <header className="bg-gradient-to-b from-[rgba(0,0,0,0.02)] to-transparent">
+      <div className="mx-auto max-w-4xl px-4 pt-8 pb-6 text-center">
+        {/* Brand */}
+        <div className="flex justify-center">
+          <Image
+            src="/logo-enlion.svg"
+            alt="Enlion"
+            width={90}
+            height={24}
+            priority
+          />
         </div>
 
-        <h1 className="text-xl font-semibold tracking-tight text-[hsl(var(--foreground))]">
-          Enlion Charge Portal
+        {/* Title + Subtitle */}
+        <h1 className="mt-6 font-bold text-[32px] leading-[36px] tracking-[-0.05em] text-neutral-900">
+          {t("header.readyToCharge")}
         </h1>
-        <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
-          AFIR Compliant • Secure • No Registration Required
+
+        <p className="text-base text-[hsl(var(--muted-foreground))]">
+          {t("header.subtitle")}
         </p>
       </div>
     </header>

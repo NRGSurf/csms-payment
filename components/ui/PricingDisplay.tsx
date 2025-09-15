@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { SessionData } from "@/components/flow/types";
 import {
-  QrCode,
   CheckCircle2,
   Zap,
   MapPin,
   Euro,
   AlertCircle,
+  Clock,
+  Shield,
 } from "lucide-react";
+
 import { useI18n } from "@/lib/i18n";
 
 export interface PricingDisplayProps {
@@ -51,9 +53,9 @@ function StatusPill({
   const { t } = useI18n();
   const canon = normalizeStatus(status);
   const labelMap: Record<Canonical, string> = {
-    available: t('pricingDisplay.available'),
-    busy: t('pricingDisplay.occupied'),
-    maintenance: t('pricingDisplay.maintenance'),
+    available: t("pricingDisplay.available"),
+    busy: t("pricingDisplay.occupied"),
+    maintenance: t("pricingDisplay.maintenance"),
   };
   return (
     <span
@@ -73,23 +75,177 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
     location,
     pricePerKwh,
   } = sessionData;
+
+  // Optional amounts from backend; fallback to Figma values if missing
+  const sessionFee = (sessionData as any)?.sessionFee ?? 0;
+  const preauth = (sessionData as any)?.holdAmount ?? 0;
+
   const { t } = useI18n();
+
+  // Reusable row (icon + label/sub + value) with soft “pill” background
+  const BreakdownRow = ({
+    Icon,
+    iconClass,
+    label,
+    value,
+    subLabel,
+  }: {
+    Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    iconClass?: string;
+    label: React.ReactNode;
+    value: React.ReactNode;
+    subLabel?: React.ReactNode;
+  }) => (
+    <div className="flex items-center justify-between rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-4 py-3">
+      <div className="flex items-start gap-3">
+        <Icon className={`mt-0.5 h-5 w-5 ${iconClass ?? ""}`} />
+        <div className="leading-tight">
+          <div className="font-medium text-gray-900">{label}</div>
+          {subLabel ? (
+            <div className="text-sm text-[hsl(var(--muted-foreground))]">
+              {subLabel}
+            </div>
+          ) : null}
+        </div>
+      </div>
+      <div className="font-medium text-gray-900">{value}</div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      {/* Station Connected */}
-      <Card className="rounded-2xl shadow-sm">
+      {/* Pricing Information */}
+      <Card>
         <CardHeader className="pb-2">
+          <div className="flex items-center gap-2">
+            <Euro className="h-5 w-5 text-emerald-600" />
+            <CardTitle className="text-xl">
+              {t("pricingDisplay.pricingInformation")}
+            </CardTitle>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-5">
+          {/* Price banner */}
+          <div className="rounded-xl border border-emerald-200 bg-gradient-to-b from-emerald-100/40 to-emerald-50/40 p-6 text-center">
+            <div className="text-4xl font-extrabold text-emerald-600">
+              €{pricePerKwh.toFixed(2)}
+            </div>
+            <div className="font-medium text-gray-700">
+              {t("pricingDisplay.perKwh")}
+            </div>
+          </div>
+
+          {/* ===== Complete Price Breakdown ===== */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-gray-900">
+              {t("pricingDisplay.completeBreakdown")}
+            </h3>
+
+            {/* Energy Rate */}
+            <BreakdownRow
+              Icon={Zap}
+              iconClass="text-blue-600"
+              label={t("pricingDisplay.energyRate")}
+              value={`€${pricePerKwh.toFixed(2)} / kWh`}
+            />
+
+            {/* Session Fee */}
+            <BreakdownRow
+              Icon={Clock}
+              iconClass="text-amber-600"
+              label={t("pricingDisplay.sessionFee")}
+              value={`€${sessionFee.toFixed(2)}`}
+            />
+
+            {/* Pre-authorization (separate group style like figma) */}
+            <BreakdownRow
+              Icon={Shield}
+              iconClass="text-emerald-600"
+              label={t("pricingDisplay.preauthorization")}
+              subLabel={t("pricingDisplay.tempHold")}
+              value={`€${preauth.toFixed(2)}`}
+            />
+
+            {/* Cost Examples */}
+            {/* <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-4">
+              <div className="mb-2 font-semibold text-gray-900">
+                {t("pricingDisplay.costExamples")}
+              </div>
+              <div className="space-y-2">
+                {[
+                  { kWh: 10, t: "~20 min" },
+                  { kWh: 25, t: "~45 min" },
+                  { kWh: 50, t: "~1.5 hrs" },
+                ].map(({ kWh, t }) => (
+                  <div
+                    key={kWh}
+                    className="flex items-center justify-between text-gray-900"
+                  >
+                    <span className="text-[15px]">{kWh} kWh</span>
+                    <span className="font-medium">
+                      €{(kWh * pricePerKwh).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div> */}
+          </div>
+          {/* ===== /Complete Price Breakdown ===== */}
+
+          {/* Callout */}
+          <div className="rounded-xl border border-amber-200/70 bg-amber-50/70 p-4">
+            <div className="flex items-center gap-2 font-semibold text-amber-800">
+              <AlertCircle className="h-4 w-4" />{" "}
+              {t("pricingDisplay.paymentInformation")}
+            </div>
+            <ul className="ml-5 mt-2 list-disc text-amber-800">
+              <li>{t("pricingDisplay.payInfo1")}</li>
+              <li>
+                {t("pricingDisplay.payInfo2", { amount: preauth.toFixed(2) })}
+              </li>
+            </ul>
+          </div>
+
+          {/* CTA */}
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={onContinue}
+              className="rounded-xl px-5 h-12 min-w-[220px] text-white font-medium transition bg-gray-900 hover:bg-gray-900/90"
+            >
+              {t("pricingDisplay.acceptPricing")}
+            </button>
+          </div>
+
+          {/* Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Badge
+              variant="outline"
+              className="border-emerald-400 text-emerald-700"
+            >
+              {t("pricingDisplay.euCompliant")}
+            </Badge>
+            <Badge variant="outline" className="border-blue-400 text-blue-700">
+              {t("pricingDisplay.securePayment")}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Station Connected (unchanged) */}
+      <Card>
+        <CardHeader className="mb-4 pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <QrCode className="h-5 w-5 text-blue-600" />
-              <CardTitle className="text-xl">{t('pricingDisplay.stationConnected')}</CardTitle>
+              <CardTitle className="text-xl">
+                {t("pricingDisplay.stationConnected")}
+              </CardTitle>
             </div>
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
           </div>
         </CardHeader>
         <CardContent className="space-y-5">
-          {/* Station line */}
           <div className="flex items-start gap-3">
             <Zap className="mt-1 h-5 w-5 text-blue-600" />
             <div className="flex-1">
@@ -100,100 +256,17 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
                 <StatusPill status={stationStatus} />
               </div>
               <p className="m-0 text-gray-600">{stationId}</p>
-              <span className="mt-2 inline-flex rounded-md bg-gray-100 px-3 py-1 text-sm text-gray-700">
-                {connector}
-              </span>
             </div>
           </div>
 
-          {/* Location line */}
           <div className="flex items-start gap-3">
             <MapPin className="mt-1 h-5 w-5 text-emerald-600" />
             <div>
               <p className="m-0 text-lg font-semibold text-gray-900">
-                {t('pricingDisplay.location')}
+                {t("pricingDisplay.location")}
               </p>
               <p className="m-0 text-gray-600">{location || "—"}</p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Pricing Information */}
-      <Card className="rounded-2xl shadow-sm">
-        <CardHeader className="pb-2">
-          <div className="flex items-center gap-2">
-            <Euro className="h-5 w-5 text-emerald-600" />
-            <CardTitle className="text-xl">{t('pricingDisplay.pricingInformation')}</CardTitle>
-          </div>
-          <p className="mt-2 text-gray-600">
-            {t('pricingDisplay.pricingInfoDesc')}
-          </p>
-        </CardHeader>
-
-        <CardContent className="space-y-5">
-          {/* Price banner */}
-          <div className="rounded-xl border border-emerald-200 bg-gradient-to-b from-emerald-100/40 to-emerald-50/40 p-6 text-center">
-            <div className="text-4xl font-extrabold text-emerald-600">
-              €{pricePerKwh.toFixed(2)}
-            </div>
-            <div className="font-medium text-gray-700">{t('pricingDisplay.perKwh')}</div>
-            <div className="mt-1 text-gray-500">{t('pricingDisplay.energyConsumptionRate')}</div>
-          </div>
-
-          {/* Cost examples */}
-          <div className="space-y-2">
-            {[
-              { kWh: 10, t: "~20 min" },
-              { kWh: 25, t: "~45 min" },
-              { kWh: 50, t: "~1.5 hrs" },
-            ].map(({ kWh, t }) => (
-              <div
-                key={kWh}
-                className="flex items-center justify-between text-gray-900"
-              >
-                <span>
-                  {kWh} kWh ({t})
-                </span>
-                <span>€{(kWh * pricePerKwh).toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Callout */}
-          <div className="rounded-xl border border-amber-200/70 bg-amber-50/70 p-4">
-            <div className="flex items-center gap-2 font-semibold text-amber-800">
-              <AlertCircle className="h-4 w-4" /> {t('pricingDisplay.paymentInformation')}
-            </div>
-            <ul className="ml-5 mt-2 list-disc text-amber-800">
-              <li>{t('pricingDisplay.payInfo1')}</li>
-              <li>{t('pricingDisplay.payInfo2')}</li>
-              <li>{t('pricingDisplay.payInfo3')}</li>
-              <li>{t('pricingDisplay.payInfo4')}</li>
-            </ul>
-          </div>
-
-          {/* Badges */}
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge
-              variant="outline"
-              className="border-emerald-400 text-emerald-700"
-            >
-              {t('pricingDisplay.euCompliant')}
-            </Badge>
-            <Badge variant="outline" className="border-blue-400 text-blue-700">
-              {t('pricingDisplay.securePayment')}
-            </Badge>
-          </div>
-
-          {/* CTA */}
-          <div className="flex justify-center">
-            <Button
-              onClick={onContinue}
-              className="rounded-2xl bg-gray-900 px-6 py-3 text-white hover:bg-gray-800"
-            >
-              {t('pricingDisplay.acceptPricing')}
-            </Button>
           </div>
         </CardContent>
       </Card>

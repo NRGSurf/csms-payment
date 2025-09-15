@@ -55,6 +55,7 @@ export default function Overview({
     totalCost: 0,
     pricePerKwh,
     sessionFee,
+    holdAmount: Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR),
   };
 
   return (

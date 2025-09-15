@@ -20,6 +20,7 @@ export interface SessionData {
   totalCost: number; // € (or your currency)
   pricePerKwh: number; // €/kWh
   sessionFee: number; // €
+  holdAmount: number; // €
 }
 
 export interface ChargingData {

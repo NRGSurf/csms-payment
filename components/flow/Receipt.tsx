@@ -59,22 +59,22 @@ export function Receipt({
   return (
     <div className="space-y-4">
       {/* Success Header */}
-      <Card className="shadow-lg bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+      <Card>
         <CardContent className="pt-6 text-center">
           <CheckCircle2 className="size-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-green-900 mb-2">
-            {t('receipt.chargingComplete')}
+            {t("receipt.chargingComplete")}
           </h2>
-          <p className="text-green-700">
-            {t('receipt.paymentProcessed')}
-          </p>
+          <p className="text-green-700">{t("receipt.paymentProcessed")}</p>
 
           <div className="grid grid-cols-1 gap-3 text-sm">
             <div className="mt-4 p-4 bg-white/80 rounded-lg border border-green-200">
               <div className="text-3xl font-bold text-green-600 mb-1">
                 €{chargingData.runningCost.toFixed(2)}
               </div>
-              <p className="text-green-700 text-sm">{t('receipt.finalAmount')}</p>
+              <p className="text-green-700 text-sm">
+                {t("receipt.finalAmount")}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 gap-4">
@@ -82,7 +82,9 @@ export function Receipt({
                 <p className="text-xl font-bold text-gray-900">
                   {chargingData.energyDelivered.toFixed(1)} kWh
                 </p>
-                <p className="text-green-700 text-sm">{t('receipt.energyCharged')}</p>
+                <p className="text-green-700 text-sm">
+                  {t("receipt.energyCharged")}
+                </p>
               </div>
             </div>
 
@@ -90,10 +92,10 @@ export function Receipt({
               <Mail className="size-12 text-gray-400 mx-auto" />
               <div>
                 <h3 className="font-medium text-gray-900 mb-2">
-                  {t('receipt.emailReceipt')}
+                  {t("receipt.emailReceipt")}
                 </h3>
                 <p className="text-gray-900 text-sm">
-                  {t('receipt.emailSent')}
+                  {t("receipt.emailSent")}
                 </p>
               </div>
               {/* <Button
@@ -203,13 +205,15 @@ export function Receipt({
       </Card> */}
 
       {/* Digital Receipt */}
-      <Card className="shadow-lg">
+      <Card>
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-xl">
-            Charging Session
+            {t("receipt.chargingSession")}
           </CardTitle>
           <p className="text-gray-600 text-sm">
-            Transaction completed on {new Date().toLocaleDateString()}
+            {t("receipt.transactionCompleted", {
+              date: new Date().toLocaleDateString(),
+            })}
           </p>
         </CardHeader>
 
@@ -323,7 +327,7 @@ export function Receipt({
                   </p>
                 </div> */}
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-gray-600">{t('receipt.transactionId')}</p>
+                  <p className="text-gray-600">{t("receipt.transactionId")}</p>
                   <p className="font-mono font-medium text-gray-900">
                     {transactionId}
                   </p>
@@ -367,11 +371,11 @@ export function Receipt({
                 variant="outline"
                 className="border-green-500 text-green-700"
               >
-                🇪🇺 {t('receipt.euCompliant')}
+                🇪🇺 {t("receipt.euCompliant")}
               </Badge>
             </div>
             <p className="text-green-800 text-sm">
-              {t('receipt.complianceText')}
+              {t("receipt.complianceText")}
             </p>
           </div>
         </CardContent>
@@ -385,17 +389,21 @@ export function Receipt({
           className="w-full h-14 text-base"
         >
           <RefreshCw className="size-5 mr-2" />
-          {t('receipt.startNew')}
+          {t("receipt.startNew")}
         </Button>
 
         <div className="text-center">
-          <p className="text-xs text-gray-500 mb-3">
-            {t('receipt.thankYou')}
-          </p>
+          <p className="text-xs text-gray-500 mb-3">{t("receipt.thankYou")}</p>
           <div className="flex justify-center gap-4 text-xs text-gray-400">
-            <button className="hover:text-gray-600">{t('receipt.support')}</button>
-            <button className="hover:text-gray-600">{t('receipt.terms')}</button>
-            <button className="hover:text-gray-600">{t('receipt.privacy')}</button>
+            <button className="hover:text-gray-600">
+              {t("receipt.support")}
+            </button>
+            <button className="hover:text-gray-600">
+              {t("receipt.terms")}
+            </button>
+            <button className="hover:text-gray-600">
+              {t("receipt.privacy")}
+            </button>
           </div>
         </div>
       </div>
