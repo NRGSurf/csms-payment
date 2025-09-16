@@ -23,8 +23,8 @@ type StatusResponse = {
   debug?: Record<string, any>;
 };
 
-const BASE = process.env.CITRINE_API_BASE_URL!;
-const TOKEN = process.env.CITRINE_API_TOKEN!;
+const BASE = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL!;
+const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN!;
 
 /** small helper */
 function safeJson<T = any>(txt: string) {

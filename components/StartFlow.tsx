@@ -117,9 +117,10 @@ export function StartFlow({
     go(FlowStep.Payment);
   }
 
-  const base = process.env.CITRINE_API_BASE_URL ?? "http://localhost:8080";
+  const base =
+    process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ?? "http://localhost:8080";
   (OpenAPI as any).BASE = base;
-  const token = process.env.CITRINE_API_TOKEN;
+  const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
   if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
 
   function toNull(s?: string) {

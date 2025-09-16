@@ -13,7 +13,7 @@ export default async function handler(
     const base =
       process.env.CITRINE_API_BASE_URL ||
       process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL;
-    const token = process.env.CITRINE_API_TOKEN;
+    const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
 
     const stationId = String(req.query.stationId || "").trim();
     const tenantId = String(req.query.tenantId || "1");

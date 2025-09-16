@@ -2,8 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { OpenAPI, TransactionsService } from "../../../lib/openapi";
 
-const BASE = process.env.CITRINE_API_BASE_URL!;
-const TOKEN = process.env.CITRINE_API_TOKEN!;
+const BASE = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL!;
+const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN!;
 
 // A flexible shape to normalize various server field names without `any`
 type StationLike = {
@@ -82,8 +82,8 @@ export default async function handler(
 //   ChargingStationResponseSchema, // optional: for typing below
 // } from "../../../lib/openapi";
 
-// const BASE = process.env.CITRINE_API_BASE_URL!;
-// const TOKEN = process.env.CITRINE_API_TOKEN!;
+// const BASE = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL!;
+// const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN!;
 
 // export default async function handler(
 //   req: NextApiRequest,
