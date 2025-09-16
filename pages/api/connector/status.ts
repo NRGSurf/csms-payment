@@ -25,13 +25,19 @@ type StatusResponse = {
   };
 };
 
-const BASE = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL!;
-const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN!;
+const BASE =
+  process.env.CITRINE_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL;
+const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
 
 async function getActiveTransactionByConnector(
   stationId: string,
   connectorId: number
 ) {
+  if (!BASE || !TOKEN) {
+    return;
+  }
+
   OpenAPI.BASE = BASE;
   OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
 
@@ -99,6 +105,9 @@ async function getLatestConnectorStatus(
   stationId: string,
   connectorId: number
 ): Promise<ConnStatus | null> {
+  if (!BASE || !TOKEN) {
+    return null;
+  }
   OpenAPI.BASE = BASE;
   OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
 
@@ -180,6 +189,9 @@ async function getLatestConnectorStatus(
 }
 
 async function getTransactionEnergySoFar(transactionId: string) {
+  if (!BASE || !TOKEN) {
+    return null;
+  }
   OpenAPI.BASE = BASE;
   OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
 

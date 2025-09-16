@@ -2,8 +2,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { OpenAPI, TransactionsService } from "../../../lib/openapi";
 
-const BASE = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL!;
-const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN!;
+const BASE =
+  process.env.CITRINE_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL;
+const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
 
 // A flexible shape to normalize various server field names without `any`
 type StationLike = {
@@ -22,6 +24,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (!BASE || !TOKEN) {
+    return;
+  }
   const stationId = String(req.query.stationId || "");
   const tenantId = req.query.tenantId ? Number(req.query.tenantId) : 1;
 
