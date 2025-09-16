@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/data/:path*", // browser will call https://your-app.vercel.app/data/...
-        destination: "http://161.35.23.7:8080/data/:path*", // server-side forward
+        destination: "http://134.122.66.91:8080/data/:path*", // server-side forward
       },
     ];
   },
