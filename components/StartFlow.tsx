@@ -121,7 +121,7 @@ export function StartFlow({
     typeof window === "undefined"
       ? process.env.CITRINE_API_BASE_URL ||
         process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ||
-        "http://161.35.23.7:8080"
+        "http://134.122.66.91:8080"
       : ""; // important: relative base for client (so it stays on https://your-app/.../data)
 
   (OpenAPI as any).BASE = base;
