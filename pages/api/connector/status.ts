@@ -25,8 +25,8 @@ type StatusResponse = {
   };
 };
 
-const BASE = process.env.CITRINE_API_BASE_URL!;
-const TOKEN = process.env.CITRINE_API_TOKEN!;
+const BASE = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL!;
+const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN!;
 
 async function getActiveTransactionByConnector(
   stationId: string,
