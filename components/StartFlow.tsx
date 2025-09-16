@@ -118,8 +118,12 @@ export function StartFlow({
   }
 
   const base =
-    process.env.CITRINE_API_BASE_URL ||
-    process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL;
+    typeof window === "undefined"
+      ? process.env.CITRINE_API_BASE_URL ||
+        process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ||
+        "http://161.35.23.7:8080"
+      : ""; // important: relative base for client (so it stays on https://your-app/.../data)
+
   (OpenAPI as any).BASE = base;
   const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
 

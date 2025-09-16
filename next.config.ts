@@ -11,6 +11,15 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+
+  async rewrites() {
+    return [
+      {
+        source: "/data/:path*", // browser will call https://your-app.vercel.app/data/...
+        destination: "http://161.35.23.7:8080/data/:path*", // server-side forward
+      },
+    ];
+  },
 };
 
 export default nextConfig;
