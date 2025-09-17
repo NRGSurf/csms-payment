@@ -371,7 +371,7 @@ export default function BillingForm({
                 <strong>{t("legal.waiveTextStrong")}</strong>{" "}
                 {t("legal.waiveTextAfter")}{" "}
                 <a
-                  href="/widerruf"
+                  href="/agb"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"
