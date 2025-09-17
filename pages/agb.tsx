@@ -18,18 +18,18 @@ export default function AgbPage() {
 
         <h2>General</h2>
         <p>
-          These General Terms and Conditions (hereinafter "GTC") apply to
-          Charging Processes at a Charging Station operated with be.ENERGISED.
-          be.ENERGISED is a brand of ChargePoint Austria GmbH (hereinafter
-          "ChargePoint"). When a Charging Process is carried out, a contract is
-          concluded between you and ChargePoint in accordance with the
-          provisions of these GTC. The GTC apply exclusively. Any deviating
-          terms and conditions are not accepted by ChargePoint and are hereby
-          rejected. This does not affect any additional regulations of the
-          Charging Station operator, property owner, parking space manager or
-          other third parties that apply at the location of the Charging
-          Station. For the compliance with these additional regulations you are
-          solely responsible.
+          These General Terms and Conditions (hereinafter &quot;GTC&quot;) apply
+          to Charging Processes at a Charging Station operated with
+          be.ENERGISED. be.ENERGISED is a brand of ChargePoint Austria GmbH
+          (hereinafter &quot;ChargePoint&quot;). When a Charging Process is
+          carried out, a contract is concluded between you and ChargePoint in
+          accordance with the provisions of these GTC. The GTC apply
+          exclusively. Any deviating terms and conditions are not accepted by
+          ChargePoint and are hereby rejected. This does not affect any
+          additional regulations of the Charging Station operator, property
+          owner, parking space manager or other third parties that apply at the
+          location of the Charging Station. For the compliance with these
+          additional regulations you are solely responsible.
         </p>
 
         <h2>Information about your contract partner</h2>
@@ -200,9 +200,9 @@ export default function AgbPage() {
         </p>
         <p>
           After selecting your desired payment provider and then filling in all
-          the fields displayed, click on the "Pay" button; the Charging Process
-          starts automatically after the payment process has been completed,
-          provided the car is connected to the Charging Station.
+          the fields displayed, click on the &quot;Pay&quot; button; the
+          Charging Process starts automatically after the payment process has
+          been completed, provided the car is connected to the Charging Station.
         </p>
         <p>
           Clicking on Stop or disconnecting the car from the Charging Point ends
@@ -232,10 +232,11 @@ export default function AgbPage() {
         <p>
           The information provided by ChargePoint via the Mobile Payment Site or
           the Payment Terminal does not constitute a binding offer to conclude a
-          contract, but by clicking on the "Pay"/"Start" button you in turn make
-          a binding offer to conclude a contract. Acceptance by ChargePoint is
-          implied by the start of the Charging Process, whereby the contract
-          between you and ChargePoint is concluded.
+          contract, but by clicking on the &quot;Pay&quot;/&quot;Start&quot;
+          button you in turn make a binding offer to conclude a contract.
+          Acceptance by ChargePoint is implied by the start of the Charging
+          Process, whereby the contract between you and ChargePoint is
+          concluded.
         </p>
 
         <h2>Tarifs and additional costs</h2>
@@ -619,7 +620,7 @@ export default function AgbPage() {
           1 Directive 2000/31/EC of the European Parliament and of the Council
           of 8 June 2000 on certain legal aspects of information society
           services, in particular electronic commerce, in the Internal Market
-          ('Directive on electronic commerce')
+          (&#34;Directive on electronic commerce&#34;)
         </p>
         <p>
           2 Directive 2011/83/EU of the European Parliament and of the Council
