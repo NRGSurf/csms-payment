@@ -74,6 +74,14 @@ h3 {
   font-family: var(--font-space-grotesk), sans-serif;
 }
 
+h1 {
+  @apply text-3xl font-bold mb-6;
+}
+
+h2 {
+  @apply text-xl font-semibold mt-8 mb-3;
+}
+
 /* Optional gradient (uncomment to use)
 body {
   background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(0 0% 100%) 60%);
