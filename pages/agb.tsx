@@ -14,6 +14,7 @@ export default function AgbPage() {
 
       <main className="mx-auto max-w-4xl p-6 prose prose-sm sm:prose lg:prose-lg">
         <h1>Allgemeine Geschäftsbedingungen (AGB)</h1>
+        <h1>NEED TO BE UPDATED !!!!!</h1>
 
         <h2>General</h2>
         <p>
