@@ -1,11 +1,32 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import braintree from "braintree";
 
+const {
+  BRAINTREE_ENV,
+  BRAINTREE_MERCHANT_ID,
+  BRAINTREE_PUBLIC_KEY,
+  BRAINTREE_PRIVATE_KEY,
+} = process.env;
+
+if (
+  !BRAINTREE_ENV ||
+  !BRAINTREE_MERCHANT_ID ||
+  !BRAINTREE_PUBLIC_KEY ||
+  !BRAINTREE_PRIVATE_KEY
+) {
+  throw new Error("Missing Braintree environment variables");
+}
+
+const environment =
+  BRAINTREE_ENV === "production"
+    ? braintree.Environment.Production
+    : braintree.Environment.Sandbox;
+
 const gateway = new braintree.BraintreeGateway({
-  environment: braintree.Environment.Sandbox,
-  merchantId: process.env.BRAINTREE_MERCHANT_ID!,
-  publicKey: process.env.BRAINTREE_PUBLIC_KEY!,
-  privateKey: process.env.BRAINTREE_PRIVATE_KEY!,
+  environment,
+  merchantId: BRAINTREE_MERCHANT_ID,
+  publicKey: BRAINTREE_PUBLIC_KEY,
+  privateKey: BRAINTREE_PRIVATE_KEY,
 });
 
 export default async function handler(

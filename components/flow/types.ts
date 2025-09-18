@@ -50,6 +50,7 @@ export type InvoiceForm = {
   country?: string;
   acceptTerms: boolean;
   waiveWithdrawal: boolean;
+  emailConsent: boolean;
 };
 
 export enum FlowStep {

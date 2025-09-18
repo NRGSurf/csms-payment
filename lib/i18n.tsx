@@ -176,6 +176,9 @@ const translations: Record<Lang, Record<string, any>> = {
       waiveTextAfter: ". More information:",
       rightOfWithdrawalLink: "Withdrawal Policy",
       waiveError: "Please confirm the waiver of withdrawal to continue.",
+      emailConsentLabel: "Consent to email usage",
+      emailConsentText:
+        "I agree that my email address may be used for the development of innovative features. (optional)",
     },
   },
   de: {
@@ -345,6 +348,9 @@ const translations: Record<Lang, Record<string, any>> = {
       waiveTextAfter: ". Weitere Informationen:",
       rightOfWithdrawalLink: "Widerrufsbelehrung",
       waiveError: "Bitte den Widerrufsverzicht bestätigen, um fortzufahren.",
+      emailConsentLabel: "Einwilligung zur E-Mail-Nutzung",
+      emailConsentText:
+        "Ich möchte, dass meine E-Mail-Adresse für die Entwicklung innovativer Funktionen genutzt werden darf. (optional)",
     },
   },
 };

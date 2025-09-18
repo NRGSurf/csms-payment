@@ -64,6 +64,7 @@ export function StartFlow({
     country: "",
     acceptTerms: false,
     waiveWithdrawal: false,
+    emailConsent: false,
   });
   const [clientToken, setClientToken] = useState<string | null>(null);
   const [paymentAuthorized, setPaymentAuthorized] = useState(false);

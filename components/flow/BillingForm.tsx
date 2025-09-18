@@ -49,6 +49,7 @@ export default function BillingForm({
         country: z.string().optional(),
         acceptTerms: z.boolean().default(false),
         waiveWithdrawal: z.boolean().default(false),
+        emailConsent: z.boolean().default(false),
       }),
     [t]
   );
@@ -105,6 +106,7 @@ export default function BillingForm({
       country: initial?.country ?? "",
       acceptTerms: initial?.acceptTerms ?? false,
       waiveWithdrawal: initial?.waiveWithdrawal ?? false,
+      emailConsent: initial?.emailConsent ?? false,
     },
     mode: "onChange",
     reValidateMode: "onChange",
@@ -379,6 +381,24 @@ export default function BillingForm({
                   {t("legal.rightOfWithdrawalLink")}
                 </a>
                 .
+              </span>
+            </label>
+          </div>
+
+          {/* Email consent – Optional */}
+          <div className="flex items-start gap-3">
+            <input
+              id="emailConsent"
+              type="checkbox"
+              {...register("emailConsent")}
+            />
+            <label htmlFor="emailConsent" className="text-sm text-gray-800">
+              <span className="font-medium">
+                {t("legal.emailConsentLabel")}
+              </span>
+              <br />
+              <span className="text-gray-600">
+                {t("legal.emailConsentText")}
               </span>
             </label>
           </div>
