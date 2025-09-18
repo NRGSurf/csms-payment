@@ -35,10 +35,7 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
           authorization: clientToken,
           container: containerRef.current,
           card: { cardholderName: { required: false } },
-          paymentOptionPriority: ["card"],
-          preselectVaultedPaymentMethod: false,
-          vaultManager: false,
-          //paypal: { flow: "checkout" },
+          paypal: { flow: "checkout" },
           locale: braintreeLocale,
         });
         if (!active) {

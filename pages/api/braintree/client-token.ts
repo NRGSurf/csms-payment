@@ -7,11 +7,13 @@ export default async function handler(
 ) {
   try {
     const {
+      BRAINTREE_ENV,
       BRAINTREE_MERCHANT_ID,
       BRAINTREE_PUBLIC_KEY,
       BRAINTREE_PRIVATE_KEY,
     } = process.env;
     if (
+      !BRAINTREE_ENV ||
       !BRAINTREE_MERCHANT_ID ||
       !BRAINTREE_PUBLIC_KEY ||
       !BRAINTREE_PRIVATE_KEY
@@ -21,8 +23,13 @@ export default async function handler(
         .json({ error: "Missing Braintree env variables." });
     }
 
+    const environment =
+      BRAINTREE_ENV === "production"
+        ? braintree.Environment.Production
+        : braintree.Environment.Sandbox;
+
     const gateway = new braintree.BraintreeGateway({
-      environment: braintree.Environment.Sandbox,
+      environment,
       merchantId: BRAINTREE_MERCHANT_ID,
       publicKey: BRAINTREE_PUBLIC_KEY,
       privateKey: BRAINTREE_PRIVATE_KEY,
