@@ -263,23 +263,26 @@ export function ChargingSession({
             <h3 className="font-medium text-gray-900">
               {t("chargingSession.sessionDetails")}
             </h3>
+
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
+              <div className="min-w-0">
                 <p className="text-gray-600">
                   {t("chargingSession.stationId")}
                 </p>
-                <p className="font-mono text-gray-900">
+                <p className="font-mono text-gray-900 break-words break-all">
                   {sessionData.stationId}
                 </p>
               </div>
-              <div>
+
+              <div className="min-w-0">
                 <p className="text-gray-600">
                   {t("chargingSession.sessionId")}
                 </p>
-                <p className="font-mono text-gray-900">
+                <p className="font-mono text-gray-900 break-words break-all">
                   {sessionData.sessionId}
                 </p>
               </div>
+
               <div>
                 <p className="text-gray-600">{t("chargingSession.started")}</p>
                 <p className="text-gray-900">
@@ -289,11 +292,14 @@ export function ChargingSession({
                   }) ?? "—"}
                 </p>
               </div>
-              <div>
+
+              <div className="min-w-0">
                 <p className="text-gray-600">
                   {t("chargingSession.connector")}
                 </p>
-                <p className="text-gray-900">{sessionData.connector}</p>
+                <p className="text-gray-900 break-words break-all">
+                  {sessionData.connector}
+                </p>
               </div>
             </div>
           </div>
