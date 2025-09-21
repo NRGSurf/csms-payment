@@ -19,7 +19,7 @@ export interface SessionData {
   totalDuration: number; // seconds
   totalCost: number; // € (or your currency)
   pricePerKwh: number; // €/kWh
-  sessionFee: number; // €
+  pricePerSession: number; // €
   holdAmount: number; // €
 }
 
@@ -37,6 +37,7 @@ export type StationInfo = {
   location?: string;
   connectorId?: string | number;
   pricePerKwh?: number;
+  pricePerSession?: number;
   protocol?: string;
 };
 
@@ -48,6 +49,7 @@ export type InvoiceForm = {
   postalCode?: string;
   city?: string;
   country?: string;
+  vatId?: string;
   acceptTerms: boolean;
   waiveWithdrawal: boolean;
   emailConsent: boolean;

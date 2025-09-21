@@ -1,17 +1,21 @@
 "use client";
 
 import React from "react";
-import Charging from "./Charging"; // Figma ChargingSession adapter
+import Charging from "./Charging";
 import type { TransactionDTO } from "@/types/backend";
 import { Receipt } from "@/components/flow/Receipt";
 import type { SessionData, ChargingData } from "@/components/flow/types";
 import { useI18n } from "@/lib/i18n";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
+
+// OpenAPI client
+import { OpenAPI } from "@/lib/openapi/core/OpenAPI";
+import { TransactionsService } from "@/lib/openapi/services/TransactionsService";
 
 type Props = {
   stationId?: string;
+  evseDatabaseId?: number; // NEW
   pollIntervalMs?: number; // default 4000
   tokenId?: string;
   preAuthAmount: number;
@@ -34,6 +38,7 @@ const isActiveFlag = (v: any) =>
 
 export default function TransactionGate({
   stationId: stationIdProp,
+  evseDatabaseId, // NEW
   pollIntervalMs = 4000,
   tokenId,
   preAuthAmount,
@@ -46,7 +51,6 @@ export default function TransactionGate({
   const [activeTx, setActiveTx] = React.useState<TransactionDTO | null>(null);
   const [latestTx, setLatestTx] = React.useState<TransactionDTO | null>(null);
 
-  // derive token from URL every render (no state; avoids mount flicker)
   const tokenParam = tokenId ?? null;
 
   const lastViewRef = React.useRef<
@@ -55,59 +59,72 @@ export default function TransactionGate({
   const timerRef = React.useRef<number | null>(null);
   const inFlightRef = React.useRef<Promise<void> | null>(null);
 
+  // Ensure OpenAPI client is configured on the client (sane defaults)
+  React.useEffect(() => {
+    if (!(OpenAPI as any).BASE) {
+      (OpenAPI as any).BASE =
+        process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL || "";
+    }
+    const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
+    if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+  }, []);
+
+  const fetchList = React.useCallback(
+    async (query: any): Promise<TransactionDTO[]> => {
+      // NOTE: adjust method name if your generator differs:
+      // It's commonly getDataTransactionsTransactions or getDataTransactions.
+      const list =
+        (await (TransactionsService as any).getDataTransactionsTransactions?.(
+          query
+        )) ?? (await (TransactionsService as any).getDataTransactions?.(query));
+
+      if (!list) return [];
+      return Array.isArray(list)
+        ? (list as TransactionDTO[])
+        : [list as TransactionDTO];
+    },
+    []
+  );
+
   const doFetch = React.useCallback(async () => {
-    // De-dupe overlapping ticks
     if (inFlightRef.current) return;
     inFlightRef.current = (async () => {
       try {
-        const sp = new URLSearchParams(window.location.search);
+        const sp = new URLSearchParams(
+          typeof window !== "undefined" ? window.location.search : ""
+        );
         const fromQuery = sp.get("stationId") ?? "";
         const fromPath =
-          window.location.pathname.replace(/^\/+/, "").split("/")[0] || "";
+          typeof window !== "undefined"
+            ? window.location.pathname.replace(/^\/+/, "").split("/")[0] || ""
+            : "";
         const stationId = (stationIdProp || fromQuery || fromPath).trim();
-
-        const get = async (qs: URLSearchParams) => {
-          const res = await fetch(
-            `/api/backend/data/transactions?${qs.toString()}`,
-            {
-              method: "GET",
-              cache: "no-store",
-            }
-          );
-          const text = await res.text();
-          if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
-          const data = JSON.parse(text);
-          return Array.isArray(data)
-            ? (data as TransactionDTO[])
-            : data
-            ? [data]
-            : [];
-        };
 
         let scopedActive: TransactionDTO | null = null;
         let scopedLatest: TransactionDTO | null = null;
 
+        const baseQuery: any = {
+          tenantId: 1, // or your actual tenant
+          ...(stationId ? { stationId } : {}),
+          ...(typeof evseDatabaseId === "number" ? { evseDatabaseId } : {}),
+        };
+
         if (tokenParam) {
-          const qs1 = new URLSearchParams();
-          if (stationId) qs1.set("stationId", stationId);
-          qs1.set("idToken", tokenParam);
-          const tokenList = (await get(qs1)).sort(byNewest);
+          const tokenList = (
+            await fetchList({ ...baseQuery, idToken: tokenParam })
+          ).sort(byNewest);
           scopedActive =
             tokenList.find((t) => isActiveFlag((t as any).isActive)) ?? null;
           scopedLatest = tokenList[0] ?? null;
         } else {
-          // No token → normal behavior
-          const qsA = new URLSearchParams();
-          if (stationId) qsA.set("stationId", stationId);
-          qsA.set("isActive", "true");
-          const actives = (await get(qsA)).sort(byNewest);
+          const actives = (
+            await fetchList({ ...baseQuery, isActive: true })
+          ).sort(byNewest);
           scopedActive =
             actives.find((t) => isActiveFlag((t as any).isActive)) ?? null;
 
           if (!scopedActive) {
-            const qsAll = new URLSearchParams();
-            if (stationId) qsAll.set("stationId", stationId);
-            const all = (await get(qsAll)).sort(byNewest);
+            const all = (await fetchList(baseQuery)).sort(byNewest);
             scopedLatest = all[0] ?? null;
           } else {
             scopedLatest = scopedActive;
@@ -122,13 +139,13 @@ export default function TransactionGate({
           : tokenParam && !scopedLatest
           ? "not-started"
           : "receipt";
+
         if (lastViewRef.current !== view) {
           lastViewRef.current = view;
           onViewChange?.(view);
         }
 
         // Stop polling once we have a finished/latest and no active
-        // (keep polling if "not-started" so we can detect when it begins)
         if (!scopedActive && scopedLatest && timerRef.current) {
           clearInterval(timerRef.current);
           timerRef.current = null;
@@ -141,30 +158,26 @@ export default function TransactionGate({
       }
     })();
     await inFlightRef.current;
-  }, [stationIdProp, tokenParam, onViewChange]);
+  }, [stationIdProp, evseDatabaseId, tokenParam, fetchList, onViewChange]);
 
   React.useEffect(() => {
     let mounted = true;
 
-    // Leading fetch for instant UI
     (async () => {
       try {
         setLoading(true);
         setError(null);
         await doFetch();
       } catch {
-        /* already handled in doFetch */
+        /* handled in doFetch */
       }
     })();
 
-    // Start one interval; don’t depend on activeTx/latestTx (prevents tight loops)
     const intervalMs = Number.isFinite(Number(pollIntervalMs))
       ? Number(pollIntervalMs)
       : 4000;
     timerRef.current = window.setInterval(() => {
-      if (!mounted) return;
-      // If we already stopped (receipt reached), do nothing
-      if (!timerRef.current) return;
+      if (!mounted || !timerRef.current) return;
       void doFetch();
     }, intervalMs) as unknown as number;
 
@@ -239,6 +252,7 @@ export default function TransactionGate({
                   </div>
                 </div>
               </div>
+
               <div className="flex justify-end">
                 <button
                   type="button"
@@ -263,7 +277,7 @@ export default function TransactionGate({
     return (
       <Charging
         stationId={activeTx.stationId}
-        evseId={num((activeTx as any).evseDatabaseId, 1)}
+        evseDatabaseId={num((activeTx as any).evseDatabaseId, 1)}
         transactionId={activeTx.transactionId}
         seconds={num((activeTx as any).timeSpentCharging)}
         kwh={num((activeTx as any).totalKwh)}
@@ -273,23 +287,10 @@ export default function TransactionGate({
     );
   }
 
-  // … inside TransactionGate, in the "inactive → Receipt" branch
   const tx = latestTx!;
-  const totalDuration =
-    Number(
-      (tx as TransactionDTO & { timeSpentCharging?: number | string | null })
-        .timeSpentCharging ?? 0
-    ) || 0;
-  const totalEnergy =
-    Number(
-      (tx as TransactionDTO & { totalKwh?: number | string | null }).totalKwh ??
-        0
-    ) || 0;
-  const totalCost =
-    Number(
-      (tx as TransactionDTO & { totalCost?: number | string | null })
-        .totalCost ?? 0
-    ) || 0;
+  const totalDuration = Number((tx as any).timeSpentCharging ?? 0) || 0;
+  const totalEnergy = Number((tx as any).totalKwh ?? 0) || 0;
+  const totalCost = Number((tx as any).totalCost ?? 0) || 0;
 
   const sessionData: SessionData = {
     stationId: tx.stationId,
@@ -306,10 +307,10 @@ export default function TransactionGate({
       return (tx as any).isActive ? "busy" : "available";
     })(),
     location: "—",
-    connector: String((tx as any).evseDatabaseId ?? 1),
+    connector: String((tx as any).evseDatabaseId ?? 1), // displaying DB id
 
     pricePerKwh: 0,
-    sessionFee: 0,
+    pricePerSession: 0,
     holdAmount: Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR),
   };
 
@@ -318,9 +319,6 @@ export default function TransactionGate({
     energyDelivered: totalEnergy,
     chargingSpeed: 0,
     runningCost: totalCost,
-    // only include keys actually defined in ChargingData
-    // e.g. if it has 'cost' use:
-    // cost: totalCost,
   };
 
   return (

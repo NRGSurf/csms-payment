@@ -6,6 +6,7 @@ export type TransactionEventsQuerySchema = {
     stationId?: string;
     isActive?: boolean;
     idToken?: string;
+    evseDatabaseId?: number;
     tenantId: number;
 };
 

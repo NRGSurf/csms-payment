@@ -47,6 +47,7 @@ export default function BillingForm({
         postalCode: z.string().optional(),
         city: z.string().optional(),
         country: z.string().optional(),
+        vatId: z.string().optional(),
         acceptTerms: z.boolean().default(false),
         waiveWithdrawal: z.boolean().default(false),
         emailConsent: z.boolean().default(false),
@@ -104,6 +105,7 @@ export default function BillingForm({
       postalCode: initial?.postalCode ?? "",
       city: initial?.city ?? "",
       country: initial?.country ?? "",
+      vatId: initial?.vatId ?? "",
       acceptTerms: initial?.acceptTerms ?? false,
       waiveWithdrawal: initial?.waiveWithdrawal ?? false,
       emailConsent: initial?.emailConsent ?? false,
@@ -132,6 +134,7 @@ export default function BillingForm({
     "city",
     "country",
     "phone",
+    "vatId",
   ];
 
   const handleToggleInvoice = () => {
@@ -327,6 +330,19 @@ export default function BillingForm({
                   {errors.country?.message}
                 </p>
               )}
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-2 mb-1">
+                <FileText className="w-4 h-4" />
+                {t("billing.vatId")}
+              </label>
+              <input
+                type="text"
+                {...register("vatId")}
+                placeholder={t("billing.vatIdPlaceholder")}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+              />
             </div>
           </div>
         )}

@@ -79,7 +79,7 @@ export default function Footer() {
             {t("footer.imprint") ?? "Impressum"}
           </Link>
           <Link
-            href="https://www.team4.energy/service/datenschutz"
+            href="/dataprivacy"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:underline text-[hsl(var(--muted-foreground))]"

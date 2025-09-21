@@ -21,5 +21,6 @@ export interface SessionData {
   totalDuration: number;
   totalCost: number;
   pricePerKwh: number;
+  pricePerSession: number;
   sessionFee: number;
 }

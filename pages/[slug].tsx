@@ -89,8 +89,8 @@ export default function QRSlugPage(props: PageProps) {
       <StartFlow
         slug={slug}
         stationId={data.stationId!}
-        {...(typeof (data as any).evseId === "number"
-          ? { evseId: (data as any).evseId }
+        {...(typeof (data as any).evseDatabaseId === "number"
+          ? { evseDatabaseId: (data as any).evseDatabaseId }
           : {})}
         {...(typeof data.connectorId === "number"
           ? { connectorId: data.connectorId }

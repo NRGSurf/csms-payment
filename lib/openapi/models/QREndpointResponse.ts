@@ -7,7 +7,7 @@ export type QREndpointResponse = {
     slug: string;
     stationId: string;
     connectorId?: number | null;
-    evseId?: number | null;
+    evseDatabaseId?: number | null;
     label?: string | null;
     version: number;
     isActive: boolean;

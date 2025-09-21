@@ -61,6 +61,7 @@ export type ChargingStationResponseSchema = {
         stationId: string;
         currency: string;
         pricePerKwh?: number;
+        pricePerSession?: string | null;
         pricePerKwhDaytime?: Array<{
             dayOffset: number;
             pricePerKwh: number;
