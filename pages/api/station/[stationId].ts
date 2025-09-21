@@ -17,7 +17,8 @@ type StationLike = {
   location?: string | { address?: string };
   connectorId?: string | number;
   pricePerKwh?: number;
-  tariff?: { pricePerKwh?: number };
+  pricePerSession?: number;
+  tariff?: { pricePerKwh?: number; pricePerSession?: number };
 };
 
 export default async function handler(
@@ -70,6 +71,7 @@ export default async function handler(
           ? first.connectorId
           : undefined,
       pricePerKwh: first.pricePerKwh ?? first.tariff?.pricePerKwh,
+      pricePerSession: first.pricePerSession ?? first.tariff?.pricePerSession,
       raw: first,
     };
 
@@ -78,55 +80,3 @@ export default async function handler(
     return res.status(500).json({ error: e?.message || "Upstream error" });
   }
 }
-
-// // pages/api/station/[stationId].ts
-// import type { NextApiRequest, NextApiResponse } from "next";
-// import {
-//   OpenAPI,
-//   TransactionsService,
-//   ChargingStationResponseSchema, // optional: for typing below
-// } from "../../../lib/openapi";
-
-// const BASE = process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL!;
-// const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN!;
-
-// export default async function handler(
-//   req: NextApiRequest,
-//   res: NextApiResponse
-// ) {
-//   const stationId = String(req.query.stationId || "");
-//   // adjust type to what your method expects (string or number)
-//   const tenantId = (req.query.tenantId ?? 1) as any;
-
-//   if (!stationId) return res.status(400).json({ error: "Missing stationId" });
-
-//   try {
-//     // Configure the client so it builds absolute URLs + sends auth header
-//     OpenAPI.BASE = BASE;
-//     OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
-
-//     // Call the generated method (use the exact name from TransactionsService.ts)
-//     // Example name shown here; if yours differs, replace it.
-//     const data = await TransactionsService.getDataTransactionsChargingStation({
-//       stationId,
-//       tenantId,
-//     });
-
-//     // If the endpoint returns an array, grab the first; keep types if you like:
-//     const first: ChargingStationResponseSchema | undefined = Array.isArray(data)
-//       ? data[0]
-//       : (data as any);
-
-//     return res.status(200).json({
-//       id: first?.id ?? stationId,
-//       name: first?.id ?? stationId, // adjust if your model has a 'name' field
-//       address: (first as any)?.address?.formatted,
-//       location: (first as any)?.location,
-//       connectorId: (first as any)?.connectorId,
-//       pricePerKwh: (first as any)?.pricePerKwh,
-//       raw: first,
-//     });
-//   } catch (e: any) {
-//     return res.status(500).json({ error: e?.message || "Upstream error" });
-//   }
-// }

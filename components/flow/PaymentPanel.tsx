@@ -18,7 +18,6 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
   const [error, setError] = useState<string | null>(null);
   const { t, lang } = useI18n();
 
-  // Map your app langs → Braintree locale
   const braintreeLocale = lang === "de" ? "de_DE" : "en_US";
 
   useEffect(() => {
@@ -74,25 +73,50 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
     }
   }
 
+  // Small reusable spinner
+  const Spinner = () => (
+    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" aria-hidden>
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+        fill="none"
+        opacity=".25"
+      />
+      <path
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+        opacity=".75"
+      />
+    </svg>
+  );
+
+  // Skeleton shown while drop-in is being mounted
+  const DropinSkeleton = () => (
+    <div
+      className="relative rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-4"
+      aria-busy="true"
+      aria-live="polite"
+    >
+      <div className="h-6 w-40 animate-pulse rounded mb-3 bg-white/40" />
+      <div className="space-y-2">
+        <div className="h-10 animate-pulse rounded bg-white/40" />
+        <div className="h-10 animate-pulse rounded bg-white/40" />
+        <div className="h-10 animate-pulse rounded bg-white/40" />
+      </div>
+      <div className="mt-3 flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
+        <Spinner />
+        <span>{t("paymentPanel.loadingWidget")}</span>
+      </div>
+    </div>
+  );
+
   if (!clientToken) {
     return (
       <div className="flex items-center gap-2 text-[hsl(var(--muted-foreground))]">
-        <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" aria-hidden>
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-            fill="none"
-            opacity=".25"
-          />
-          <path
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            opacity=".75"
-          />
-        </svg>
+        <Spinner />
         <span className="text-xs">{t("paymentPanel.preparing")}</span>
       </div>
     );
@@ -114,23 +138,39 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
         </CardHeader>
 
         <CardContent>
-          <div ref={containerRef} />
+          {/* Container + loader overlay */}
+          <div className="relative" aria-busy={!ready}>
+            {/* Keep the real container in DOM; hide until ready so Braintree can mount */}
+            <div
+              ref={containerRef}
+              className={ready ? "" : "opacity-0 pointer-events-none h-0"}
+            />
+            {!ready && <DropinSkeleton />}
 
-          {error && (
-            <div className="mt-3 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-              {error}
+            {error && (
+              <div className="mt-3 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
+
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={handlePay}
+                className="rounded-xl px-5 h-12 min-w-[220px] text-white font-medium transition bg-gray-900 hover:bg-gray-900/90 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={!ready || !!busy}
+                aria-busy={!!busy}
+              >
+                {busy ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Spinner />
+                    {t("paymentPanel.processing")}
+                  </span>
+                ) : (
+                  t("paymentPanel.payStart")
+                )}
+              </button>
             </div>
-          )}
-
-          <div className="mt-4 flex justify-end">
-            <button
-              type="button"
-              onClick={handlePay}
-              className="rounded-xl px-5 h-12 min-w-[220px] text-white font-medium transition bg-gray-900 hover:bg-gray-900/90"
-              disabled={!ready || !!busy}
-            >
-              {busy ? t("paymentPanel.processing") : t("paymentPanel.payStart")}
-            </button>
           </div>
         </CardContent>
       </Card>

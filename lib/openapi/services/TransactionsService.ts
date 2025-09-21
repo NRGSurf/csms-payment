@@ -106,11 +106,13 @@ export class TransactionsService {
         stationId,
         isActive,
         idToken,
+        evseDatabaseId,
         tenantId = 1,
     }: {
         stationId?: string,
         isActive?: boolean,
         idToken?: string,
+        evseDatabaseId?: number,
         tenantId?: number,
     }): CancelablePromise<TransactionEventsResponseSchema> {
         return __request(OpenAPI, {
@@ -120,6 +122,7 @@ export class TransactionsService {
                 'stationId': stationId,
                 'isActive': isActive,
                 'idToken': idToken,
+                'evseDatabaseId': evseDatabaseId,
                 'tenantId': tenantId,
             },
         });

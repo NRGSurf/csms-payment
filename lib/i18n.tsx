@@ -39,7 +39,7 @@ const translations: Record<Lang, Record<string, any>> = {
       fullName: "Name",
       fullNamePlaceholder: "Your name / name of the company",
       fullNameError: "Please enter name",
-      email: "Email",
+      email: "Email*",
       emailPlaceholder: "you@example.com",
       emailError: "Please enter a valid email",
       phone: "Phone (optional)",
@@ -62,6 +62,8 @@ const translations: Record<Lang, Record<string, any>> = {
       submit: "Continue to payment",
       chargingSession: "Charging Session",
       transactionCompleted: "Transaction completed on {{date}}",
+      vatId: "VAT / Tax ID",
+      vatIdPlaceholder: "Your company VAT/Tax ID",
     },
     paymentPanel: {
       preparing: "Preparing payment…",
@@ -71,6 +73,7 @@ const translations: Record<Lang, Record<string, any>> = {
       payStart: "Pay & Start Charging",
       compliant: "EU AFIR Compliant",
       secure: "Secure Payment",
+      loadingWidget: "Loading payment form…",
     },
     paymentAuthorized: {
       title: "Payment authorized",
@@ -163,12 +166,12 @@ const translations: Record<Lang, Record<string, any>> = {
       privacy: "Privacy",
     },
     legal: {
-      termsLabel: "Accept Terms and Conditions",
+      termsLabel: "Accept Terms and Conditions*",
       termsText: "I have read and accept the Terms and Conditions.",
       termsLink: "Open Terms and Conditions",
       termsError: "Please accept the Terms and Conditions to continue.",
 
-      waiveLabel: "Immediate Start & Waiver of Withdrawal Right",
+      waiveLabel: "Immediate Start & Waiver of Withdrawal Right*",
       waiveTextBefore:
         "I agree that the service (charging session) will begin immediately and",
       waiveTextStrong:
@@ -206,7 +209,7 @@ const translations: Record<Lang, Record<string, any>> = {
       fullName: "Name",
       fullNamePlaceholder: "Ihr Name / Name des Unternehmens",
       fullNameError: "Bitte geben Sie den Namen ein",
-      email: "E-Mail",
+      email: "E-Mail*",
       emailPlaceholder: "sie@beispiel.de",
       emailError: "Bitte geben Sie eine gültige E-Mail-Adresse ein",
       phone: "Telefon (optional)",
@@ -228,6 +231,8 @@ const translations: Record<Lang, Record<string, any>> = {
       countryError: "Land ist erforderlich",
       submitWaiting: "Bitte warten…",
       submit: "Weiter zur Zahlung",
+      vatId: "USt-IdNr. / Steuernummer",
+      vatIdPlaceholder: "Ihre Unternehmens-USt-IdNr. oder Steuernummer",
     },
     paymentPanel: {
       preparing: "Zahlung wird vorbereitet…",
@@ -238,6 +243,7 @@ const translations: Record<Lang, Record<string, any>> = {
       payStart: "Bezahlen & Laden starten",
       compliant: "EU-AFIR-konform",
       secure: "Sichere Zahlung",
+      loadingWidget: "Zahlungsformular wird geladen …",
     },
     paymentAuthorized: {
       title: "Zahlung autorisiert",
@@ -335,12 +341,12 @@ const translations: Record<Lang, Record<string, any>> = {
       transactionCompleted: "Transaktion abgeschlossen am {date}",
     },
     legal: {
-      termsLabel: "AGB akzeptieren",
+      termsLabel: "AGB akzeptieren*",
       termsText: "Ich habe die AGB gelesen und akzeptiere sie.",
       termsLink: "AGB öffnen",
       termsError: "Bitte AGB akzeptieren, um fortzufahren.",
 
-      waiveLabel: "Sofortiger Beginn & Widerrufsverzicht",
+      waiveLabel: "Sofortiger Beginn & Widerrufsverzicht*",
       waiveTextBefore:
         "Ich stimme zu, dass die Dienstleistung (Ladevorgang) sofort beginnt und",
       waiveTextStrong:

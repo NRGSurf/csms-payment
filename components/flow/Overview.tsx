@@ -35,8 +35,8 @@ export default function Overview({
   status,
   onAcceptPricing,
 }: Props) {
-  const pricePerKwh = station?.pricePerKwh ?? 0; // already normalized by the hook
-  const sessionFee = 0; // keep a constant for now
+  const pricePerKwh = station?.pricePerKwh ?? 0;
+  const pricePerSession = station?.pricePerSession ?? 0;
 
   const sessionData: SessionData = {
     stationId,
@@ -47,18 +47,24 @@ export default function Overview({
       station?.connectorId != null
         ? `Connector ${station.connectorId}`
         : "CCS Type 2",
-    // unknown on overview screen:
     sessionId: "",
     startTime: new Date(),
     totalEnergy: 0,
     totalDuration: 0,
     totalCost: 0,
     pricePerKwh,
-    sessionFee,
+    pricePerSession,
     holdAmount: Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR),
   };
 
+  // Price is "loading" if station not yet present OR price is missing/null/undefined
+  const isPricingLoading = !station || station.pricePerKwh == null;
+
   return (
-    <PricingDisplay sessionData={sessionData} onContinue={onAcceptPricing} />
+    <PricingDisplay
+      sessionData={sessionData}
+      onContinue={onAcceptPricing}
+      loading={isPricingLoading}
+    />
   );
 }

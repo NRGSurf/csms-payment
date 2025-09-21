@@ -11,7 +11,7 @@ type Props =
   | {
       stationId: string;
       connectorId: number;
-      evseId?: never;
+      evseDatabaseId?: never;
       transactionId?: string;
       kwh?: number;
       totalCost?: number;
@@ -20,7 +20,7 @@ type Props =
     }
   | {
       stationId: string;
-      evseId: number;
+      evseDatabaseId: number;
       connectorId?: never;
       transactionId?: string;
       kwh?: number;
@@ -54,13 +54,13 @@ export default function Charging(props: Props) {
     connector: String(
       "connectorId" in props
         ? props.connectorId
-        : "evseId" in props
-        ? props.evseId
+        : "evseDatabaseId" in props
+        ? props.evseDatabaseId
         : 1
     ),
 
     pricePerKwh: 0,
-    sessionFee: 0,
+    pricePerSession: 0,
     holdAmount: Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR),
   };
 

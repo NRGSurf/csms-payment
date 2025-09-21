@@ -1,6 +1,6 @@
+// components/ui/PricingDisplay.tsx
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { SessionData } from "@/components/flow/types";
 import {
@@ -12,18 +12,15 @@ import {
   Clock,
   Shield,
 } from "lucide-react";
-
 import { useI18n } from "@/lib/i18n";
 
 export interface PricingDisplayProps {
   sessionData: SessionData;
   onContinue: () => void;
+  loading?: boolean; // NEW
 }
 
-type Props = {
-  sessionData: SessionData;
-  onContinue: () => void;
-};
+type Props = PricingDisplayProps;
 
 type Canonical = "available" | "busy" | "maintenance";
 
@@ -36,7 +33,7 @@ const normalizeStatus = (
     return "busy";
   if (v === "maintenance" || v === "faulted" || v === "unavailable")
     return "maintenance";
-  return "busy"; // sensible fallback
+  return "busy";
 };
 
 const pillStyles: Record<Canonical, string> = {
@@ -66,7 +63,14 @@ function StatusPill({
   );
 }
 
-export function PricingDisplay({ sessionData, onContinue }: Props) {
+// tiny skeleton helper
+const Skeleton = ({ className = "" }: { className?: string }) => (
+  <span
+    className={`inline-block animate-pulse rounded bg-[hsl(var(--muted))] ${className}`}
+  />
+);
+
+export function PricingDisplay({ sessionData, onContinue, loading }: Props) {
   const {
     stationId,
     stationName,
@@ -74,15 +78,14 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
     connector,
     location,
     pricePerKwh,
+    pricePerSession,
   } = sessionData;
 
-  // Optional amounts from backend; fallback to Figma values if missing
   const sessionFee = (sessionData as any)?.sessionFee ?? 0;
   const preauth = (sessionData as any)?.holdAmount ?? 0;
 
   const { t } = useI18n();
 
-  // Reusable row (icon + label/sub + value) with soft “pill” background
   const BreakdownRow = ({
     Icon,
     iconClass,
@@ -129,7 +132,11 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
           {/* Price banner */}
           <div className="rounded-xl border border-emerald-200 bg-gradient-to-b from-emerald-100/40 to-emerald-50/40 p-6 text-center">
             <div className="text-4xl font-extrabold text-emerald-600">
-              €{pricePerKwh.toFixed(2)}
+              {loading ? (
+                <Skeleton className="h-9 w-28 align-middle" />
+              ) : (
+                <>€{pricePerKwh.toFixed(2)}</>
+              )}
             </div>
             <div className="font-medium text-gray-700">
               {t("pricingDisplay.perKwh")}
@@ -147,7 +154,13 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
               Icon={Zap}
               iconClass="text-blue-600"
               label={t("pricingDisplay.energyRate")}
-              value={`€${pricePerKwh.toFixed(2)} / kWh`}
+              value={
+                loading ? (
+                  <Skeleton className="h-5 w-24" />
+                ) : (
+                  <>€{pricePerKwh.toFixed(2)} / kWh</>
+                )
+              }
             />
 
             {/* Session Fee */}
@@ -155,41 +168,29 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
               Icon={Clock}
               iconClass="text-amber-600"
               label={t("pricingDisplay.sessionFee")}
-              value={`€${sessionFee.toFixed(2)}`}
+              value={
+                loading ? (
+                  <Skeleton className="h-5 w-12" />
+                ) : (
+                  <>€{pricePerSession.toFixed(2)}</>
+                )
+              }
             />
 
-            {/* Pre-authorization (separate group style like figma) */}
+            {/* Pre-authorization */}
             <BreakdownRow
               Icon={Shield}
               iconClass="text-emerald-600"
               label={t("pricingDisplay.preauthorization")}
               subLabel={t("pricingDisplay.tempHold")}
-              value={`€${preauth.toFixed(2)}`}
+              value={
+                loading ? (
+                  <Skeleton className="h-5 w-16" />
+                ) : (
+                  <>€{preauth.toFixed(2)}</>
+                )
+              }
             />
-
-            {/* Cost Examples */}
-            {/* <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-4">
-              <div className="mb-2 font-semibold text-gray-900">
-                {t("pricingDisplay.costExamples")}
-              </div>
-              <div className="space-y-2">
-                {[
-                  { kWh: 10, t: "~20 min" },
-                  { kWh: 25, t: "~45 min" },
-                  { kWh: 50, t: "~1.5 hrs" },
-                ].map(({ kWh, t }) => (
-                  <div
-                    key={kWh}
-                    className="flex items-center justify-between text-gray-900"
-                  >
-                    <span className="text-[15px]">{kWh} kWh</span>
-                    <span className="font-medium">
-                      €{(kWh * pricePerKwh).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div> */}
           </div>
           {/* ===== /Complete Price Breakdown ===== */}
 
@@ -212,7 +213,9 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
             <button
               type="button"
               onClick={onContinue}
-              className="rounded-xl px-5 h-12 min-w-[220px] text-white font-medium transition bg-gray-900 hover:bg-gray-900/90"
+              disabled={!!loading} // prevent continue until prices are loaded
+              className="rounded-xl px-5 h-12 min-w-[220px] text-white font-medium transition bg-gray-900 hover:bg-gray-900/90 disabled:opacity-60 disabled:cursor-not-allowed"
+              aria-busy={!!loading}
             >
               {t("pricingDisplay.acceptPricing")}
             </button>
@@ -233,7 +236,7 @@ export function PricingDisplay({ sessionData, onContinue }: Props) {
         </CardContent>
       </Card>
 
-      {/* Station Connected (unchanged) */}
+      {/* Station Connected */}
       <Card>
         <CardHeader className="mb-4 pb-2">
           <div className="flex items-center justify-between">

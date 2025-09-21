@@ -1,5 +1,7 @@
 // hooks/useEvseStatus.ts
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { OpenAPI } from "@/lib/openapi/core/OpenAPI";
+import { TransactionsService } from "@/lib/openapi/services/TransactionsService";
 
 export type LiveStatus =
   | "Available"
@@ -19,9 +21,13 @@ type TxLite = {
   startedAt?: string;
 };
 
+/**
+ * Polls the backend for active transactions using the OpenAPI client.
+ * If evseDatabaseId is provided, filters to that EVSE; otherwise station-wide.
+ */
 export function useEvseStatus(
   stationId: string,
-  _evseId: number,
+  evseDatabaseId?: number,
   opts?: Options
 ) {
   const enabled = opts?.enabled ?? true;
@@ -33,55 +39,59 @@ export function useEvseStatus(
 
   const fetchActiveTx = useCallback(async () => {
     if (!enabled) return;
+
+    // (Optional) ensure BASE/HEADERS on client if not already set by parent:
+    if (typeof window !== "undefined") {
+      if (!(OpenAPI as any).BASE) {
+        (OpenAPI as any).BASE =
+          process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL || "";
+      }
+      const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
+      if (token)
+        (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+    }
+
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
+
     setLoading(true);
     setError(null);
 
     try {
-      // Read token from URL (client-side safe)
+      // Read token from URL (client-side)
       const tokenFromUrl =
         typeof window !== "undefined"
           ? new URLSearchParams(window.location.search).get("idToken") ??
             new URLSearchParams(window.location.search).get("tokenID")
           : null;
 
-      // Build query string safely
-      const qs = new URLSearchParams({ stationId });
+      // Build query for GET /data/transactions (your OpenAPI method name may be `getDataTransactions`)
+      const query: any = {
+        tenantId: 1, // adjust if dynamic in your app
+        stationId,
+        ...(tokenFromUrl ? { idToken: tokenFromUrl } : { isActive: true }),
+        ...(typeof evseDatabaseId === "number" ? { evseDatabaseId } : {}),
+      };
 
-      if (tokenFromUrl) {
-        // Use the param your backend expects. Your backend snippet uses "idToken".
-        qs.set("idToken", tokenFromUrl);
-      } else {
-        qs.set("isActive", "true");
-      }
+      // Call generated client
+      const data =
+        // If your generator named it differently, use that method name for GET /data/transactions
+        await TransactionsService.getDataTransactionsTransactions(query as any);
 
-      // IMPORTANT: use the param name your backend expects:
-      //   - If your API expects `idTokenId`, use that.
-      //   - If it expects `tokenID`, set that instead.
-      if (tokenFromUrl) {
-        qs.set("idTokenId", tokenFromUrl); // or: qs.set("tokenID", tokenFromUrl)
-      }
+      const list: any[] = Array.isArray(data)
+        ? data
+        : data
+        ? [data as any]
+        : [];
 
-      const r = await fetch(`/api/backend/data/transactions?${qs.toString()}`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      const text = await r.text();
-      if (!r.ok) {
-        throw new Error(`Upstream ${r.status}: ${text}`);
-      }
-      const arr = JSON.parse(text);
-      if (Array.isArray(arr) && arr.length > 0) {
-        const t = arr[0];
+      if (list.length > 0) {
+        const t = list[0];
         setStatus("Occupied");
         setTx({
           id: t?.transactionId ?? t?.id,
           kwh: t?.totalKwh != null ? Number(t.totalKwh) : undefined,
           totalCost: t?.totalCost != null ? Number(t.totalCost) : undefined,
-          // If backend later sends a live seconds field we will map it; null for now.
           seconds:
             t?.timeSpentCharging != null
               ? Number(t.timeSpentCharging)
@@ -99,7 +109,7 @@ export function useEvseStatus(
     } finally {
       setLoading(false);
     }
-  }, [enabled, stationId]);
+  }, [enabled, stationId, evseDatabaseId]);
 
   useEffect(() => {
     fetchActiveTx();

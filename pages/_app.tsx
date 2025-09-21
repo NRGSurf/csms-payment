@@ -9,9 +9,11 @@ import { I18nProvider } from "@/lib/i18n";
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <I18nProvider>
-      <AppShell>
-        <Component {...pageProps} />
-      </AppShell>
+      <div className="min-h-screen bg-background text-foreground">
+        <AppShell>
+          <Component {...pageProps} />
+        </AppShell>
+      </div>
     </I18nProvider>
   );
 }

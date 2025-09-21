@@ -41,7 +41,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/b
 
 ## Check build is working
 
-npm build
+npm run build
 
 ## Update OpenAPI interfaces
 

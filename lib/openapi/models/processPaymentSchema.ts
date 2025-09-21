@@ -15,6 +15,9 @@ export type processPaymentSchema = {
         postalCode?: string | null;
         city?: string | null;
         country?: string | null;
+        vatId?: string | null;
+        emailConsent?: boolean;
+        emailConsentVersion?: number | null;
     } | null);
 };
 

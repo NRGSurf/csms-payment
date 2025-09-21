@@ -26,7 +26,7 @@ type Props =
   | {
       slug: string;
       stationId: string;
-      evseId: number;
+      evseDatabaseId: number;
       connectorId?: never;
       tokenId?: string;
     }
@@ -34,21 +34,23 @@ type Props =
       slug: string;
       stationId: string;
       connectorId: number;
-      evseId?: never;
+      evseDatabaseId?: never;
       tokenId?: string;
     }
   | {
       slug: string;
       stationId: string;
-      evseId?: number;
+      evseDatabaseId?: number;
       connectorId?: number;
       tokenId?: string;
     };
 
+const EMAIL_CONSENT_VERSION = 1.0;
+
 export function StartFlow({
   slug,
   stationId,
-  evseId,
+  evseDatabaseId,
   connectorId,
   tokenId,
 }: Props) {
@@ -75,7 +77,7 @@ export function StartFlow({
   >(null);
 
   const { station } = useStation(stationId);
-  const { status, tx } = useEvseStatus(stationId, 4000);
+  const { status, tx } = useEvseStatus(stationId, evseDatabaseId);
 
   const holdAmount = Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR);
 
@@ -157,7 +159,9 @@ export function StartFlow({
           invoice.postalCode,
           invoice.city,
           invoice.country,
-        ].some((v) => (v ?? "").trim() !== "")
+          invoice.vatId,
+          invoice.emailConsent ? "x" : "",
+        ].some((v) => (typeof v === "string" ? v.trim() !== "" : Boolean(v)))
           ? {
               email: invoice.email?.trim() || null,
               fullName: invoice.fullName?.trim() || null,
@@ -166,6 +170,11 @@ export function StartFlow({
               postalCode: invoice.postalCode?.trim() || null,
               city: invoice.city?.trim() || null,
               country: invoice.country?.trim() || null,
+              vatId: invoice.vatId?.trim() || null,
+              emailConsent: Boolean(invoice.emailConsent),
+              emailConsentVersion: invoice.emailConsent
+                ? EMAIL_CONSENT_VERSION
+                : null,
             }
           : null,
       };
@@ -255,6 +264,7 @@ export function StartFlow({
         <TransactionGate
           key={`gate:${stationId}:${tokenID ?? ""}`}
           stationId={stationId}
+          evseDatabaseId={evseDatabaseId}
           tokenId={tokenID ?? undefined}
           preAuthAmount={holdAmount}
           onViewChange={setTokenFlowView}
@@ -279,7 +289,9 @@ export function StartFlow({
               ) : (
                 <Charging
                   stationId={stationId}
-                  evseId={typeof evseId === "number" ? evseId : 1} // required in this union branch
+                  evseDatabaseId={
+                    typeof evseDatabaseId === "number" ? evseDatabaseId : 1
+                  } // required in this union branch
                   transactionId={tx?.id ? String(tx.id) : ""}
                   kwh={typeof tx?.kwh === "number" ? tx.kwh : 0}
                   totalCost={
