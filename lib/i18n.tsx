@@ -60,8 +60,6 @@ const translations: Record<Lang, Record<string, any>> = {
       countryError: "Country is required",
       submitWaiting: "Please wait…",
       submit: "Continue to payment",
-      chargingSession: "Charging Session",
-      transactionCompleted: "Transaction completed on {{date}}",
       vatId: "VAT / Tax ID",
       vatIdPlaceholder: "Your company VAT/Tax ID",
     },
@@ -164,6 +162,8 @@ const translations: Record<Lang, Record<string, any>> = {
       support: "Support",
       terms: "Terms",
       privacy: "Privacy",
+      chargingSession: "Charging Session",
+      transactionCompleted: "Transaction completed on {{date}}",
     },
     legal: {
       termsLabel: "Accept Terms and Conditions*",
