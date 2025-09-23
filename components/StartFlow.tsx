@@ -350,6 +350,9 @@ export function StartFlow({
                 clientToken={clientToken}
                 busy={busy}
                 onPay={handlePay}
+                amount={holdAmount}
+                currency="EUR"
+                enablePayPal={true}
               />
             ))}
 
