@@ -124,7 +124,6 @@ export function StartFlow({
   if (typeof window !== "undefined") {
     (OpenAPI as any).BASE = "/data";
   } else {
-    // server-side can keep env/IP (whatever you had)
     (OpenAPI as any).BASE =
       process.env.CITRINE_API_BASE_URL ||
       process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ||
