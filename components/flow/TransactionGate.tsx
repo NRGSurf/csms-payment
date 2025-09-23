@@ -64,7 +64,7 @@ export default function TransactionGate({
   // Ensure OpenAPI client is configured on the client (sane defaults)
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      (OpenAPI as any).BASE = "/data"; // <-- force relative
+      (OpenAPI as any).BASE = ""; // was "/data"
     } else {
       (OpenAPI as any).BASE =
         process.env.CITRINE_API_BASE_URL ||

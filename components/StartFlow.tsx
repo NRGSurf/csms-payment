@@ -122,7 +122,7 @@ export function StartFlow({
 
   // force relative base in the browser to avoid mixed content
   if (typeof window !== "undefined") {
-    (OpenAPI as any).BASE = "/data";
+    (OpenAPI as any).BASE = ""; // was "/data"
   } else {
     (OpenAPI as any).BASE =
       process.env.CITRINE_API_BASE_URL ||
@@ -142,7 +142,7 @@ export function StartFlow({
   // (OpenAPI as any).BASE = base;
   // const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
 
-  if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+  // if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
 
   function toNull(s?: string) {
     return s && s.trim() !== "" ? s : null;
