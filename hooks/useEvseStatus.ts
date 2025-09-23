@@ -43,7 +43,7 @@ export function useEvseStatus(
 
     // (Optional) ensure BASE/HEADERS on client if not already set by parent:
     if (typeof window !== "undefined") {
-      (OpenAPI as any).BASE = "/data"; // <-- force relative, avoid mixed content
+      (OpenAPI as any).BASE = ""; // was "/data" or env — set to empty in browser
       const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
       if (token)
         (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };

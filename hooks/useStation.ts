@@ -68,7 +68,7 @@ export function useStation(stationId: string) {
       //     (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
       // }
       if (typeof window !== "undefined") {
-        (OpenAPI as any).BASE = "/data"; // <-- force relative
+        (OpenAPI as any).BASE = ""; // was "/data"
         const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
         if (token)
           (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
