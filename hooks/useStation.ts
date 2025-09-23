@@ -58,11 +58,17 @@ export function useStation(stationId: string) {
       setError(null);
 
       // Ensure OpenAPI client is configured in the browser
+      // if (typeof window !== "undefined") {
+      //   if (!(OpenAPI as any).BASE) {
+      //     (OpenAPI as any).BASE =
+      //       process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL || "";
+      //   }
+      //   const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
+      //   if (token)
+      //     (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+      // }
       if (typeof window !== "undefined") {
-        if (!(OpenAPI as any).BASE) {
-          (OpenAPI as any).BASE =
-            process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL || "";
-        }
+        (OpenAPI as any).BASE = "/data"; // <-- force relative
         const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
         if (token)
           (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };

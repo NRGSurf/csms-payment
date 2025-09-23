@@ -63,13 +63,25 @@ export default function TransactionGate({
 
   // Ensure OpenAPI client is configured on the client (sane defaults)
   React.useEffect(() => {
-    if (!(OpenAPI as any).BASE) {
+    if (typeof window !== "undefined") {
+      (OpenAPI as any).BASE = "/data"; // <-- force relative
+    } else {
       (OpenAPI as any).BASE =
-        process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL || "";
+        process.env.CITRINE_API_BASE_URL ||
+        process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ||
+        "http://134.122.66.91:8080";
     }
     const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
     if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
   }, []);
+  // React.useEffect(() => {
+  //   if (!(OpenAPI as any).BASE) {
+  //     (OpenAPI as any).BASE =
+  //       process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL || "";
+  //   }
+  //   const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
+  //   if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+  // }, []);
 
   const fetchList = React.useCallback(
     async (query: any): Promise<TransactionDTO[]> => {
