@@ -15,7 +15,8 @@ import { TransactionsService } from "@/lib/openapi/services/TransactionsService"
 
 type Props = {
   stationId?: string;
-  evseDatabaseId?: number; // NEW
+  evseDatabaseId?: number;
+  connectorId?: number;
   pollIntervalMs?: number; // default 4000
   tokenId?: string;
   preAuthAmount: number;
@@ -38,7 +39,8 @@ const isActiveFlag = (v: any) =>
 
 export default function TransactionGate({
   stationId: stationIdProp,
-  evseDatabaseId, // NEW
+  evseDatabaseId,
+  connectorId,
   pollIntervalMs = 4000,
   tokenId,
   preAuthAmount,
@@ -107,6 +109,7 @@ export default function TransactionGate({
           tenantId: 1, // or your actual tenant
           ...(stationId ? { stationId } : {}),
           ...(typeof evseDatabaseId === "number" ? { evseDatabaseId } : {}),
+          ...(typeof connectorId === "number" ? { connectorId } : {}),
         };
 
         if (tokenParam) {
@@ -158,7 +161,14 @@ export default function TransactionGate({
       }
     })();
     await inFlightRef.current;
-  }, [stationIdProp, evseDatabaseId, tokenParam, fetchList, onViewChange]);
+  }, [
+    stationIdProp,
+    evseDatabaseId,
+    connectorId,
+    tokenParam,
+    fetchList,
+    onViewChange,
+  ]);
 
   React.useEffect(() => {
     let mounted = true;
@@ -307,7 +317,11 @@ export default function TransactionGate({
       return (tx as any).isActive ? "busy" : "available";
     })(),
     location: "—",
-    connector: String((tx as any).evseDatabaseId ?? 1), // displaying DB id
+    connector: String(
+      (typeof connectorId === "number" ? connectorId : undefined) ??
+        (tx as any).evseDatabaseId ??
+        1
+    ),
 
     pricePerKwh: 0,
     pricePerSession: 0,

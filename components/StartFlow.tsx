@@ -77,7 +77,7 @@ export function StartFlow({
   >(null);
 
   const { station } = useStation(stationId);
-  const { status, tx } = useEvseStatus(stationId, evseDatabaseId);
+  const { status, tx } = useEvseStatus(stationId, evseDatabaseId, connectorId);
 
   const holdAmount = Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR);
 
@@ -265,6 +265,7 @@ export function StartFlow({
           key={`gate:${stationId}:${tokenID ?? ""}`}
           stationId={stationId}
           evseDatabaseId={evseDatabaseId}
+          connectorId={connectorId}
           tokenId={tokenID ?? undefined}
           preAuthAmount={holdAmount}
           onViewChange={setTokenFlowView}

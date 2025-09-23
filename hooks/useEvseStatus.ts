@@ -28,6 +28,7 @@ type TxLite = {
 export function useEvseStatus(
   stationId: string,
   evseDatabaseId?: number,
+  connectorId?: number,
   opts?: Options
 ) {
   const enabled = opts?.enabled ?? true;
@@ -72,6 +73,7 @@ export function useEvseStatus(
         stationId,
         ...(tokenFromUrl ? { idToken: tokenFromUrl } : { isActive: true }),
         ...(typeof evseDatabaseId === "number" ? { evseDatabaseId } : {}),
+        ...(typeof connectorId === "number" ? { connectorId } : {}),
       };
 
       // Call generated client
@@ -109,7 +111,7 @@ export function useEvseStatus(
     } finally {
       setLoading(false);
     }
-  }, [enabled, stationId, evseDatabaseId]);
+  }, [enabled, stationId, evseDatabaseId, connectorId]);
 
   useEffect(() => {
     fetchActiveTx();
