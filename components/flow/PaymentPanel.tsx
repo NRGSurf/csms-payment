@@ -1,4 +1,3 @@
-// components/flow/PaymentPanel.tsx
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,9 +8,22 @@ type Props = {
   clientToken: string | null;
   busy?: boolean;
   onPay: (nonce: string) => void | Promise<void>;
+  /** Amount you plan to pre-authorize (e.g. hold) */
+  amount: number;
+  /** ISO currency for PayPal; must be enabled on your Braintree merchant (e.g. "EUR") */
+  currency?: string;
+  /** Set false to hide PayPal and show only cards */
+  enablePayPal?: boolean;
 };
 
-export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
+export default function PaymentPanel({
+  clientToken,
+  busy,
+  onPay,
+  amount,
+  currency = "EUR",
+  enablePayPal = true,
+}: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = useState(false);
   const [instance, setInstance] = useState<any>(null);
@@ -23,32 +35,64 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
   useEffect(() => {
     let active = true;
     let currentInstance: any = null;
+
     async function init() {
       if (!clientToken || !containerRef.current) return;
       setError(null);
       setReady(false);
+
       try {
         const dropinModule = await import("braintree-web-drop-in");
         const dropin = (dropinModule as any).default ?? dropinModule;
+
         currentInstance = await dropin.create({
           authorization: clientToken,
           container: containerRef.current,
-          card: { cardholderName: { required: false } },
-          paypal: { flow: "checkout" },
           locale: braintreeLocale,
+
+          // Optional: keep PayPal visible after Card (or hide via enablePayPal)
+          paymentOptionPriority: enablePayPal ? ["card", "paypal"] : ["card"],
+
+          card: {
+            cardholderName: {
+              required: false,
+            },
+          },
+
+          // ✅ IMPORTANT: Provide amount/currency/intent for PayPal
+          ...(enablePayPal
+            ? {
+                paypal: {
+                  flow: "checkout",
+                  amount: Number.isFinite(amount) ? Number(amount) : 0,
+                  currency,
+                  // Shows "Pay Now" on PayPal — adjust to your preference
+                  commit: true,
+                  // Match your server: you auth now (submitForSettlement:false) and capture later
+                  intent: "authorize",
+                },
+              }
+            : {}),
         });
+
         if (!active) {
           await currentInstance.teardown().catch(() => {});
           return;
         }
         setInstance(currentInstance);
         setReady(true);
+
+        // (Optional) enable/disable your button depending on selection
+        currentInstance.on("paymentMethodRequestable", () => setError(null));
+        currentInstance.on("noPaymentMethodRequestable", () => setError(null));
       } catch (err: any) {
         console.error("Braintree init error:", err);
         setError(err?.message || "Failed to initialize payment form");
       }
     }
+
     init();
+
     return () => {
       active = false;
       (async () => {
@@ -59,21 +103,26 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
       setInstance(null);
       setReady(false);
     };
-  }, [clientToken, braintreeLocale]);
+  }, [clientToken, braintreeLocale, amount, currency, enablePayPal]);
 
   async function handlePay() {
     if (!instance) return;
     setError(null);
     try {
+      // For card: tokenizes immediately
+      // For PayPal: opens a popup -> returns nonce when approved
       const payload = await instance.requestPaymentMethod();
       await onPay(payload.nonce);
     } catch (err: any) {
-      const msg = err?.message || "Could not get a payment method";
+      // If user closes PayPal popup or validation fails, you land here
+      const msg =
+        err?.code === "PAYPAL_POPUP_CLOSED"
+          ? t("paymentPanel.paypalClosed") || "PayPal window was closed"
+          : err?.message || "Could not get a payment method";
       setError(msg);
     }
   }
 
-  // Small reusable spinner
   const Spinner = () => (
     <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" aria-hidden>
       <circle
@@ -93,7 +142,6 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
     </svg>
   );
 
-  // Skeleton shown while drop-in is being mounted
   const DropinSkeleton = () => (
     <div
       className="relative rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-4"
@@ -138,9 +186,7 @@ export default function PaymentPanel({ clientToken, busy, onPay }: Props) {
         </CardHeader>
 
         <CardContent>
-          {/* Container + loader overlay */}
           <div className="relative" aria-busy={!ready}>
-            {/* Keep the real container in DOM; hide until ready so Braintree can mount */}
             <div
               ref={containerRef}
               className={ready ? "" : "opacity-0 pointer-events-none h-0"}
