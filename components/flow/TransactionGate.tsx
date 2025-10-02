@@ -12,6 +12,7 @@ import { CheckCircle2 } from "lucide-react";
 // OpenAPI client
 import { OpenAPI } from "@/lib/openapi/core/OpenAPI";
 import { TransactionsService } from "@/lib/openapi/services/TransactionsService";
+import type { StartChargingResponseSchema } from "@/lib/openapi/models/StartChargingResponseSchema";
 
 type Props = {
   stationId?: string;
@@ -52,6 +53,9 @@ export default function TransactionGate({
   const [error, setError] = React.useState<string | null>(null);
   const [activeTx, setActiveTx] = React.useState<TransactionDTO | null>(null);
   const [latestTx, setLatestTx] = React.useState<TransactionDTO | null>(null);
+  const [startBusy, setStartBusy] = React.useState(false);
+  const [startError, setStartError] = React.useState<string | null>(null);
+  const [startInfo, setStartInfo] = React.useState<string | null>(null);
 
   const tokenParam = tokenId ?? null;
 
@@ -212,6 +216,51 @@ export default function TransactionGate({
     };
   }, [doFetch, pollIntervalMs]);
 
+  const handleStartCharging = React.useCallback(async () => {
+    setStartBusy(true);
+    setStartError(null);
+    setStartInfo(null);
+
+    try {
+      // slug = first path segment (/:slug/...)
+      const slug =
+        typeof window !== "undefined"
+          ? window.location.pathname.replace(/^\/+/, "").split("/")[0]
+          : "";
+      if (!slug) throw new Error("Missing slug in URL.");
+      if (!tokenParam) throw new Error("Missing token for StartCharging.");
+
+      const tenantId = 1; // TODO: inject real tenant if needed
+
+      const resp: StartChargingResponseSchema =
+        await TransactionsService.putDataTransactionsStartCharging({
+          tenantId,
+          requestBody: { slug, idToken: tokenParam },
+        });
+
+      if (resp.ok) {
+        setStartInfo(
+          resp.message ||
+            (resp.remoteStartStatus === "Accepted"
+              ? "Start accepted by charger."
+              : "Start scheduled/accepted. Waiting for the car to begin.")
+        );
+        // Nudge the poller so UI flips to "charging" once the EV/charger starts
+        await doFetch();
+      } else {
+        throw new Error(
+          resp.message || `Charger returned ${resp.remoteStartStatus}`
+        );
+      }
+    } catch (e: any) {
+      // openapi-typescript-codegen throws ApiError on non-2xx; surface body.message if present
+      const msg = e?.body?.message || e?.message || "Could not start charging.";
+      setStartError(msg);
+    } finally {
+      setStartBusy(false);
+    }
+  }, [tokenParam, doFetch]);
+
   if (loading)
     return (
       <div className="p-4 opacity-70 text-sm">
@@ -275,16 +324,26 @@ export default function TransactionGate({
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex flex-col items-end gap-2">
                 <button
                   type="button"
-                  onClick={() =>
-                    onStartClick ? onStartClick() : void doFetch()
-                  }
-                  className="rounded-xl px-5 h-12 min-w-[220px] text-white font-medium transition bg-gray-900 hover:bg-gray-900/90"
+                  onClick={handleStartCharging}
+                  disabled={startBusy}
+                  className="rounded-xl px-5 h-12 min-w-[220px] text-white font-medium transition bg-gray-900 hover:bg-gray-900/90 disabled:opacity-60"
                 >
-                  {t("transactionGate.startCharging")}
+                  {startBusy
+                    ? t("transactionGate.starting")
+                    : t("transactionGate.startCharging")}
                 </button>
+
+                {startInfo && (
+                  <p className="text-xs text-gray-600">{startInfo}</p>
+                )}
+                {startError && (
+                  <p className="text-sm text-red-600">
+                    {t("transactionGate.error", { error: startError })}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -305,6 +364,7 @@ export default function TransactionGate({
         kwh={num((activeTx as any).totalKwh)}
         totalCost={num((activeTx as any).totalCost)}
         startedAt={activeTx.createdAt}
+        authorizationAmount={preAuthAmount}
       />
     );
   }
@@ -337,7 +397,7 @@ export default function TransactionGate({
 
     pricePerKwh: 0,
     pricePerSession: 0,
-    holdAmount: Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR),
+    authorizationAmount: preAuthAmount,
   };
 
   const chargingData: ChargingData = {

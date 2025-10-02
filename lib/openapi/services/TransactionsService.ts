@@ -12,6 +12,8 @@ import type { PaymentResponse } from '../models/PaymentResponse';
 import type { processPaymentSchema } from '../models/processPaymentSchema';
 import type { QREndpointRequestSchema } from '../models/QREndpointRequestSchema';
 import type { QREndpointResponse } from '../models/QREndpointResponse';
+import type { StartChargingRequestSchema } from '../models/StartChargingRequestSchema';
+import type { StartChargingResponseSchema } from '../models/StartChargingResponseSchema';
 import type { SystemConfigSchema } from '../models/SystemConfigSchema';
 import type { TariffResponseSchema } from '../models/TariffResponseSchema';
 import type { TariffSchema } from '../models/TariffSchema';
@@ -319,6 +321,27 @@ export class TransactionsService {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/data/transactions/processPayment',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+    /**
+     * @returns StartChargingResponseSchema Default Response
+     * @throws ApiError
+     */
+    public static putDataTransactionsStartCharging({
+        tenantId,
+        requestBody,
+    }: {
+        tenantId?: number,
+        requestBody?: StartChargingRequestSchema,
+    }): CancelablePromise<StartChargingResponseSchema> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/data/transactions/startCharging',
+            query: {
+                'tenantId': tenantId,
+            },
             body: requestBody,
             mediaType: 'application/json',
         });

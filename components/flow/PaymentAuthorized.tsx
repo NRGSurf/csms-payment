@@ -55,7 +55,7 @@ export default function PaymentAuthorized({
             {typeof amount === "number" && (
               <div className="rounded-xl border p-3">
                 <div className="text-xs text-gray-500">
-                  {t("paymentAuthorized.holdAmount")}
+                  {t("paymentAuthorized.authorizationAmount")}
                 </div>
                 <div className="text-sm font-medium">{formatEUR(amount)}</div>
               </div>

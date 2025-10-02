@@ -17,6 +17,7 @@ type Props =
       totalCost?: number;
       seconds?: number;
       startedAt?: string;
+      authorizationAmount: number;
     }
   | {
       stationId: string;
@@ -27,6 +28,7 @@ type Props =
       totalCost?: number;
       seconds?: number;
       startedAt?: string;
+      authorizationAmount: number;
     };
 
 export default function Charging(props: Props) {
@@ -61,7 +63,7 @@ export default function Charging(props: Props) {
 
     pricePerKwh: 0,
     pricePerSession: 0,
-    holdAmount: Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR),
+    authorizationAmount: props.authorizationAmount,
   };
 
   const chargingData: ChargingData = {

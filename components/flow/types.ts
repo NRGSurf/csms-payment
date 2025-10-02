@@ -20,7 +20,7 @@ export interface SessionData {
   totalCost: number; // € (or your currency)
   pricePerKwh: number; // €/kWh
   pricePerSession: number; // €
-  holdAmount: number; // €
+  authorizationAmount: number; // €
 }
 
 export interface ChargingData {
@@ -39,6 +39,7 @@ export type StationInfo = {
   pricePerKwh?: number;
   pricePerSession?: number;
   protocol?: string;
+  authorizationAmount?: number;
 };
 
 export type InvoiceForm = {

@@ -8,6 +8,7 @@ export type TariffResponseSchema = Array<{
     currency: string;
     pricePerKwh?: number;
     pricePerSession?: string | null;
+    authorizationAmount?: string | null;
     pricePerKwhDaytime?: Array<{
         dayOffset: number;
         pricePerKwh: number;

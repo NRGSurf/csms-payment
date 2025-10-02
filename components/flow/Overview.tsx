@@ -15,6 +15,7 @@ type Props = {
     | "Faulted"
     | "Unknown";
   onAcceptPricing: () => void;
+  authorizationAmount: number;
 };
 
 function mapStatus(status?: Props["status"]): SessionData["stationStatus"] {
@@ -34,6 +35,7 @@ export default function Overview({
   station,
   status,
   onAcceptPricing,
+  authorizationAmount,
 }: Props) {
   const pricePerKwh = station?.pricePerKwh ?? 0;
   const pricePerSession = station?.pricePerSession ?? 0;
@@ -54,7 +56,7 @@ export default function Overview({
     totalCost: 0,
     pricePerKwh,
     pricePerSession,
-    holdAmount: Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR),
+    authorizationAmount: authorizationAmount,
   };
 
   // Price is "loading" if station not yet present OR price is missing/null/undefined

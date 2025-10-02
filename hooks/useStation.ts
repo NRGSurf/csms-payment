@@ -31,6 +31,7 @@ function mapDtoToStationInfo(d: any, fallbackId: string): StationInfo {
   // const priceNow = toNumOrUndef(d?.currentPriceType?.pricePerKwh);
   const priceNow = toNumOrUndef(d?.tariff?.pricePerKwh);
   const pricePerSession = toNumOrUndef(d?.tariff?.pricePerSession);
+  const authorizationAmount = toNumOrUndef(d?.tariff?.authorizationAmount);
 
   const protocol =
     d?.protocol ?? (d as any)?.ocppVersion ?? (d as any)?.raw?.protocol;
@@ -44,6 +45,7 @@ function mapDtoToStationInfo(d: any, fallbackId: string): StationInfo {
     pricePerKwh: priceNow,
     pricePerSession: pricePerSession,
     protocol,
+    authorizationAmount,
   } as StationInfo;
 }
 
