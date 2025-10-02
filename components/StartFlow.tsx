@@ -79,7 +79,34 @@ export function StartFlow({
   const { station } = useStation(stationId);
   const { status, tx } = useEvseStatus(stationId, evseDatabaseId, connectorId);
 
-  const holdAmount = Number(process.env.NEXT_PUBLIC_HOLD_AMOUNT_EUR);
+  const UI_FALLBACK_AUTH_AMOUNT = 60; // purely cosmetic; backend still uses Tariff
+
+  const authorizationAmount = useMemo(() => {
+    const raw = station?.authorizationAmount;
+    const n = Number(raw);
+    return Number.isFinite(n) && n >= 0 && n <= 1000
+      ? Number(n.toFixed(2))
+      : undefined;
+  }, [station?.authorizationAmount]);
+
+  const displayAuthorizationAmount =
+    authorizationAmount ?? UI_FALLBACK_AUTH_AMOUNT;
+
+  useEffect(() => {
+    console.log(
+      "[StartFlow Debug]",
+      "station.authorizationAmount =",
+      station?.authorizationAmount,
+      "authorizationAmount =",
+      authorizationAmount,
+      "displayAuthorizationAmount =",
+      displayAuthorizationAmount
+    );
+  }, [
+    station?.authorizationAmount,
+    authorizationAmount,
+    displayAuthorizationAmount,
+  ]);
 
   // Reserve + (optional) processPayment
   // const [tokenID, setTokenID] = useState<string | null>(null);
@@ -162,7 +189,7 @@ export function StartFlow({
         slug,
         paymentMethodNonce: nonce,
         currency: "EUR",
-        amount: holdAmount,
+        amount: displayAuthorizationAmount,
         invoice: [
           invoice.email,
           invoice.fullName,
@@ -279,7 +306,7 @@ export function StartFlow({
           evseDatabaseId={evseDatabaseId}
           connectorId={connectorId}
           tokenId={tokenID ?? undefined}
-          preAuthAmount={holdAmount}
+          preAuthAmount={displayAuthorizationAmount}
           onViewChange={setTokenFlowView}
         />
       ) : (
@@ -298,6 +325,7 @@ export function StartFlow({
                   }
                   seconds={typeof tx?.seconds === "number" ? tx.seconds : 0}
                   startedAt={tx?.startedAt ? String(tx.startedAt) : undefined}
+                  authorizationAmount={displayAuthorizationAmount}
                 />
               ) : (
                 <Charging
@@ -312,6 +340,7 @@ export function StartFlow({
                   }
                   seconds={typeof tx?.seconds === "number" ? tx.seconds : 0}
                   startedAt={tx?.startedAt ? String(tx.startedAt) : undefined}
+                  authorizationAmount={displayAuthorizationAmount}
                 />
               )
             ) : (
@@ -320,6 +349,7 @@ export function StartFlow({
                 station={station}
                 status={status}
                 onAcceptPricing={() => go(FlowStep.Billing)}
+                authorizationAmount={displayAuthorizationAmount}
               />
             ))}
 
@@ -336,7 +366,7 @@ export function StartFlow({
           {step === FlowStep.Payment &&
             (paymentAuthorized ? (
               <PaymentAuthorized
-                amount={holdAmount}
+                amount={displayAuthorizationAmount}
                 email={invoice.email}
                 onContinue={() => {
                   if (typeof window === "undefined") return;
@@ -350,7 +380,7 @@ export function StartFlow({
                 clientToken={clientToken}
                 busy={busy}
                 onPay={handlePay}
-                amount={holdAmount}
+                amount={displayAuthorizationAmount}
                 currency="EUR"
                 enablePayPal={true}
               />

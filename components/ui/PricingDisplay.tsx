@@ -82,7 +82,7 @@ export function PricingDisplay({ sessionData, onContinue, loading }: Props) {
   } = sessionData;
 
   const sessionFee = (sessionData as any)?.sessionFee ?? 0;
-  const preauth = (sessionData as any)?.holdAmount ?? 0;
+  const preauth = (sessionData as any)?.authorizationAmount ?? 0;
 
   const { t } = useI18n();
 
