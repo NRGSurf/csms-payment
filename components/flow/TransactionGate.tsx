@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import "@/lib/api/init";
 import Charging from "./Charging";
 import type { TransactionDTO } from "@/types/backend";
 import { Receipt } from "@/components/flow/Receipt";
@@ -66,17 +67,17 @@ export default function TransactionGate({
   const inFlightRef = React.useRef<Promise<void> | null>(null);
 
   // Ensure OpenAPI client is configured on the client (sane defaults)
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      (OpenAPI as any).BASE = ""; // was "/data"
-    } else {
-      (OpenAPI as any).BASE =
-        process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ??
-        "https://api-dev.nrgsurf.de";
-    }
-    const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
-    if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
-  }, []);
+  // React.useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     (OpenAPI as any).BASE = ""; // was "/data"
+  //   } else {
+  //     (OpenAPI as any).BASE =
+  //       process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ??
+  //       "https://api-dev.nrgsurf.de";
+  //   }
+  //   const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
+  //   if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+  // }, []);
   // React.useEffect(() => {
   //   if (!(OpenAPI as any).BASE) {
   //     (OpenAPI as any).BASE =

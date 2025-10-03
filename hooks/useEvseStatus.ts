@@ -1,5 +1,6 @@
 // hooks/useEvseStatus.ts
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "@/lib/api/init";
 import { OpenAPI } from "@/lib/openapi/core/OpenAPI";
 import { TransactionsService } from "@/lib/openapi/services/TransactionsService";
 
@@ -42,12 +43,12 @@ export function useEvseStatus(
     if (!enabled) return;
 
     // (Optional) ensure BASE/HEADERS on client if not already set by parent:
-    if (typeof window !== "undefined") {
-      (OpenAPI as any).BASE = ""; // was "/data" or env — set to empty in browser
-      const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
-      if (token)
-        (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
-    }
+    // if (typeof window !== "undefined") {
+    //   (OpenAPI as any).BASE = ""; // was "/data" or env — set to empty in browser
+    //   const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
+    //   if (token)
+    //     (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+    // }
     // if (typeof window !== "undefined") {
     //   if (!(OpenAPI as any).BASE) {
     //     (OpenAPI as any).BASE =

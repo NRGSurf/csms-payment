@@ -30,16 +30,22 @@ const BASE =
   process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL;
 const TOKEN = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
 
+// Centralize OpenAPI config; throws if BASE missing
+function ensureOpenAPIConfigured() {
+  if (!BASE) {
+    throw new Error("CITRINE_API_BASE_URL not configured");
+  }
+  OpenAPI.BASE = BASE;
+  if (TOKEN) {
+    OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
+  }
+}
+
 async function getActiveTransactionByConnector(
   stationId: string,
   connectorId: number
 ) {
-  if (!BASE || !TOKEN) {
-    return;
-  }
-
-  OpenAPI.BASE = BASE;
-  OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
+  ensureOpenAPIConfigured();
 
   try {
     const svc: any = TransactionsService as any;
@@ -105,11 +111,7 @@ async function getLatestConnectorStatus(
   stationId: string,
   connectorId: number
 ): Promise<ConnStatus | null> {
-  if (!BASE || !TOKEN) {
-    return null;
-  }
-  OpenAPI.BASE = BASE;
-  OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
+  ensureOpenAPIConfigured();
 
   try {
     const svc: any = MonitoringService as any;
@@ -189,11 +191,7 @@ async function getLatestConnectorStatus(
 }
 
 async function getTransactionEnergySoFar(transactionId: string) {
-  if (!BASE || !TOKEN) {
-    return null;
-  }
-  OpenAPI.BASE = BASE;
-  OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
+  ensureOpenAPIConfigured();
 
   try {
     const svc: any = TransactionsService as any;
@@ -248,6 +246,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  try {
+    ensureOpenAPIConfigured();
+  } catch (e: any) {
+    return res.status(500).json({ error: e?.message || "API config error" });
+  }
+
   const stationId = String(req.query.stationId || "");
   const connectorId = Number(req.query.connectorId || "1");
 

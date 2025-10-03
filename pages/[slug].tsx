@@ -30,10 +30,16 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   const base =
     process.env.CITRINE_API_BASE_URL ||
     process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL;
+  if (!base) {
+    return {
+      props: { ok: false, status: 500, message: "API base not configured" },
+    };
+  }
   (OpenAPI as any).BASE = base;
-  const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
 
+  const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
   if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+
   console.log("[DEBUG] OpenAPI BASE =", (OpenAPI as any).BASE);
 
   try {

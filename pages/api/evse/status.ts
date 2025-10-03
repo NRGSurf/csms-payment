@@ -41,8 +41,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!BASE || !TOKEN) {
-    return;
+  if (!BASE) {
+    return res
+      .status(500)
+      .json({ error: "CITRINE_API_BASE_URL not configured" });
   }
   const stationId = String(req.query.stationId || "");
   const evseId = Number(req.query.evseId || "1");
@@ -56,7 +58,9 @@ export default async function handler(
   }
 
   OpenAPI.BASE = BASE;
-  OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
+  if (TOKEN) {
+    OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
+  }
 
   const debug: Record<string, any> = { stationId, evseId, tenantId, tried: [] };
 
