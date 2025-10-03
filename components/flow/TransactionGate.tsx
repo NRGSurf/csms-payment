@@ -71,9 +71,8 @@ export default function TransactionGate({
       (OpenAPI as any).BASE = ""; // was "/data"
     } else {
       (OpenAPI as any).BASE =
-        process.env.CITRINE_API_BASE_URL ||
-        process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ||
-        "http://134.122.66.91:8080";
+        process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ??
+        "https://api-dev.nrgsurf.de";
     }
     const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
     if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
