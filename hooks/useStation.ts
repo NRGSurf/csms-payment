@@ -1,5 +1,6 @@
 // hooks/useStation.ts
 import { useEffect, useState } from "react";
+import "@/lib/api/init";
 import type { StationInfo } from "@/components/flow/types";
 import type { ChargingStationDTO } from "@/types/api"; // keep if convenient
 import { toNum } from "@/utils/num";
@@ -69,12 +70,12 @@ export function useStation(stationId: string) {
       //   if (token)
       //     (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
       // }
-      if (typeof window !== "undefined") {
-        (OpenAPI as any).BASE = ""; // was "/data"
-        const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
-        if (token)
-          (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
-      }
+      // if (typeof window !== "undefined") {
+      //   (OpenAPI as any).BASE = ""; // was "/data"
+      //   const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
+      //   if (token)
+      //     (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+      // }
 
       // Call generated endpoint (GET /data/transactions/chargingStation)
       const dto = await TransactionsService.getDataTransactionsChargingStation({

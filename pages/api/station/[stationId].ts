@@ -25,19 +25,23 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!BASE || !TOKEN) {
-    return;
+  if (!BASE) {
+    return res
+      .status(500)
+      .json({ error: "CITRINE_API_BASE_URL not configured" });
   }
+  // TOKEN is optional; only set header if present
+  if (TOKEN) {
+    OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
+  }
+  OpenAPI.BASE = BASE;
+
   const stationId = String(req.query.stationId || "");
   const tenantId = req.query.tenantId ? Number(req.query.tenantId) : 1;
 
   if (!stationId) return res.status(400).json({ error: "Missing stationId" });
 
   try {
-    // Configure the generated client for absolute URLs + auth
-    OpenAPI.BASE = BASE;
-    OpenAPI.HEADERS = { Authorization: `Bearer ${TOKEN}` };
-
     // Call the generated method (use the exact name from your TransactionsService)
     // If yours is named differently, replace `.chargingStation` with that name.
     type Result = Awaited<

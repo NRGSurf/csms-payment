@@ -1,5 +1,6 @@
 // components/StartFlow.tsx
 import React, { useEffect, useMemo, useState } from "react";
+import "@/lib/api/init";
 import { steps } from "@/components/flow/StepIndicator";
 import StepIndicator from "@/components/flow/StepIndicator";
 import PaymentAuthorized from "@/components/flow/PaymentAuthorized";
@@ -147,29 +148,28 @@ export function StartFlow({
     go(FlowStep.Payment);
   }
 
-  // force relative base in the browser to avoid mixed content
-  if (typeof window !== "undefined") {
-    (OpenAPI as any).BASE = ""; // was "/data"
-  } else {
-    (OpenAPI as any).BASE =
-      process.env.CITRINE_API_BASE_URL ||
-      process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ||
-      "http://134.122.66.91:8080";
-  }
-  const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
-  if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
-
-  // const base =
-  //   typeof window === "undefined"
-  //     ? process.env.CITRINE_API_BASE_URL ||
-  //       process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ||
-  //       "http://134.122.66.91:8080"
-  //     : ""; // important: relative base for client (so it stays on https://your-app/.../data)
-
-  // (OpenAPI as any).BASE = base;
+  // // force relative base in the browser to avoid mixed content
+  // if (typeof window !== "undefined") {
+  //   (OpenAPI as any).BASE = ""; // was "/data"
+  // } else {
+  //   (OpenAPI as any).BASE =
+  //     process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ??
+  //     "https://api-dev.nrgsurf.de";
+  // }
   // const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
-
   // if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
+
+  // // const base =
+  // //   typeof window === "undefined"
+  // //     ? process.env.CITRINE_API_BASE_URL ||
+  // //       process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL ||
+  // //       "http://134.122.66.91:8080"
+  // //     : ""; // important: relative base for client (so it stays on https://your-app/.../data)
+
+  // // (OpenAPI as any).BASE = base;
+  // // const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
+
+  // // if (token) (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
 
   function toNull(s?: string) {
     return s && s.trim() !== "" ? s : null;
@@ -273,10 +273,7 @@ export function StartFlow({
   }
 
   // Local “already charging” view (RFID, etc) for non-token flow
-  const showCharging =
-    status === "Occupied" &&
-    !!tx &&
-    (typeof tx?.kwh === "number" || typeof tx?.seconds === "number");
+  const showCharging = status === "Occupied" && !!tx;
 
   // Stepper index:
   // - token flow: charging → 3, receipt → steps.length (mark Charging completed)

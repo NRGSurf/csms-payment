@@ -1,5 +1,6 @@
 // hooks/useEvseStatus.ts
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "@/lib/api/init";
 import { OpenAPI } from "@/lib/openapi/core/OpenAPI";
 import { TransactionsService } from "@/lib/openapi/services/TransactionsService";
 
@@ -40,24 +41,6 @@ export function useEvseStatus(
 
   const fetchActiveTx = useCallback(async () => {
     if (!enabled) return;
-
-    // (Optional) ensure BASE/HEADERS on client if not already set by parent:
-    if (typeof window !== "undefined") {
-      (OpenAPI as any).BASE = ""; // was "/data" or env — set to empty in browser
-      const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
-      if (token)
-        (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
-    }
-    // if (typeof window !== "undefined") {
-    //   if (!(OpenAPI as any).BASE) {
-    //     (OpenAPI as any).BASE =
-    //       process.env.NEXT_PUBLIC_CITRINE_API_BASE_URL || "";
-    //   }
-    //   const token = process.env.NEXT_PUBLIC_CITRINE_API_TOKEN;
-    //   if (token)
-    //     (OpenAPI as any).HEADERS = { Authorization: `Bearer ${token}` };
-    // }
-
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
@@ -66,32 +49,90 @@ export function useEvseStatus(
     setError(null);
 
     try {
-      // Read token from URL (client-side)
       const tokenFromUrl =
         typeof window !== "undefined"
           ? new URLSearchParams(window.location.search).get("idToken") ??
             new URLSearchParams(window.location.search).get("tokenID")
           : null;
 
-      // Build query for GET /data/transactions (your OpenAPI method name may be `getDataTransactions`)
-      const query: any = {
-        tenantId: 1, // adjust if dynamic in your app
+      // --- Build query (send BOTH if available) ---
+      const q: Record<string, any> = {
+        tenantId: 1,
         stationId,
-        ...(tokenFromUrl ? { idToken: tokenFromUrl } : { isActive: true }),
-        ...(typeof evseDatabaseId === "number" ? { evseDatabaseId } : {}),
-        ...(typeof connectorId === "number" ? { connectorId } : {}),
       };
 
-      // Call generated client
-      const data =
-        // If your generator named it differently, use that method name for GET /data/transactions
-        await TransactionsService.getDataTransactionsTransactions(query as any);
+      if (typeof connectorId === "number") {
+        q.connectorId = connectorId;
+        q.isActive = true; // occupancy for connector path (1.6)
+      }
+
+      if (typeof evseDatabaseId === "number") {
+        q.evseDatabaseId = evseDatabaseId; // 2.0.1 path
+        // Keep isActive or idToken if already set; otherwise we can prefer token or occupancy below
+      }
+
+      if (tokenFromUrl) {
+        q.idToken = tokenFromUrl; // never suppress this
+      } else if (q.isActive == null) {
+        // if we didn't set it via connectorId above, default to occupancy search
+        q.isActive = true;
+      }
+
+      if (process.env.NODE_ENV !== "production") {
+        console.debug("useEvseStatus → query", q);
+      }
+
+      const data = await TransactionsService.getDataTransactionsTransactions(
+        q as any
+      );
 
       const list: any[] = Array.isArray(data)
         ? data
         : data
         ? [data as any]
         : [];
+
+      // Optional fallback: if token search + connector didn’t hit, try pure occupancy once
+      if (
+        list.length === 0 &&
+        tokenFromUrl &&
+        typeof connectorId === "number"
+      ) {
+        const occQuery = {
+          tenantId: 1,
+          stationId,
+          connectorId,
+          isActive: true,
+        };
+        if (process.env.NODE_ENV !== "production") {
+          console.debug("useEvseStatus → fallback occupancy query", occQuery);
+        }
+        const occData =
+          await TransactionsService.getDataTransactionsTransactions(
+            occQuery as any
+          );
+        const occList = Array.isArray(occData)
+          ? occData
+          : occData
+          ? [occData as any]
+          : [];
+        if (occList.length > 0) {
+          const t = occList[0];
+          setStatus("Occupied");
+          setTx({
+            id: t?.transactionId ?? t?.id,
+            kwh: t?.totalKwh != null ? Number(t.totalKwh) : undefined,
+            totalCost: t?.totalCost != null ? Number(t.totalCost) : undefined,
+            seconds:
+              t?.timeSpentCharging != null
+                ? Number(t.timeSpentCharging)
+                : undefined,
+            startedAt: t?.createdAt,
+          });
+          setLoading(false);
+          return;
+        }
+      }
 
       if (list.length > 0) {
         const t = list[0];
