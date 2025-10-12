@@ -118,32 +118,74 @@ export default function TransactionGate({
             : "";
         const stationId = (stationIdProp || fromQuery || fromPath).trim();
 
+        // Build baseQuery: always include both connectorId and evseDatabaseId when present
+        const baseQuery: any = {
+          tenantId: 1,
+          ...(stationId ? { stationId } : {}),
+          ...(typeof connectorId === "number" ? { connectorId } : {}),
+          ...(typeof evseDatabaseId === "number" ? { evseDatabaseId } : {}),
+        };
+
+        // If tokenParam is present → DO NOT send isActive in the primary request
+        if (tokenParam) {
+          baseQuery.idToken = tokenParam;
+        } else {
+          // No token → default to occupancy semantics
+          baseQuery.isActive = true;
+        }
+
+        if (process.env.NODE_ENV !== "production") {
+          console.debug("tx list query →", baseQuery);
+        }
+
         let scopedActive: TransactionDTO | null = null;
         let scopedLatest: TransactionDTO | null = null;
 
-        const baseQuery: any = {
-          tenantId: 1, // or your actual tenant
-          ...(stationId ? { stationId } : {}),
-          ...(typeof evseDatabaseId === "number" ? { evseDatabaseId } : {}),
-          ...(typeof connectorId === "number" ? { connectorId } : {}),
-        };
+        const withToken = tokenParam
+          ? (await fetchList({ ...baseQuery })).sort(byNewest)
+          : null;
 
-        if (tokenParam) {
-          const tokenList = (
-            await fetchList({ ...baseQuery, idToken: tokenParam })
-          ).sort(byNewest);
+        if (withToken) {
+          // try to find active first, then take newest
           scopedActive =
-            tokenList.find((t) => isActiveFlag((t as any).isActive)) ?? null;
-          scopedLatest = tokenList[0] ?? null;
+            withToken.find((t) => isActiveFlag((t as any).isActive)) ?? null;
+          scopedLatest = withToken[0] ?? null;
+
+          // Fallback: if token+filters returned nothing AND we have a connector,
+          // try a pure occupancy query once (no idToken)
+          if (!scopedActive && typeof connectorId === "number") {
+            const occ = (
+              await fetchList({
+                tenantId: 1,
+                stationId,
+                connectorId,
+                isActive: true,
+                ...(typeof evseDatabaseId === "number"
+                  ? { evseDatabaseId }
+                  : {}),
+              })
+            ).sort(byNewest);
+            scopedActive =
+              occ.find((t) => isActiveFlag((t as any).isActive)) ?? null;
+            if (!scopedLatest) scopedLatest = occ[0] ?? null;
+          }
         } else {
-          const actives = (
-            await fetchList({ ...baseQuery, isActive: true })
-          ).sort(byNewest);
+          // No token path: we already added isActive=true above
+          const actives = (await fetchList({ ...baseQuery })).sort(byNewest);
           scopedActive =
             actives.find((t) => isActiveFlag((t as any).isActive)) ?? null;
 
           if (!scopedActive) {
-            const all = (await fetchList(baseQuery)).sort(byNewest);
+            const all = (
+              await fetchList({
+                tenantId: 1,
+                stationId,
+                ...(typeof connectorId === "number" ? { connectorId } : {}),
+                ...(typeof evseDatabaseId === "number"
+                  ? { evseDatabaseId }
+                  : {}),
+              })
+            ).sort(byNewest);
             scopedLatest = all[0] ?? null;
           } else {
             scopedLatest = scopedActive;
@@ -164,7 +206,7 @@ export default function TransactionGate({
           onViewChange?.(view);
         }
 
-        // Stop polling once we have a finished/latest and no active
+        // Stop polling only when we have a final tx and nothing active
         if (!scopedActive && scopedLatest && timerRef.current) {
           clearInterval(timerRef.current);
           timerRef.current = null;

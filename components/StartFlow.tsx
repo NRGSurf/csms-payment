@@ -273,10 +273,7 @@ export function StartFlow({
   }
 
   // Local “already charging” view (RFID, etc) for non-token flow
-  const showCharging =
-    status === "Occupied" &&
-    !!tx &&
-    (typeof tx?.kwh === "number" || typeof tx?.seconds === "number");
+  const showCharging = status === "Occupied" && !!tx;
 
   // Stepper index:
   // - token flow: charging → 3, receipt → steps.length (mark Charging completed)
