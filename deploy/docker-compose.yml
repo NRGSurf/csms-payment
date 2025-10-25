@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  web:
+    container_name: csms-payment-web
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: csms-payment:latest
+    restart: unless-stopped
+
+    # Attach to shared proxy network
+    networks:
+      - webnet
+
+    # Load environment variables from the file next to deploy/
+    env_file:
+      - ../.env
+
+    # Optional: expose port if you want to test directly
+    # If you use Caddy on the same Docker network, comment this out.
+    ports:
+      - "3005:3000"
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+networks:
+  webnet:
+    external: true
