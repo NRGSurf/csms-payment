@@ -4,8 +4,8 @@ services:
   web:
     container_name: csms-payment-web
     build:
-      context: ..
-      dockerfile: deploy/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     image: csms-payment:latest
     restart: unless-stopped
 
@@ -15,7 +15,7 @@ services:
 
     # Load environment variables from the file next to deploy/
     env_file:
-      - ../.env
+      - ./.env
 
     # Optional: expose port if you want to test directly
     # If you use Caddy on the same Docker network, comment this out.
